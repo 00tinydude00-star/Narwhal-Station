@@ -1,17 +1,20 @@
-# Narwhal Station — Cloudflare Pages
+# Narwhal Station — Cloudflare Worker
 
-This project is prepared for Cloudflare Pages Git integration.
+This version is set up for **Cloudflare Workers + Static Assets**.
+
+## What is fixed
+- The website is served by the Worker.
+- `/api/global-chat` is a real Worker route, so it no longer returns 404.
+- Global Chat uses the `GLOBAL_CHAT` KV binding for shared messages.
+- Admin-only sending uses the `ADMIN_CHAT_PASSWORD` Worker secret.
+- The Music Management page includes the approved artist list and an artist/song search box.
 
 ## Cloudflare setup
+In the Worker dashboard:
 
-1. Connect this GitHub repository to Cloudflare Pages.
-2. Production branch: `main`
-3. Build command: `exit 0`
-4. Build output directory: `.`
-5. Create a Cloudflare Workers KV namespace named anything you like (for example `narwhal-global-chat`).
-6. In the Pages project, go to **Settings → Bindings → Add → KV namespace**.
-7. Set the binding variable name to `GLOBAL_CHAT` and select the KV namespace.
-8. Add an environment variable/secret named `ADMIN_CHAT_PASSWORD` with the value of the admin password.
-9. Redeploy the project after adding the binding/secret.
+1. Open **Settings → Bindings** and add a **KV namespace** binding named `GLOBAL_CHAT`.
+2. Choose the KV namespace that should store the latest chat message.
+3. Add a secret named `ADMIN_CHAT_PASSWORD` with your admin chat password.
+4. Redeploy the Worker after saving the settings.
 
-The Global Chat endpoint is `/api/global-chat` and is implemented by `functions/api/global-chat.js`.
+The frontend calls `/api/global-chat`, so no separate Pages Function is needed.
