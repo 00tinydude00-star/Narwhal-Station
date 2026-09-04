@@ -410,7 +410,7 @@
   .admin-artist-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .admin-artist-remove{flex:0 0 auto;border:0;border-radius:7px;padding:5px 8px;background:#FBEAEC;color:#B62231;font-size:10px;font-weight:900;cursor:pointer}
   .admin-artist-remove:hover{background:#F7D9DE}
-  .admin-window-note{font-size:11px;color:#6E7E9B;margin:-8px 0 14px}
+  .admin-window-note{font-size:11px;color:#6E7E9B;margin:-8px 0 14px}.admin-music-search{margin:0 0 10px}.admin-music-search input{width:100%;box-sizing:border-box;padding:13px 15px;border:1px solid #CDD8E7;border-radius:10px;outline:none;background:#fff;color:#16274D;font-size:13px}.admin-music-search input:focus{border-color:#2255A4;box-shadow:0 0 0 3px rgba(34,85,164,.10)}.admin-music-open{padding:7px 10px;font-size:10px;border-radius:8px}
   .admin-minimized-btn{position:fixed;right:18px;bottom:18px;z-index:9001;border:0;border-radius:12px;background:#16274D;color:#fff;padding:12px 16px;font-size:13px;font-weight:900;box-shadow:0 10px 30px rgba(0,0,0,.25);cursor:pointer}
   .admin-minimized-btn:hover{background:#2255A4}
   .admin-settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}.admin-settings-grid label,.chat-identity-row label{font-size:10.5px;font-weight:900;color:#344567}.admin-settings-grid input,.admin-settings-grid select,.chat-identity-row input{display:block;margin-top:5px}
@@ -688,7 +688,7 @@
           <div class="admin-section-subtitle">Quick overview of Narwhal Station.</div>
           <div class="admin-stat-grid">
             <div class="admin-stat"><span>Approved Artists</span><strong id="adminArtistCount">0</strong></div>
-            <div class="admin-stat"><span>Managed Music</span><strong>7</strong></div>
+            <div class="admin-stat"><span>Music Artists</span><strong id="adminMusicArtistCount">0</strong></div>
             <div class="admin-stat"><span>Games</span><strong>4</strong></div>
             <div class="admin-stat"><span>System</span><strong>OK</strong></div>
           </div>
@@ -700,19 +700,15 @@
 
         <section id="adminMusic" class="admin-subsection">
           <div class="admin-section-title">🎵 Music Management</div>
-          <div class="admin-section-subtitle">Review and remove curated music entries.</div>
+          <div class="admin-section-subtitle">Browse every approved artist and the curated songs currently listed.</div>
+          <div class="admin-music-search">
+            <input id="adminMusicSearch" type="search" placeholder="🔎 Search artists or songs..." autocomplete="off">
+          </div>
+          <div id="adminMusicResultCount" class="admin-window-note">Loading approved music...</div>
           <div class="admin-table-wrap">
             <table class="admin-table">
               <thead><tr><th>Artist</th><th>Song</th><th>Status</th><th>Action</th></tr></thead>
-              <tbody id="adminMusicRows">
-                <tr><td>KATSEYE</td><td>Touch</td><td><span class="admin-badge">Approved</span></td><td><button class="admin-remove-song" type="button">Remove</button></td></tr>
-                <tr><td>KATSEYE</td><td>Debut</td><td><span class="admin-badge">Approved</span></td><td><button class="admin-remove-song" type="button">Remove</button></td></tr>
-                <tr><td>KATSEYE</td><td>My Way</td><td><span class="admin-badge">Approved</span></td><td><button class="admin-remove-song" type="button">Remove</button></td></tr>
-                <tr><td>KATSEYE</td><td>I'm Pretty</td><td><span class="admin-badge">Approved</span></td><td><button class="admin-remove-song" type="button">Remove</button></td></tr>
-                <tr><td>KATSEYE</td><td>Flame</td><td><span class="admin-badge">Approved</span></td><td><button class="admin-remove-song" type="button">Remove</button></td></tr>
-                <tr><td>KATSEYE</td><td>Monster High Fright Song</td><td><span class="admin-badge">Approved</span></td><td><button class="admin-remove-song" type="button">Remove</button></td></tr>
-                <tr><td>KATSEYE</td><td>Time Lapse</td><td><span class="admin-badge">Approved</span></td><td><button class="admin-remove-song" type="button">Remove</button></td></tr>
-              </tbody>
+              <tbody id="adminMusicRows"></tbody>
             </table>
           </div>
         </section>
@@ -1072,6 +1068,7 @@
     "Morat", "Julieta Venegas", "Shakira", "KAROL G", "Becky G",
     "Rauw Alejandro", "Marshmello", "Alan Walker", "Coldplay",
     "Twenty One Pilots",
+    "KATSEYE",
     "ABBA",
     "Aloe Blacc",
     "Andy Grammer",
@@ -2172,13 +2169,7 @@
   }, true);
 
   // ---------- Admin Artists ----------
-  const ADMIN_DEFAULT_ARTISTS = [
-    "Bad Bunny","Taylor Swift","Sabrina Carpenter","Olivia Rodrigo","Billie Eilish","Ariana Grande","Bruno Mars",
-    "Dua Lipa","Tate McRae","Imagine Dragons","OneRepublic","KIDZ BOP Kids","Jesse & Joy","Reik",
-    "Matisse","Camila","Maná","Natalia Lafourcade","Carlos Rivera","Ha*Ash","Grupo Frontera","Banda MS",
-    "Intocable","Los Tigres del Norte","Pepe Aguilar","Morat","Julieta Venegas","Shakira","KAROL G","Becky G",
-    "Rauw Alejandro","Marshmello","Alan Walker","Coldplay","Twenty One Pilots","Michael Jackson","KATSEYE","Jackson 5"
-  ];
+  const ADMIN_DEFAULT_ARTISTS = [...new Set([...APPROVED_ARTISTS, "KATSEYE"])] ;
 
   function getAdminArtists() {
     try {
@@ -2215,6 +2206,7 @@
         const next = getAdminArtists().filter(a => a !== artist);
         saveAdminArtists(next);
         renderAdminArtists();
+        renderAdminMusic(adminMusicSearch?.value || "");
       };
 
       chip.append(name, btn);
@@ -2233,13 +2225,96 @@
       artists.push(name);
       saveAdminArtists(artists);
       renderAdminArtists();
+      renderAdminMusic(adminMusicSearch?.value || "");
     }
     if (input) input.value = "";
   };
 
-  document.querySelectorAll(".admin-remove-song").forEach(btn => {
-    btn.addEventListener("click", () => btn.closest("tr")?.remove());
-  });
+  // ---------- Admin Music ----------
+  const ADMIN_CURATED_SONGS = [
+    { artist: "KATSEYE", song: "Touch" },
+    { artist: "KATSEYE", song: "Debut" },
+    { artist: "KATSEYE", song: "My Way" },
+    { artist: "KATSEYE", song: "I'm Pretty" },
+    { artist: "KATSEYE", song: "Flame" },
+    { artist: "KATSEYE", song: "Monster High Fright Song" },
+    { artist: "KATSEYE", song: "Time Lapse" }
+  ];
+
+  const adminMusicSearch = document.getElementById("adminMusicSearch");
+  const adminMusicRows = document.getElementById("adminMusicRows");
+  const adminMusicResultCount = document.getElementById("adminMusicResultCount");
+  const adminMusicArtistCount = document.getElementById("adminMusicArtistCount");
+
+  function renderAdminMusic(filter = "") {
+    if (!adminMusicRows) return;
+    const q = normalizeArtistText(filter);
+    const artists = [...new Set(getAdminArtists())].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" }));
+    const rows = [];
+
+    artists.forEach(artist => {
+      const curated = ADMIN_CURATED_SONGS.filter(item => normalizeArtistText(item.artist) === normalizeArtistText(artist));
+      if (curated.length) {
+        curated.forEach(item => rows.push({ artist, song: item.song, curated: true }));
+      } else {
+        rows.push({ artist, song: "All approved songs", curated: false });
+      }
+    });
+
+    const filtered = rows.filter(row => !q || normalizeArtistText(row.artist).includes(q) || normalizeArtistText(row.song).includes(q));
+    adminMusicRows.innerHTML = "";
+
+    filtered.forEach(row => {
+      const tr = document.createElement("tr");
+      const artistTd = document.createElement("td");
+      const songTd = document.createElement("td");
+      const statusTd = document.createElement("td");
+      const actionTd = document.createElement("td");
+      artistTd.textContent = row.artist;
+      songTd.textContent = row.song;
+
+      const badge = document.createElement("span");
+      badge.className = "admin-badge";
+      badge.textContent = "Approved";
+      statusTd.appendChild(badge);
+
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = row.curated ? "admin-remove-song" : "admin-primary-btn admin-music-open";
+      btn.textContent = row.curated ? "Remove" : "Open Search";
+      if (row.curated) {
+        btn.onclick = () => {
+          tr.remove();
+          const remaining = [...adminMusicRows.querySelectorAll("tr")].length;
+          if (adminMusicResultCount) adminMusicResultCount.textContent = `${remaining} music entries shown`;
+        };
+      } else {
+        btn.onclick = () => {
+          const input = document.getElementById("ytKeywordInput");
+          const searchButton = document.getElementById("ytSearchBtn");
+          const searchTab = document.getElementById("navYouTubeBtn");
+          if (searchTab) searchTab.click();
+          if (input) { input.value = row.artist; input.focus(); }
+          if (searchButton) searchButton.click();
+        };
+      }
+      actionTd.appendChild(btn);
+      tr.append(artistTd, songTd, statusTd, actionTd);
+      adminMusicRows.appendChild(tr);
+    });
+
+    if (adminMusicArtistCount) adminMusicArtistCount.textContent = String(artists.length);
+    if (adminMusicResultCount) {
+      adminMusicResultCount.textContent = q
+        ? `${filtered.length} music entries match “${filter.trim()}”`
+        : `${filtered.length} music entries available`;
+    }
+  }
+
+  if (adminMusicSearch) {
+    adminMusicSearch.addEventListener("input", () => renderAdminMusic(adminMusicSearch.value));
+  }
+  renderAdminMusic();
 
   // ---------- Admin Settings ----------
   const adminSaveSettingsBtn = document.getElementById("adminSaveSettingsBtn");
