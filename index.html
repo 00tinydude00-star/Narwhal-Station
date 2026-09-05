@@ -398,14 +398,6 @@
   .admin-menu-card{width:100%;border:1px solid transparent;background:transparent;color:#16274D;text-align:left;padding:14px 14px;border-radius:12px;margin-bottom:6px;font-size:15px;font-weight:800;cursor:pointer}
   .admin-menu-card:hover{background:#F0F4FA}.admin-menu-card.active{background:#EAF1FC;border-color:#C9D9F2;color:#2255A4}
   .approved-artists-help{font-size:12px;color:#5B6B8C;margin:-4px 0 10px}
-  .approved-artist-helper{margin:10px 0 14px;padding:14px;background:#fff;border:1px solid #D9E3F1;border-radius:14px;box-shadow:0 6px 18px rgba(22,39,77,.06)}
-  .approved-artist-helper-title{font-size:14px;font-weight:900;color:#16274D;margin-bottom:5px}
-  .approved-artist-helper-sub{font-size:12px;color:#5B6B8C;margin-bottom:10px}
-  .approved-artist-helper-row{display:flex;gap:8px;flex-wrap:wrap}
-  .approved-artist-helper input{flex:1 1 240px;min-width:180px;padding:9px 11px;border:1px solid #C9D7EA;border-radius:9px;font:inherit;font-size:12px}
-  .approved-artist-helper button{border:0;border-radius:9px;padding:9px 12px;font:inherit;font-size:12px;font-weight:800;cursor:pointer;background:#2255A4;color:#fff}
-  .approved-artist-helper button.secondary{background:#EAF1FC;color:#16274D;border:1px solid #C9D7EA}
-  .approved-artist-helper button:disabled{opacity:.6;cursor:not-allowed}
   .approved-artists{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;max-height:430px;overflow:auto;padding:4px 4px 10px 0}
   .approved-artist-group{background:#fff;border:1px solid #D9E3F1;border-radius:12px;padding:10px}
   .approved-artist-letter{font-size:11px;font-weight:900;color:#2255A4;margin-bottom:6px;padding-bottom:5px;border-bottom:1px solid #E8EEF7}
@@ -588,15 +580,6 @@
 
   <div class="approved-artists-title">🎤 Artists Available to Search</div>
   <div class="approved-artists-help">Artists are organized alphabetically. Click an artist to see songs from that artist.</div>
-  <div id="approvedArtistHelper" class="approved-artist-helper">
-    <div class="approved-artist-helper-title">🎵 Looking for a specific song from an artist?</div>
-    <div class="approved-artist-helper-sub">Click any artist above. Then type the song name below, or show the artist's song results.</div>
-    <div class="approved-artist-helper-row">
-      <input id="artistSongInput" type="search" placeholder="Choose an artist first..." disabled>
-      <button id="showArtistSongsBtn" type="button" disabled>🎵 Show Artist Songs</button>
-      <button id="searchArtistSongBtn" class="secondary" type="button" disabled>🔎 Search Specific Song</button>
-    </div>
-  </div>
   <div id="approvedArtists" class="approved-artists"></div>
   <div class="approved-song-note" id="approvedFunkCatalog">
     <strong>🔥 K–7 Approved Funk Collection:</strong> 77 reviewed songs
@@ -763,6 +746,22 @@
                 <tr><td>Word &amp; Number Pop</td><td>1st–2nd</td><td><span class="admin-badge">Active</span></td></tr>
                 <tr><td>Shape &amp; Letter Splash</td><td>Pre-K–K</td><td><span class="admin-badge">Active</span></td></tr>
                 <tr><td>Fraction Frenzy</td><td>5th–7th</td><td><span class="admin-badge">Active</span></td></tr>
+                <tr><td>ABC Narwhal</td><td>Pre-K–K</td><td><span class="admin-badge">Active</span></td></tr>
+                <tr><td>Narwhal Counting Cove</td><td>Pre-K–K</td><td><span class="admin-badge">Active</span></td></tr>
+                <tr><td>Addition Ocean</td><td>1st–2nd</td><td><span class="admin-badge">Active</span></td></tr>
+                <tr><td>Word Wave</td><td>1st–2nd</td><td><span class="admin-badge">Active</span></td></tr>
+                <tr><td>Multiplication Reef</td><td>3rd–4th</td><td><span class="admin-badge">Active</span></td></tr>
+                <tr><td>Narwhal Brain Quest</td><td>3rd–4th</td><td><span class="admin-badge">Active</span></td></tr>
+                <tr><td>Science Splash</td><td>5th–7th</td><td><span class="admin-badge">Active</span></td></tr>
+                <tr><td>Logic Lab</td><td>5th–7th</td><td><span class="admin-badge">Active</span></td></tr>
+                <tr><td>Color Coral</td><td>Pre-K–K</td><td><span class="admin-badge">Active</span></td></tr>
+                <tr><td>Animal Splash</td><td>Pre-K–K</td><td><span class="admin-badge">Active</span></td></tr>
+                <tr><td>Subtraction Ship</td><td>1st–2nd</td><td><span class="admin-badge">Active</span></td></tr>
+                <tr><td>Spelling Sail</td><td>1st–2nd</td><td><span class="admin-badge">Active</span></td></tr>
+                <tr><td>Division Dock</td><td>3rd–4th</td><td><span class="admin-badge">Active</span></td></tr>
+                <tr><td>Decimal Dive</td><td>3rd–4th</td><td><span class="admin-badge">Active</span></td></tr>
+                <tr><td>Geography Quest</td><td>5th–7th</td><td><span class="admin-badge">Active</span></td></tr>
+                <tr><td>Coding Cove</td><td>5th–7th</td><td><span class="admin-badge">Active</span></td></tr>
               </tbody>
             </table>
           </div>
@@ -857,6 +856,102 @@
       <div class="band">5th–7th Grade</div>
       <div class="name">Fraction Frenzy</div>
       <div class="desc">Fractions, decimals, and pre-algebra challenges.</div>
+    </button>
+    <button class="game-card-tile" data-band="prek-k" onclick="openGame('abcnarwhal')">
+      <div class="emoji">🔤</div>
+      <div class="band">Pre-K–K</div>
+      <div class="name">ABC Narwhal</div>
+      <div class="desc">Find letters, match uppercase and lowercase, and practice letter sounds.</div>
+    </button>
+    <button class="game-card-tile" data-band="prek-k" onclick="openGame('countingcove')">
+      <div class="emoji">🔢</div>
+      <div class="band">Pre-K–K</div>
+      <div class="name">Narwhal Counting Cove</div>
+      <div class="desc">Count ocean friends and choose the correct number.</div>
+    </button>
+    <button class="game-card-tile" data-band="1-2" onclick="openGame('additionocean')">
+      <div class="emoji">➕</div>
+      <div class="band">1st–2nd Grade</div>
+      <div class="name">Addition Ocean</div>
+      <div class="desc">Addition and subtraction challenges that get trickier as you play.</div>
+    </button>
+    <button class="game-card-tile" data-band="1-2" onclick="openGame('wordwave')">
+      <div class="emoji">📚</div>
+      <div class="band">1st–2nd Grade</div>
+      <div class="name">Word Wave</div>
+      <div class="desc">Sight words and spelling choices in a fast ocean-themed quiz.</div>
+    </button>
+    <button class="game-card-tile" data-band="3-4" onclick="openGame('multiplicationreef')">
+      <div class="emoji">✖️</div>
+      <div class="band">3rd–4th Grade</div>
+      <div class="name">Multiplication Reef</div>
+      <div class="desc">Practice multiplication facts and build a big streak.</div>
+    </button>
+    <button class="game-card-tile" data-band="3-4" onclick="openGame('brainquest')">
+      <div class="emoji">🧠</div>
+      <div class="band">3rd–4th Grade</div>
+      <div class="name">Narwhal Brain Quest</div>
+      <div class="desc">Mixed math, patterns, words, and logic questions.</div>
+    </button>
+    <button class="game-card-tile" data-band="5-7" onclick="openGame('sciencesplash')">
+      <div class="emoji">🧪</div>
+      <div class="band">5th–7th Grade</div>
+      <div class="name">Science Splash</div>
+      <div class="desc">Explore science with questions about Earth, space, life, and energy.</div>
+    </button>
+    <button class="game-card-tile" data-band="5-7" onclick="openGame('logiclab')">
+      <div class="emoji">🧩</div>
+      <div class="band">5th–7th Grade</div>
+      <div class="name">Logic Lab</div>
+      <div class="desc">Solve patterns, sequences, and brain-bending logic puzzles.</div>
+    </button>
+    <button class="game-card-tile" data-band="prek-k" onclick="openGame('colorcoral')">
+      <div class="emoji">🎨</div>
+      <div class="band">Pre-K–K</div>
+      <div class="name">Color Coral</div>
+      <div class="desc">Match colors and learn simple color names.</div>
+    </button>
+    <button class="game-card-tile" data-band="prek-k" onclick="openGame('animalsplash')">
+      <div class="emoji">🐳</div>
+      <div class="band">Pre-K–K</div>
+      <div class="name">Animal Splash</div>
+      <div class="desc">Match animals to their sounds and homes.</div>
+    </button>
+    <button class="game-card-tile" data-band="1-2" onclick="openGame('subtractionship')">
+      <div class="emoji">➖</div>
+      <div class="band">1st–2nd Grade</div>
+      <div class="name">Subtraction Ship</div>
+      <div class="desc">Practice subtraction while sailing through number challenges.</div>
+    </button>
+    <button class="game-card-tile" data-band="1-2" onclick="openGame('spellingsail')">
+      <div class="emoji">🔤</div>
+      <div class="band">1st–2nd Grade</div>
+      <div class="name">Spelling Sail</div>
+      <div class="desc">Choose the correctly spelled word and build your streak.</div>
+    </button>
+    <button class="game-card-tile" data-band="3-4" onclick="openGame('divisiondock')">
+      <div class="emoji">➗</div>
+      <div class="band">3rd–4th Grade</div>
+      <div class="name">Division Dock</div>
+      <div class="desc">Practice division facts with friendly ocean challenges.</div>
+    </button>
+    <button class="game-card-tile" data-band="3-4" onclick="openGame('decimaldive')">
+      <div class="emoji">🌊</div>
+      <div class="band">3rd–4th Grade</div>
+      <div class="name">Decimal Dive</div>
+      <div class="desc">Compare and work with simple decimals.</div>
+    </button>
+    <button class="game-card-tile" data-band="5-7" onclick="openGame('geographyquest')">
+      <div class="emoji">🌎</div>
+      <div class="band">5th–7th Grade</div>
+      <div class="name">Geography Quest</div>
+      <div class="desc">Explore countries, continents, oceans, and landmarks.</div>
+    </button>
+    <button class="game-card-tile" data-band="5-7" onclick="openGame('codingcove')">
+      <div class="emoji">💻</div>
+      <div class="band">5th–7th Grade</div>
+      <div class="name">Coding Cove</div>
+      <div class="desc">Learn beginner coding ideas, logic, and sequences.</div>
     </button>
   </div>
 </main>
@@ -1221,55 +1316,13 @@
 
   function selectApprovedArtist(artist) {
     selectedApprovedArtist = artist || "";
-    const helperInput = document.getElementById("artistSongInput");
-    const showBtn = document.getElementById("showArtistSongsBtn");
-    const specificBtn = document.getElementById("searchArtistSongBtn");
-    if (helperInput) {
-      helperInput.disabled = false;
-      helperInput.placeholder = `Song name from ${selectedApprovedArtist}...`;
-      helperInput.value = "";
-    }
-    if (showBtn) { showBtn.disabled = !selectedApprovedArtist; showBtn.textContent = `🎵 Show ${selectedApprovedArtist} Songs`; }
-    if (specificBtn) { specificBtn.disabled = !selectedApprovedArtist; }
     const mainInput = document.getElementById("ytKeywordInput");
-    // Clicking an approved artist only fills the main search box with
-    // "Artist Lyrics". It does NOT search automatically and does NOT add
-    // "songs" or any other words.
-    if (mainInput) {
-      mainInput.value = `${selectedApprovedArtist} Lyrics`;
-      mainInput.focus();
-    }
-  }
-
-  function searchArtistSongs(artist) {
-    if (!artist) return;
-    const mainInput = document.getElementById("ytKeywordInput");
-    if (mainInput) mainInput.value = `${artist} songs`;
-    searchYouTube();
-  }
-
-  function searchSpecificArtistSong() {
-    const helperInput = document.getElementById("artistSongInput");
-    const song = (helperInput?.value || "").trim();
-    if (!selectedApprovedArtist) return;
-    if (!song) {
-      if (helperInput) helperInput.focus();
-      return;
-    }
-    const mainInput = document.getElementById("ytKeywordInput");
-    if (mainInput) mainInput.value = `${selectedApprovedArtist} ${song}`;
-    searchYouTube();
+    // Clicking an artist only fills the search box with "Artist Lyrics".
+    // It does not search automatically and does not add any extra words.
+    if (mainInput) mainInput.value = selectedApprovedArtist ? `${selectedApprovedArtist} Lyrics` : "";
   }
 
   renderApprovedArtists();
-
-  const artistSongInput = document.getElementById("artistSongInput");
-  const showArtistSongsBtn = document.getElementById("showArtistSongsBtn");
-  const searchArtistSongBtn = document.getElementById("searchArtistSongBtn");
-  if (showArtistSongsBtn) showArtistSongsBtn.onclick = () => searchArtistSongs(selectedApprovedArtist);
-  if (searchArtistSongBtn) searchArtistSongBtn.onclick = searchSpecificArtistSong;
-  if (artistSongInput) artistSongInput.addEventListener("keydown", e => { if (e.key === "Enter") searchSpecificArtistSong(); });
-
 
   const ytKeywordInput = document.getElementById("ytKeywordInput");
   const ytSearchBtn = document.getElementById("ytSearchBtn");
@@ -1426,6 +1479,22 @@
     else if (gameId === "wordpop") activeGameCleanup = renderWordPopGame(container);
     else if (gameId === "shapesplash") activeGameCleanup = renderShapeSplashGame(container);
     else if (gameId === "fractionfrenzy") activeGameCleanup = renderFractionFrenzyGame(container);
+    else if (gameId === "abcnarwhal") activeGameCleanup = renderAbcNarwhalGame(container);
+    else if (gameId === "countingcove") activeGameCleanup = renderCountingCoveGame(container);
+    else if (gameId === "additionocean") activeGameCleanup = renderAdditionOceanGame(container);
+    else if (gameId === "wordwave") activeGameCleanup = renderWordWaveGame(container);
+    else if (gameId === "multiplicationreef") activeGameCleanup = renderMultiplicationReefGame(container);
+    else if (gameId === "brainquest") activeGameCleanup = renderBrainQuestGame(container);
+    else if (gameId === "sciencesplash") activeGameCleanup = renderScienceSplashGame(container);
+    else if (gameId === "logiclab") activeGameCleanup = renderLogicLabGame(container);
+    else if (gameId === "colorcoral") activeGameCleanup = renderColorCoralGame(container);
+    else if (gameId === "animalsplash") activeGameCleanup = renderAnimalSplashGame(container);
+    else if (gameId === "subtractionship") activeGameCleanup = renderSubtractionShipGame(container);
+    else if (gameId === "spellingsail") activeGameCleanup = renderSpellingSailGame(container);
+    else if (gameId === "divisiondock") activeGameCleanup = renderDivisionDockGame(container);
+    else if (gameId === "decimaldive") activeGameCleanup = renderDecimalDiveGame(container);
+    else if (gameId === "geographyquest") activeGameCleanup = renderGeographyQuestGame(container);
+    else if (gameId === "codingcove") activeGameCleanup = renderCodingCoveGame(container);
   };
 
   window.closeGame = function() {
@@ -2035,6 +2104,217 @@
     startGame();
 
     return () => {};
+  }
+
+  // ================= NEW LEARNING GAMES =================
+  // These games reuse the same safe in-app game shell and the existing leaderboard helpers.
+  function renderSimpleQuizGame(container, config) {
+    const GAME_ID = config.id;
+    let score = 0, streak = 0, lives = 3, round = 0, locked = false;
+    const MAX_ROUNDS = config.rounds || 10;
+
+    container.innerHTML = GAME_SHARED_STYLE + `
+      <div class="g-wrap">
+        <div id="gScreen">
+          <div class="g-badge" style="background:${config.badgeColor || '#2255A4'};">${config.band}</div>
+          <div class="g-title">${config.emoji} ${config.title}</div>
+          <div class="g-topbar">
+            <div class="g-stat"><div class="g-stat-label">Score</div><div class="g-stat-value" id="gScore">0</div></div>
+            <div class="g-stat"><div class="g-stat-label">Streak</div><div class="g-stat-value" id="gStreak">0 🔥</div></div>
+            <div class="g-stat"><div class="g-stat-label">Lives</div><div class="g-stat-value" id="gHearts">❤️❤️❤️</div></div>
+          </div>
+          <div class="g-qbox"><div style="font-size:12px;font-weight:800;color:#8892A6;text-transform:uppercase;margin-bottom:8px;">Question <span id="gRound">1</span> of ${MAX_ROUNDS}</div><div class="g-qtext" id="gQuestion"></div></div>
+          <div class="g-answers" id="gAnswers"></div>
+          <div class="g-feedback" id="gFeedback"></div>
+        </div>
+        <div id="gEnd" class="g-hidden">
+          <h2 style="text-align:center;color:#16274D;">Great job! 🏆</h2>
+          <p id="gEndSummary" style="text-align:center;color:#5B6B8C;margin:8px 0 16px;">Final score: 0</p>
+          <div class="g-name-prompt"><input id="gNameInput" placeholder="Your name" maxlength="14"><button id="gSaveBtn">Save Score</button></div>
+          <div class="g-lb"><h3>🏆 Top Scores</h3><div id="gLbList"></div></div>
+          <button class="g-restart-btn" id="gRestartBtn">Play Again</button>
+        </div>
+      </div>`;
+
+    function setText(id, value) { const el = container.querySelector(id); if (el) el.textContent = value; }
+    function nextQuestion() {
+      if (round >= MAX_ROUNDS) return endGame();
+      round++; locked = false;
+      const q = config.makeQuestion(round);
+      config.currentAnswer = String(q.answer);
+      setText('#gRound', round);
+      const questionEl = container.querySelector('#gQuestion');
+      questionEl.innerHTML = q.question;
+      const grid = container.querySelector('#gAnswers'); grid.innerHTML = '';
+      const choices = q.choices.map(String).sort(() => Math.random() - 0.5);
+      choices.forEach(choice => {
+        const btn = document.createElement('button'); btn.className = 'g-answer-btn'; btn.textContent = choice;
+        btn.onclick = () => handleAnswer(choice, btn); grid.appendChild(btn);
+      });
+      setText('#gFeedback','');
+    }
+    function handleAnswer(choice, btn) {
+      if (locked) return; locked = true;
+      const correct = String(choice) === String(config.currentAnswer);
+      container.querySelectorAll('.g-answer-btn').forEach(b => {
+        b.onclick = null;
+        if (String(b.textContent) === String(config.currentAnswer)) b.classList.add('g-correct');
+      });
+      if (correct) {
+        streak++; score += 10 + Math.min(streak * 2, 20);
+        setText('#gFeedback', `Correct! +${10 + Math.min(streak * 2, 20)} points 🎉`);
+        const f = container.querySelector('#gFeedback'); if (f) f.style.color = '#2E9E5B';
+      } else {
+        btn.classList.add('g-wrong'); lives--; streak = 0;
+        setText('#gFeedback','Nice try! The correct answer is highlighted.');
+        const f = container.querySelector('#gFeedback'); if (f) f.style.color = '#C8202F';
+      }
+      setText('#gScore', score); setText('#gStreak', `${streak} 🔥`); setText('#gHearts', '❤️'.repeat(Math.max(0,lives)) + '🖤'.repeat(3-Math.max(0,lives)));
+      setTimeout(() => { if (lives <= 0 || round >= MAX_ROUNDS) endGame(); else nextQuestion(); }, 850);
+    }
+    async function endGame() {
+      container.querySelector('#gScreen').classList.add('g-hidden');
+      container.querySelector('#gEnd').classList.remove('g-hidden');
+      setText('#gEndSummary', `You scored ${score} points!`);
+      container.querySelector('#gLbList').innerHTML = lbRenderHTML(await lbLoad(GAME_ID));
+    }
+    container.querySelector('#gSaveBtn').onclick = async () => {
+      const name = (container.querySelector('#gNameInput').value || 'Narwhal Fan').trim().slice(0,14);
+      const list = await lbSubmit(GAME_ID, name, score);
+      container.querySelector('.g-name-prompt').classList.add('g-hidden');
+      container.querySelector('#gLbList').innerHTML = lbRenderHTML(list, name);
+    };
+    function startGame() {
+      score=0; streak=0; lives=3; round=0;
+      setText('#gScore',0); setText('#gStreak','0 🔥'); setText('#gHearts','❤️❤️❤️');
+      container.querySelector('#gScreen').classList.remove('g-hidden'); container.querySelector('#gEnd').classList.add('g-hidden');
+      nextQuestion();
+    }
+    container.querySelector('#gRestartBtn').onclick = startGame;
+    startGame();
+    return () => {};
+  }
+
+  function renderAbcNarwhalGame(container) {
+    const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+    return renderSimpleQuizGame(container, { id:'abc_narwhal_prek_k', band:'Pre-K – Kindergarten', title:'ABC Narwhal', emoji:'🔤', badgeColor:'#2E9E5B', makeQuestion() {
+      const answer = letters[Math.floor(Math.random()*letters.length)];
+      const choices = [answer]; while (choices.length < 4) { const x=letters[Math.floor(Math.random()*letters.length)]; if(!choices.includes(x)) choices.push(x); }
+      return { question:`Find the letter <strong>${answer}</strong>`, answer, choices };
+    }});
+  }
+
+  function renderCountingCoveGame(container) {
+    return renderSimpleQuizGame(container, { id:'counting_cove_prek_k', band:'Pre-K – Kindergarten', title:'Narwhal Counting Cove', emoji:'🔢', badgeColor:'#00A7C7', makeQuestion() {
+      const answer = 1 + Math.floor(Math.random()*10), animals=['🐟','🐚','⭐','🐠','🦀']; const item=animals[Math.floor(Math.random()*animals.length)];
+      const choices=[answer]; while(choices.length<4){const x=Math.max(1,Math.min(12,answer+Math.floor(Math.random()*7)-3)); if(!choices.includes(x))choices.push(x);}
+      return { question:`Count the ${item}:<br><span style="font-size:32px;line-height:1.5">${item.repeat(answer)}</span>`, answer, choices };
+    }});
+  }
+
+  function renderAdditionOceanGame(container) {
+    return renderSimpleQuizGame(container, { id:'addition_ocean_1_2', band:'1st–2nd Grade', title:'Addition Ocean', emoji:'➕', badgeColor:'#2255A4', makeQuestion(round) {
+      const add = Math.random() < 0.65, a=1+Math.floor(Math.random()*(round>5?15:10)), b=1+Math.floor(Math.random()*(round>5?15:10));
+      const answer=add?a+b:Math.max(0,a-b); const symbol=add?'+':'−'; const choices=[answer]; while(choices.length<4){const x=Math.max(0,answer+Math.floor(Math.random()*9)-4); if(!choices.includes(x))choices.push(x);}
+      return {question:`${a} ${symbol} ${b} = ?`,answer,choices};
+    }});
+  }
+
+  function renderWordWaveGame(container) {
+    const words=['because','school','friend','water','little','happy','purple','animal','together','window','ocean','family','planet','yellow','morning'];
+    return renderSimpleQuizGame(container, { id:'word_wave_1_2', band:'1st–2nd Grade', title:'Word Wave', emoji:'📚', badgeColor:'#8A5FBF', makeQuestion() {
+      const answer=words[Math.floor(Math.random()*words.length)]; const choices=[answer]; while(choices.length<4){const x=words[Math.floor(Math.random()*words.length)]; if(!choices.includes(x))choices.push(x);}
+      return {question:'Which word is spelled correctly?',answer,choices};
+    }});
+  }
+
+  function renderMultiplicationReefGame(container) {
+    return renderSimpleQuizGame(container, { id:'multiplication_reef_3_4', band:'3rd–4th Grade', title:'Multiplication Reef', emoji:'✖️', badgeColor:'#E07A2D', makeQuestion(round) {
+      const a=2+Math.floor(Math.random()*(round>5?11:8)), b=2+Math.floor(Math.random()*(round>5?11:8)), answer=a*b; const choices=[answer]; while(choices.length<4){const x=Math.max(1,answer+Math.floor(Math.random()*17)-8); if(!choices.includes(x))choices.push(x);}
+      return {question:`${a} × ${b} = ?`,answer,choices};
+    }});
+  }
+
+  function renderBrainQuestGame(container) {
+    return renderSimpleQuizGame(container, { id:'brain_quest_3_4', band:'3rd–4th Grade', title:'Narwhal Brain Quest', emoji:'🧠', badgeColor:'#C8202F', makeQuestion() {
+      const types=Math.floor(Math.random()*3);
+      if(types===0){const a=2+Math.floor(Math.random()*8),b=2+Math.floor(Math.random()*8),answer=a*b; const choices=[answer]; while(choices.length<4){const x=answer+Math.floor(Math.random()*11)-5;if(x>0&&!choices.includes(x))choices.push(x);} return {question:`What is ${a} × ${b}?`,answer,choices};}
+      if(types===1){const start=2+Math.floor(Math.random()*8),step=2+Math.floor(Math.random()*6),answer=start+step*4; return {question:`What comes next?<br>${start}, ${start+step}, ${start+step*2}, ${start+step*3}, ?`,answer,choices:[answer,answer+step,answer-step,answer+2*step]};}
+      const answer='triangle'; return {question:'Which shape has 3 sides?',answer,choices:['circle','square','triangle','rectangle']};
+    }});
+  }
+
+  function renderScienceSplashGame(container) {
+    const qs=[
+      ['Which planet is known as the Red Planet?','Mars',['Mars','Venus','Jupiter','Mercury']],
+      ['What gas do plants take in from the air?','Carbon dioxide',['Carbon dioxide','Oxygen','Helium','Hydrogen']],
+      ['What is the largest organ of the human body?','Skin',['Skin','Heart','Liver','Brain']],
+      ['What force pulls objects toward Earth?','Gravity',['Gravity','Magnetism','Friction','Light']],
+      ['Which part of a plant usually absorbs water?','Roots',['Roots','Flowers','Leaves','Fruit']],
+      ['What is water made of?','Hydrogen and oxygen',['Hydrogen and oxygen','Carbon and iron','Nitrogen and helium','Salt and sugar']],
+      ['Which is a renewable energy source?','Solar power',['Solar power','Coal','Oil','Natural gas']],
+      ['What star is closest to Earth?','The Sun',['The Sun','Sirius','Polaris','Betelgeuse']]
+    ];
+    return renderSimpleQuizGame(container, { id:'science_splash_5_7', band:'5th–7th Grade', title:'Science Splash', emoji:'🧪', badgeColor:'#168A72', makeQuestion(){const q=qs[Math.floor(Math.random()*qs.length)];return {question:q[0],answer:q[1],choices:q[2]};}});
+  }
+
+  function renderLogicLabGame(container) {
+    return renderSimpleQuizGame(container, { id:'logic_lab_5_7', band:'5th–7th Grade', title:'Logic Lab', emoji:'🧩', badgeColor:'#6B4E9E', makeQuestion() {
+      const type=Math.floor(Math.random()*3);
+      if(type===0){const start=3+Math.floor(Math.random()*8),step=3+Math.floor(Math.random()*7),answer=start+step*4;return {question:`What comes next?<br>${start}, ${start+step}, ${start+2*step}, ${start+3*step}, ?`,answer,choices:[answer,answer+step,answer-step,answer+2*step]};}
+      if(type===1){const a=10+Math.floor(Math.random()*20),b=2+Math.floor(Math.random()*8),answer=a-b;return {question:`If you have ${a} items and use ${b}, how many are left?`,answer,choices:[answer,answer+b,answer-1,answer+1]};}
+      return {question:'Which one does NOT belong?',answer:'Triangle',choices:['Square','Rectangle','Circle','Triangle']};
+    }});
+  }
+
+
+  function renderColorCoralGame(container) {
+    const colors = [['🔴','red'],['🔵','blue'],['🟡','yellow'],['🟢','green'],['🟣','purple'],['🟠','orange']];
+    return renderSimpleQuizGame(container,{id:'color_coral_prek_k',band:'Pre-K – Kindergarten',title:'Color Coral',emoji:'🎨',badgeColor:'#E07A2D',makeQuestion(){
+      const item=colors[Math.floor(Math.random()*colors.length)], choices=[item[1]]; while(choices.length<4){const x=colors[Math.floor(Math.random()*colors.length)][1];if(!choices.includes(x))choices.push(x);}
+      return {question:`Which color is ${item[0]}?`,answer:item[1],choices};
+    }});
+  }
+  function renderAnimalSplashGame(container) {
+    const animals=[['🐶','dog','bark'],['🐱','cat','meow'],['🐮','cow','moo'],['🐸','frog','ribbit'],['🦁','lion','roar'],['🐴','horse','neigh']];
+    return renderSimpleQuizGame(container,{id:'animal_splash_prek_k',band:'Pre-K – Kindergarten',title:'Animal Splash',emoji:'🐳',badgeColor:'#168A72',makeQuestion(){
+      const item=animals[Math.floor(Math.random()*animals.length)], choices=[item[2]]; while(choices.length<4){const x=animals[Math.floor(Math.random()*animals.length)][2];if(!choices.includes(x))choices.push(x);}
+      return {question:`${item[0]} What sound does a ${item[1]} make?`,answer:item[2],choices};
+    }});
+  }
+  function renderSubtractionShipGame(container) {
+    return renderSimpleQuizGame(container,{id:'subtraction_ship_1_2',band:'1st–2nd Grade',title:'Subtraction Ship',emoji:'➖',badgeColor:'#2255A4',makeQuestion(round){
+      const a=5+Math.floor(Math.random()*(round>5?20:12)), b=1+Math.floor(Math.random()*a), answer=a-b, choices=[answer]; while(choices.length<4){const x=Math.max(0,answer+Math.floor(Math.random()*9)-4);if(!choices.includes(x))choices.push(x);}
+      return {question:`${a} − ${b} = ?`,answer,choices};
+    }});
+  }
+  function renderSpellingSailGame(container) {
+    const words=[['because','becaus'],['school','skool'],['friend','freind'],['water','watter'],['little','littel'],['purple','purpel'],['animal','animel'],['together','togethar'],['window','windoe'],['morning','mornning']];
+    return renderSimpleQuizGame(container,{id:'spelling_sail_1_2',band:'1st–2nd Grade',title:'Spelling Sail',emoji:'🔤',badgeColor:'#8A5FBF',makeQuestion(){
+      const item=words[Math.floor(Math.random()*words.length)], choices=[item[0],item[1]]; while(choices.length<4){const x=words[Math.floor(Math.random()*words.length)][0];if(!choices.includes(x))choices.push(x);}
+      return {question:'Which word is spelled correctly?',answer:item[0],choices};
+    }});
+  }
+  function renderDivisionDockGame(container) {
+    return renderSimpleQuizGame(container,{id:'division_dock_3_4',band:'3rd–4th Grade',title:'Division Dock',emoji:'➗',badgeColor:'#00A7C7',makeQuestion(round){
+      const b=2+Math.floor(Math.random()*(round>5?10:7)), answer=2+Math.floor(Math.random()*(round>5?10:6)), a=b*answer, choices=[answer]; while(choices.length<4){const x=Math.max(1,answer+Math.floor(Math.random()*9)-4);if(!choices.includes(x))choices.push(x);}
+      return {question:`${a} ÷ ${b} = ?`,answer,choices};
+    }});
+  }
+  function renderDecimalDiveGame(container) {
+    const vals=[0.1,0.2,0.25,0.3,0.4,0.5,0.6,0.75,0.8,0.9];
+    return renderSimpleQuizGame(container,{id:'decimal_dive_3_4',band:'3rd–4th Grade',title:'Decimal Dive',emoji:'🌊',badgeColor:'#2E9E5B',makeQuestion(){
+      const answer=vals[Math.floor(Math.random()*vals.length)], choices=[answer.toFixed(2).replace(/0$/,'')]; while(choices.length<4){const x=vals[Math.floor(Math.random()*vals.length)].toFixed(2).replace(/0$/,'');if(!choices.includes(x))choices.push(x);}
+      return {question:`Which decimal equals ${answer.toFixed(2)}?`,answer:choices[0],choices};
+    }});
+  }
+  function renderGeographyQuestGame(container) {
+    const qs=[['Which continent is Brazil in?','South America',['South America','Europe','Asia','Africa']],['What is the largest ocean?','Pacific Ocean',['Pacific Ocean','Atlantic Ocean','Indian Ocean','Arctic Ocean']],['Which country is shaped like a boot?','Italy',['Italy','Canada','India','Egypt']],['What is the capital of France?','Paris',['Paris','Madrid','Rome','Berlin']],['Which continent is Egypt in?','Africa',['Africa','Asia','Europe','Australia']],['Which U.S. state is the largest by area?','Alaska',['Alaska','Texas','California','Florida']]];
+    return renderSimpleQuizGame(container,{id:'geography_quest_5_7',band:'5th–7th Grade',title:'Geography Quest',emoji:'🌎',badgeColor:'#168A72',makeQuestion(){const q=qs[Math.floor(Math.random()*qs.length)];return {question:q[0],answer:q[1],choices:q[2]};}});
+  }
+  function renderCodingCoveGame(container) {
+    const qs=[['What does a loop do?','Repeats instructions',['Repeats instructions','Deletes the computer','Turns off the screen','Prints a picture']],['What is a bug in a program?','An error',['An error','A game level','A keyboard key','A web page']],['What comes next: 2, 4, 6, 8, ?','10',['10','9','11','12']],['What is an algorithm?','A set of steps',['A set of steps','A computer mouse','A password','A color']],['Which is usually used to make a web page interactive?','JavaScript',['JavaScript','Paint','Calculator','Speaker']]];
+    return renderSimpleQuizGame(container,{id:'coding_cove_5_7',band:'5th–7th Grade',title:'Coding Cove',emoji:'💻',badgeColor:'#6B4E9E',makeQuestion(){const q=qs[Math.floor(Math.random()*qs.length)];return {question:q[0],answer:q[1],choices:q[2]};}});
   }
 
   // Games is now the default landing tab since Music was removed.
