@@ -1232,8 +1232,13 @@
     if (showBtn) { showBtn.disabled = !selectedApprovedArtist; showBtn.textContent = `🎵 Show ${selectedApprovedArtist} Songs`; }
     if (specificBtn) { specificBtn.disabled = !selectedApprovedArtist; }
     const mainInput = document.getElementById("ytKeywordInput");
-    if (mainInput) mainInput.value = selectedApprovedArtist;
-    searchArtistSongs(selectedApprovedArtist);
+    // Clicking an approved artist only fills the main search box with
+    // "Artist Lyrics". It does NOT search automatically and does NOT add
+    // "songs" or any other words.
+    if (mainInput) {
+      mainInput.value = `${selectedApprovedArtist} Lyrics`;
+      mainInput.focus();
+    }
   }
 
   function searchArtistSongs(artist) {
