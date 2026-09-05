@@ -397,6 +397,12 @@
   .admin-sidebar{width:260px;flex:0 0 260px;background:#fff;border-right:1px solid #DEE6F1;padding:12px}
   .admin-menu-card{width:100%;border:1px solid transparent;background:transparent;color:#16274D;text-align:left;padding:14px 14px;border-radius:12px;margin-bottom:6px;font-size:15px;font-weight:800;cursor:pointer}
   .admin-menu-card:hover{background:#F0F4FA}.admin-menu-card.active{background:#EAF1FC;border-color:#C9D9F2;color:#2255A4}
+  .approved-artists-help{font-size:12px;color:#5B6B8C;margin:-4px 0 10px}
+  .approved-artists{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;max-height:430px;overflow:auto;padding:4px 4px 10px 0}
+  .approved-artist-group{background:#fff;border:1px solid #D9E3F1;border-radius:12px;padding:10px}
+  .approved-artist-letter{font-size:11px;font-weight:900;color:#2255A4;margin-bottom:6px;padding-bottom:5px;border-bottom:1px solid #E8EEF7}
+  .approved-artist-chip{display:block;width:100%;box-sizing:border-box;border:1px solid #D9E3F1;background:#F7FAFE;color:#16274D;border-radius:8px;padding:7px 9px;margin:5px 0;font-size:12px;font-weight:700;text-align:left;cursor:pointer}
+  .approved-artist-chip:hover{background:#EAF1FC;border-color:#BFD1EC}
   .admin-content{flex:1;min-width:0;overflow:auto;padding:34px 38px}
   .admin-subsection{display:none}.admin-subsection.active{display:block}.admin-section-title{font-size:32px;font-weight:900;color:#16274D;margin-bottom:3px}.admin-section-subtitle{font-size:17px;color:#5B6B8C;margin-bottom:17px}
   .admin-stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:11px;margin-bottom:14px}.admin-stat{background:#fff;border:1px solid #D9E3F1;border-radius:14px;padding:14px}.admin-stat span{display:block;font-size:10.5px;color:#5B6B8C;font-weight:800}.admin-stat strong{display:block;font-size:25px;margin-top:4px;color:#16274D}
@@ -569,7 +575,8 @@
   </div>
 
   <div class="approved-artists-title">🎤 Artists Available to Search</div>
-  <div id="approvedArtists" class="approved-artists"><span class="approved-artist-chip">Bad Bunny</span><span class="approved-artist-chip">Taylor Swift</span><span class="approved-artist-chip">Sabrina Carpenter</span><span class="approved-artist-chip">Olivia Rodrigo</span><span class="approved-artist-chip">Billie Eilish</span><span class="approved-artist-chip">Ariana Grande</span><span class="approved-artist-chip">Bruno Mars</span><span class="approved-artist-chip">Dua Lipa</span><span class="approved-artist-chip">Tate McRae</span><span class="approved-artist-chip">Imagine Dragons</span><span class="approved-artist-chip">OneRepublic</span><span class="approved-artist-chip">KIDZ BOP Kids</span><span class="approved-artist-chip">Jesse & Joy</span><span class="approved-artist-chip">Reik</span><span class="approved-artist-chip">Matisse</span><span class="approved-artist-chip">Camila</span><span class="approved-artist-chip">Maná</span><span class="approved-artist-chip">Natalia Lafourcade</span><span class="approved-artist-chip">Carlos Rivera</span><span class="approved-artist-chip">Ha*Ash</span><span class="approved-artist-chip">Grupo Frontera</span><span class="approved-artist-chip">Banda MS</span><span class="approved-artist-chip">Intocable</span><span class="approved-artist-chip">Los Tigres del Norte</span><span class="approved-artist-chip">Pepe Aguilar</span><span class="approved-artist-chip">Morat</span><span class="approved-artist-chip">Julieta Venegas</span><span class="approved-artist-chip">Shakira</span><span class="approved-artist-chip">KAROL G</span><span class="approved-artist-chip">Becky G</span><span class="approved-artist-chip">Rauw Alejandro</span><span class="approved-artist-chip">Marshmello</span><span class="approved-artist-chip">Alan Walker</span><span class="approved-artist-chip">Coldplay</span><span class="approved-artist-chip">Twenty One Pilots</span></div>
+  <div class="approved-artists-help">Artists are organized alphabetically. Click an artist to search their music.</div>
+  <div id="approvedArtists" class="approved-artists"></div>
   <div class="approved-song-note" id="approvedFunkCatalog">
     <strong>🔥 K–7 Approved Funk Collection:</strong> 77 reviewed songs
   </div>
@@ -1116,6 +1123,32 @@
     "Whitney Houston"
   ];
 
+  function renderApprovedArtists() {
+    const container = document.getElementById("approvedArtists");
+    if (!container) return;
+    const artists = [...new Set(APPROVED_ARTISTS)]
+      .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" }));
+    const groups = {};
+    artists.forEach(artist => {
+      const letter = (artist[0] || "#").toUpperCase();
+      (groups[letter] ||= []).push(artist);
+    });
+    container.innerHTML = Object.keys(groups).sort().map(letter => `
+      <div class="approved-artist-group">
+        <div class="approved-artist-letter">${letter}</div>
+        ${groups[letter].map(artist => `<button type="button" class="approved-artist-chip" data-artist="${artist.replace(/"/g, '&quot;')}">${artist}</button>`).join("")}
+      </div>`).join("");
+
+    container.querySelectorAll(".approved-artist-chip").forEach(button => {
+      button.addEventListener("click", () => {
+        const input = document.getElementById("ytKeywordInput");
+        const searchButton = document.getElementById("ytSearchBtn");
+        if (input) input.value = button.dataset.artist || "";
+        if (searchButton) searchButton.click();
+      });
+    });
+  }
+
   function normalizeArtistText(value) {
     return (value || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
   }
@@ -1124,6 +1157,8 @@
     const normalizedQuery = normalizeArtistText(query);
     return APPROVED_ARTISTS.find(artist => normalizedQuery.includes(normalizeArtistText(artist))) || null;
   }
+
+  renderApprovedArtists();
 
 
   const ytKeywordInput = document.getElementById("ytKeywordInput");
@@ -1155,7 +1190,7 @@
       return;
     }
 
-    ytResultsList.innerHTML = `<div class="yt-note">Searching up to 100 results...</div>`;
+    ytResultsList.innerHTML = `<div class="yt-note">Searching up to 50 results...</div>`;
     if (ytInlineStatus) ytInlineStatus.textContent = "Searching...";
 
     try {
@@ -1181,21 +1216,8 @@
         return;
       }
 
-      let allItems = Array.isArray(firstData.items) ? firstData.items : [];
-
-      // Second page: another 50, when available.
-      if (firstData.nextPageToken) {
-        const secondUrl = `${baseUrl}&pageToken=${encodeURIComponent(firstData.nextPageToken)}`;
-        const secondResponse = await fetch(secondUrl);
-        const secondData = await secondResponse.json();
-
-        if (secondResponse.ok && Array.isArray(secondData.items)) {
-          allItems = allItems.concat(secondData.items);
-        }
-      }
-
-      // Hard cap at 100 so we never render more than requested.
-      allItems = allItems.slice(0, 100);
+      // Only use the first YouTube page: a maximum of 50 results per search.
+      let allItems = Array.isArray(firstData.items) ? firstData.items.slice(0, 50) : [];
 
       if (!allItems.length) {
         ytResultsList.innerHTML = `<div class="yt-note">No results found. Try a different search.</div>`;
