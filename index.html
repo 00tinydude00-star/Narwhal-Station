@@ -499,9 +499,54 @@
   .admin-lock-btn{border:1px solid rgba(255,255,255,.25);border-radius:9px;background:rgba(255,255,255,.12);color:#fff;padding:8px 10px;font-size:10px;font-weight:900;cursor:pointer}
   .admin-lock-btn:hover{background:rgba(255,255,255,.2)}
 
-  /* Hide YouTube's in-player “More videos” suggestion overlay. */
-  .yt-player-wrap{position:relative;}
+  /* ---------- Floating mini music player ---------- */
+  .yt-mini-player-overlay{
+    position:fixed;
+    inset:0;
+    z-index:9500;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    background:rgba(8,20,45,.58);
+    backdrop-filter:blur(3px);
+  }
+  .yt-mini-player{
+    width:min(620px,94vw);
+    background:#fff;
+    border-radius:20px;
+    overflow:hidden;
+    box-shadow:0 30px 90px rgba(0,0,0,.45);
+    border:1px solid #D9E3F1;
+  }
+  .yt-mini-header{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:14px 16px;
+    background:linear-gradient(135deg,#16274D,#2255A4);
+    color:#fff;
+  }
+  .yt-mini-header-text{flex:1;min-width:0;}
+  .yt-mini-kicker{font-size:10px;font-weight:900;letter-spacing:.7px;color:#BDD5F4;text-transform:uppercase;}
+  .yt-mini-title{font-size:16px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px;}
+  .yt-mini-close{width:34px;height:34px;border:0;border-radius:50%;background:rgba(255,255,255,.15);color:#fff;font-size:17px;font-weight:900;cursor:pointer;flex:0 0 auto;}
+  .yt-mini-close:hover{background:rgba(255,255,255,.25);}
+  .yt-player-wrap{position:relative;background:#000;aspect-ratio:16/9;}
+  .yt-player-wrap #youtubePlayer{width:100%;height:100%;}
   .yt-hide-more-videos{position:absolute;left:0;top:0;width:205px;height:62px;background:#000;border-radius:0 0 10px 0;z-index:5;pointer-events:none;}
+  .yt-mini-controls{display:flex;align-items:center;justify-content:center;gap:10px;padding:14px;background:#F4F7FC;border-top:1px solid #D9E3F1;}
+  .yt-mini-controls button{border:0;border-radius:11px;padding:10px 16px;background:#16274D;color:#fff;font-weight:800;cursor:pointer;}
+  .yt-mini-controls button:hover{background:#2255A4;}
+  .yt-mini-controls #ytPauseBtn{background:#2255A4;}
+  .yt-mini-status{text-align:center;font-size:11.5px;color:#5B6B8C;padding:0 14px 12px;background:#F4F7FC;}
+  .yt-mini-status:empty{display:none;}
+  .yt-mini-player-overlay.hidden{display:none !important;}
+  @media(max-width:600px){
+    .yt-mini-player{width:96vw;border-radius:16px;}
+    .yt-mini-controls{gap:7px;padding:11px;}
+    .yt-mini-controls button{padding:9px 11px;font-size:12px;}
+  }
 </style>
 </head>
 <body>
@@ -591,14 +636,30 @@
   <div id="ytResultsList" class="yt-results-list"></div>
 
   <div class="yt-note">Search results and playback both use YouTube's official player and search — nothing is downloaded, extracted, or stored.</div>
-  <div class="yt-player-wrap"><div id="youtubePlayer"></div><div class="yt-hide-more-videos" aria-hidden="true"></div></div>
-  <div class="yt-controls">
-    <button id="ytPlayBtn">▶️ Play</button>
-    <button id="ytPauseBtn">⏸ Pause</button>
-    <button id="ytStopBtn">⏹ Stop</button>
-  </div>
-  <div id="ytStatus" class="yt-status">No song loaded yet.</div>
 </main>
+
+<!-- Floating mini player: opens when a song is clicked. -->
+<div id="ytMiniPlayerOverlay" class="yt-mini-player-overlay hidden" aria-hidden="true">
+  <div class="yt-mini-player" role="dialog" aria-modal="true" aria-label="Music player">
+    <div class="yt-mini-header">
+      <div class="yt-mini-header-text">
+        <div class="yt-mini-kicker">🎵 Now Playing</div>
+        <div id="ytMiniTitle" class="yt-mini-title">No song loaded</div>
+      </div>
+      <button id="ytMiniCloseBtn" class="yt-mini-close" type="button" aria-label="Close music player">✕</button>
+    </div>
+    <div class="yt-player-wrap">
+      <div id="youtubePlayer"></div>
+      <div class="yt-hide-more-videos" aria-hidden="true"></div>
+    </div>
+    <div class="yt-mini-controls">
+      <button id="ytPlayBtn" type="button">▶️ Play</button>
+      <button id="ytPauseBtn" type="button">⏸ Pause</button>
+      <button id="ytStopBtn" type="button">⏹ Stop</button>
+    </div>
+    <div id="ytStatus" class="yt-mini-status">Click a song to start playing.</div>
+  </div>
+</div>
 
 <!-- ============ GAMES SECTION: grade picker + game grid + in-app game modal ============ -->
 
@@ -1091,8 +1152,31 @@
   // Handles the case where the YouTube API finished loading before the callback above was installed.
   if (window.YT && YT.Player) createYouTubePlayer();
 
+  const ytMiniPlayerOverlay = document.getElementById("ytMiniPlayerOverlay");
+  const ytMiniTitle = document.getElementById("ytMiniTitle");
+  const ytMiniCloseBtn = document.getElementById("ytMiniCloseBtn");
+
+  function openMiniPlayer(label) {
+    if (ytMiniTitle) ytMiniTitle.textContent = label || "YouTube video";
+    if (ytMiniPlayerOverlay) {
+      ytMiniPlayerOverlay.classList.remove("hidden");
+      ytMiniPlayerOverlay.setAttribute("aria-hidden", "false");
+    }
+  }
+
+  function closeMiniPlayer() {
+    if (youtubePlayer && youtubePlayerReady) {
+      try { youtubePlayer.pauseVideo(); } catch (_) {}
+    }
+    if (ytMiniPlayerOverlay) {
+      ytMiniPlayerOverlay.classList.add("hidden");
+      ytMiniPlayerOverlay.setAttribute("aria-hidden", "true");
+    }
+  }
+
   function playSelectedYouTubeVideo(id, label) {
     if (!id) return;
+    openMiniPlayer(label);
     if (!youtubePlayer && window.YT && YT.Player) createYouTubePlayer();
     if (!youtubePlayer || !youtubePlayerReady) {
       pendingYouTubeVideo = { id, label };
@@ -1106,6 +1190,16 @@
       if (ytStatus) ytStatus.textContent = "Could not start this video. Try another result.";
     }
   }
+
+  if (ytMiniCloseBtn) ytMiniCloseBtn.onclick = closeMiniPlayer;
+  if (ytMiniPlayerOverlay) {
+    ytMiniPlayerOverlay.addEventListener("click", e => {
+      if (e.target === ytMiniPlayerOverlay) closeMiniPlayer();
+    });
+  }
+  document.addEventListener("keydown", e => {
+    if (e.key === "Escape" && ytMiniPlayerOverlay && !ytMiniPlayerOverlay.classList.contains("hidden")) closeMiniPlayer();
+  });
 
   // ---- Keyword search using the official YouTube Data API v3 ----
   // NOTE: Search requires your own free API key from Google Cloud Console
