@@ -1394,44 +1394,155 @@
   }
 
   async function searchYouTube() {
-    const query = (ytKeywordInput.value || "").trim();
-    if (!query) { if (ytInlineStatus) ytInlineStatus.textContent = "Type an artist or song name to search."; return; }
-    const normalizedSearch = normalizeArtistText(query);
-    const approvedArtist = findApprovedArtist(query);
-    const approvedSong = (typeof APPROVED_FUNK_SONGS !== "undefined") ? APPROVED_FUNK_SONGS.find(item => normalizedSearch.includes(normalizeArtistText(item.song))) : null;
-    if (!approvedArtist && !approvedSong) {
-      ytResultsList.innerHTML = `<div class="artist-blocked-note">That search is not available in Narwhal Station. Search for an approved artist or an approved song.</div>`;
-      if (ytInlineStatus) ytInlineStatus.textContent = "Search blocked.";
+    const rawQuery = (ytKeywordInput.value || "").trim();
+    if (!rawQuery) {
+      if (ytInlineStatus) ytInlineStatus.textContent = "Type an artist or song name to search.";
       return;
     }
-    if (!YOUTUBE_API_KEY || YOUTUBE_API_KEY === "PASTE_YOUR_YOUTUBE_API_KEY_HERE") { if (ytInlineStatus) ytInlineStatus.textContent = "Search needs a YouTube Data API key."; return; }
 
-    ytResultsList.innerHTML = `<div class="yt-note">Searching up to 25 results...</div>`;
-    if (ytInlineStatus) ytInlineStatus.textContent = "Searching...";
-    youtubeNextPageToken = null; youtubeLastSearchUrl = null; youtubeDisplayedCount = 0;
+    if (!YOUTUBE_API_KEY || YOUTUBE_API_KEY === "PASTE_YOUR_YOUTUBE_API_KEY_HERE") {
+      if (ytInlineStatus) ytInlineStatus.textContent = "Search needs a YouTube Data API key.";
+      return;
+    }
+
+    const normalizedSearch = normalizeArtistText(rawQuery);
+
+    // RULE: The approved artist list is the gatekeeper.
+    // If the user names an approved artist, search that artist + the song/request + Lyrics.
+    // If the user enters only a song, identify its artist from YouTube first. Only continue
+    // when the identified artist is on the approved list.
+    let approvedArtist = findApprovedArtist(rawQuery);
+    let songQuery = rawQuery;
+
+    if (approvedArtist) {
+      const artistPattern = normalizeArtistText(approvedArtist);
+      const index = normalizedSearch.indexOf(artistPattern);
+      if (index >= 0) {
+        // Remove the approved artist from the request so the final search is clean.
+        const before = rawQuery.slice(0, index);
+        const after = rawQuery.slice(index + approvedArtist.length);
+        songQuery = `${before} ${after}`.replace(/\s+/g, " ").trim();
+      }
+    } else {
+      if (ytInlineStatus) ytInlineStatus.textContent = "Checking who made that song...";
+      ytResultsList.innerHTML = `<div class="yt-note">Checking the song artist first...</div>`;
+
+      try {
+        const identifyUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=10&q=${encodeURIComponent(rawQuery)}&key=${YOUTUBE_API_KEY}`;
+        const identifyResponse = await fetch(identifyUrl);
+        const identifyData = await identifyResponse.json();
+
+        if (!identifyResponse.ok) {
+          const reason = identifyData?.error?.errors?.[0]?.reason;
+          let message = "Could not identify the song artist. Please try again.";
+          if (reason === "keyInvalid" || reason === "badRequest") message = "The YouTube API key looks invalid.";
+          else if (reason === "quotaExceeded" || reason === "dailyLimitExceeded") message = "YouTube search quota has been used up for today.";
+          else if (reason === "accessNotConfigured") message = "YouTube Data API v3 is not enabled for this key.";
+          ytResultsList.innerHTML = `<div class="yt-note">${message}</div>`;
+          if (ytInlineStatus) ytInlineStatus.textContent = message;
+          return;
+        }
+
+        const identifyItems = Array.isArray(identifyData.items) ? identifyData.items : [];
+        for (const item of identifyItems) {
+          const title = item.snippet?.title || "";
+          const channel = item.snippet?.channelTitle || "";
+          const combined = `${title} ${channel}`;
+          const candidate = findApprovedArtist(combined);
+          if (candidate) {
+            approvedArtist = candidate;
+            break;
+          }
+        }
+
+        if (!approvedArtist) {
+          ytResultsList.innerHTML = `<div class="artist-blocked-note">That song is not available in Narwhal Station because its artist could not be matched to an approved artist.</div>`;
+          if (ytInlineStatus) ytInlineStatus.textContent = "Song blocked — artist is not approved.";
+          return;
+        }
+      } catch (_) {
+        ytResultsList.innerHTML = `<div class="yt-note">Network error — could not identify the song artist.</div>`;
+        if (ytInlineStatus) ytInlineStatus.textContent = "Network error.";
+        return;
+      }
+    }
+
+    // The final YouTube search ALWAYS ends with "Lyrics".
+    const finalQuery = `${approvedArtist}${songQuery ? ` ${songQuery}` : ""} Lyrics`
+      .replace(/\s+/g, " ")
+      .trim();
+
+    ytResultsList.innerHTML = `<div class="yt-note">Searching for ${finalQuery}...</div>`;
+    if (ytInlineStatus) ytInlineStatus.textContent = `Searching: ${finalQuery}`;
+
     try {
-      const searchQuery = approvedSong ? `${approvedSong.artist} ${approvedSong.song}` : query;
-      const baseUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=25&fields=nextPageToken,items(id(videoId),snippet(title,channelTitle,thumbnails(default/url,medium/url)))&q=${encodeURIComponent(searchQuery)}&key=${YOUTUBE_API_KEY}`;
-      const res = await fetch(baseUrl);
-      const data = await res.json();
-      if (!res.ok) {
-        const reason = data?.error?.errors?.[0]?.reason;
+      const baseUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=50&q=${encodeURIComponent(finalQuery)}&key=${YOUTUBE_API_KEY}`;
+
+      // First page: 50 results.
+      const firstResponse = await fetch(baseUrl);
+      const firstData = await firstResponse.json();
+
+      if (!firstResponse.ok) {
+        const reason = firstData?.error?.errors?.[0]?.reason;
         let message = "Search failed. Please try again.";
         if (reason === "keyInvalid" || reason === "badRequest") message = "The YouTube API key looks invalid.";
         else if (reason === "quotaExceeded" || reason === "dailyLimitExceeded") message = "YouTube search quota has been used up for today.";
         else if (reason === "accessNotConfigured") message = "YouTube Data API v3 is not enabled for this key.";
-        else if (res.status === 403) message = "YouTube blocked this request (403).";
+        else if (firstResponse.status === 403) message = "YouTube blocked this request (403).";
         ytResultsList.innerHTML = `<div class="yt-note">${message}</div>`;
         if (ytInlineStatus) ytInlineStatus.textContent = message;
         return;
       }
+
+      let allItems = Array.isArray(firstData.items) ? firstData.items : [];
+
+      // Second page: another 50, when available.
+      if (firstData.nextPageToken) {
+        const secondUrl = `${baseUrl}&pageToken=${encodeURIComponent(firstData.nextPageToken)}`;
+        const secondResponse = await fetch(secondUrl);
+        const secondData = await secondResponse.json();
+        if (secondResponse.ok && Array.isArray(secondData.items)) {
+          allItems = allItems.concat(secondData.items);
+        }
+      }
+
+      allItems = allItems.slice(0, 100);
+
+      if (!allItems.length) {
+        ytResultsList.innerHTML = `<div class="yt-note">No results found for ${finalQuery}. Try another song.</div>`;
+        if (ytInlineStatus) ytInlineStatus.textContent = "No results found.";
+        return;
+      }
+
       ytResultsList.innerHTML = "";
-      appendYouTubeResults((data.items || []).slice(0,25));
-      youtubeNextPageToken = data.nextPageToken || null;
-      youtubeLastSearchUrl = baseUrl;
-      if (!youtubeDisplayedCount) { ytResultsList.innerHTML = `<div class="yt-note">No results found. Try a different search.</div>`; if (ytInlineStatus) ytInlineStatus.textContent = "No results found."; return; }
-      renderLoadMoreButton();
-      if (ytInlineStatus) ytInlineStatus.textContent = `${youtubeDisplayedCount} results found. Click a song to play it.`;
+
+      allItems.forEach(item => {
+        const videoId = item.id?.videoId;
+        if (!videoId) return;
+
+        const title = item.snippet?.title || "YouTube video";
+        const channel = item.snippet?.channelTitle || "";
+        const thumb = item.snippet?.thumbnails?.medium?.url ||
+          item.snippet?.thumbnails?.default?.url || "";
+
+        const row = document.createElement("div");
+        row.className = "yt-result-item";
+        row.innerHTML = `
+          <img src="${thumb}" alt="">
+          <div>
+            <div class="yt-result-title">${title}</div>
+            <div class="yt-result-channel">${channel}</div>
+          </div>
+        `;
+
+        row.onclick = () => playSelectedYouTubeVideo(videoId, title);
+        ytResultsList.appendChild(row);
+      });
+
+      const renderedCount = ytResultsList.children.length;
+      if (ytInlineStatus) {
+        ytInlineStatus.textContent = `${renderedCount} results found for ${finalQuery}. Click a song to open the player.`;
+      }
     } catch (_) {
       ytResultsList.innerHTML = `<div class="yt-note">Network error — check your internet connection and try again.</div>`;
       if (ytInlineStatus) ytInlineStatus.textContent = "Network error.";
