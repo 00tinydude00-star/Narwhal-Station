@@ -916,7 +916,13 @@
     return null;
   }
 
-  window.onYouTubeIframeAPIReady = function() {
+  let youtubePlayer = null;
+  let youtubePlayerReady = false;
+  let pendingYouTubeVideo = null;
+  const ytStatus = document.getElementById("ytStatus");
+
+  function createYouTubePlayer() {
+    if (youtubePlayer || !window.YT || !YT.Player) return;
     youtubePlayer = new YT.Player("youtubePlayer", {
       width: "100%",
       height: "100%",
@@ -924,32 +930,66 @@
       playerVars: {
         playsinline: 1,
         rel: 0,
-        // YouTube's player needs a real origin to configure itself correctly.
-        // Without this, testing the file locally (file:// in the address bar)
-        // can trigger "Error 153 / Video player configuration error" even
-        // for videos that embed perfectly fine once the app is hosted for
-        // real (e.g. on Netlify, https://yoursite.netlify.app).
+        enablejsapi: 1,
         origin: window.location.origin
       },
       events: {
         onReady: function() {
-          ytStatus.textContent = "YouTube player ready. Search for a song above.";
-        },
-        onError: function(e) {
-          const code = e && e.data;
-          let msg = "This video can't be played here.";
-          if (code === 2) msg = "Invalid video — try a different search result.";
-          else if (code === 5) msg = "This video can't play in the embedded player. Try another result.";
-          else if (code === 100) msg = "This video was removed or made private. Try another result.";
-          else if (code === 101 || code === 150) msg = "This video's owner disabled it from playing outside YouTube. Try another result.";
-          else if (window.location.protocol === "file:") {
-            msg = "Playback needs the app to be opened from a real web address (like your Netlify link), not a local file. Try opening it from your hosted site instead.";
+          youtubePlayerReady = true;
+          if (ytStatus) ytStatus.textContent = "YouTube player ready. Click a song to play it.";
+          if (pendingYouTubeVideo) {
+            const pending = pendingYouTubeVideo;
+            pendingYouTubeVideo = null;
+            try {
+              youtubePlayer.loadVideoById(pending.id);
+              if (ytStatus) ytStatus.textContent = pending.label ? `Playing: ${pending.label}` : "Playing YouTube video";
+            } catch (_) {
+              if (ytStatus) ytStatus.textContent = "Could not start this video. Try another result.";
+            }
           }
-          ytStatus.textContent = msg;
+        },
+        onStateChange: function(event) {
+          if (!window.YT || !ytStatus) return;
+          if (event.data === YT.PlayerState.PLAYING) ytStatus.textContent = "▶️ Playing";
+          else if (event.data === YT.PlayerState.PAUSED) ytStatus.textContent = "⏸ Paused";
+          else if (event.data === YT.PlayerState.ENDED) ytStatus.textContent = "Song finished.";
+        },
+        onError: function(event) {
+          if (!ytStatus) return;
+          const code = event && event.data;
+          if (code === 2) ytStatus.textContent = "Invalid video — try another result.";
+          else if (code === 5) ytStatus.textContent = "This video cannot play in the embedded player. Try another result.";
+          else if (code === 100) ytStatus.textContent = "This video was removed or made private. Try another result.";
+          else if (code === 101 || code === 150) ytStatus.textContent = "This video's owner disabled playback outside YouTube. Try another result.";
+          else if (code === 153) ytStatus.textContent = "YouTube rejected the player configuration. Please use the hosted app.";
+          else ytStatus.textContent = "This YouTube video cannot be played here.";
         }
       }
     });
+  }
+
+  window.onYouTubeIframeAPIReady = function() {
+    createYouTubePlayer();
   };
+
+  // Handles the case where the YouTube API finished loading before the callback above was installed.
+  if (window.YT && YT.Player) createYouTubePlayer();
+
+  function playSelectedYouTubeVideo(id, label) {
+    if (!id) return;
+    if (!youtubePlayer && window.YT && YT.Player) createYouTubePlayer();
+    if (!youtubePlayer || !youtubePlayerReady) {
+      pendingYouTubeVideo = { id, label };
+      if (ytStatus) ytStatus.textContent = "Opening player...";
+      return;
+    }
+    try {
+      youtubePlayer.loadVideoById(id);
+      if (ytStatus) ytStatus.textContent = label ? `Playing: ${label}` : "Playing YouTube video";
+    } catch (_) {
+      if (ytStatus) ytStatus.textContent = "Could not start this video. Try another result.";
+    }
+  }
 
   // ---- Keyword search using the official YouTube Data API v3 ----
   // NOTE: Search requires your own free API key from Google Cloud Console
@@ -1165,98 +1205,110 @@
   const ytSearchBtn = document.getElementById("ytSearchBtn");
   const ytResultsList = document.getElementById("ytResultsList");
   const ytInlineStatus = document.getElementById("ytStatus");
+  let youtubeNextPageToken = null;
+  let youtubeLastSearchUrl = null;
+  let youtubeDisplayedCount = 0;
+
+  function appendYouTubeResults(items) {
+    let added = 0;
+    (Array.isArray(items) ? items : []).forEach(item => {
+      const videoId = item.id?.videoId;
+      if (!videoId || youtubeDisplayedCount >= 50) return;
+      const title = item.snippet?.title || "YouTube video";
+      const channel = item.snippet?.channelTitle || "";
+      const thumb = item.snippet?.thumbnails?.medium?.url || item.snippet?.thumbnails?.default?.url || "";
+      const row = document.createElement("div");
+      row.className = "yt-result-item";
+      row.tabIndex = 0;
+      row.setAttribute("role", "button");
+      row.innerHTML = `<img src="${thumb}" alt="" loading="lazy" decoding="async"><div><div class="yt-result-title">${title}</div><div class="yt-result-channel">${channel}</div></div>`;
+      row.onclick = () => playSelectedYouTubeVideo(videoId, title);
+      row.onkeydown = e => {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); playSelectedYouTubeVideo(videoId, title); }
+      };
+      ytResultsList.appendChild(row);
+      youtubeDisplayedCount++;
+      added++;
+    });
+    return added;
+  }
+
+  function renderLoadMoreButton() {
+    const old = document.getElementById("ytLoadMoreBtn");
+    if (old) old.parentElement.remove();
+    if (!youtubeNextPageToken || youtubeDisplayedCount >= 50) return;
+    const wrap = document.createElement("div");
+    wrap.className = "yt-load-more-wrap";
+    const button = document.createElement("button");
+    button.id = "ytLoadMoreBtn";
+    button.className = "yt-load-btn";
+    button.type = "button";
+    button.textContent = "🔎 Search for 25 More Results";
+    button.onclick = loadMoreYouTubeResults;
+    wrap.appendChild(button);
+    ytResultsList.appendChild(wrap);
+  }
+
+  async function loadMoreYouTubeResults() {
+    if (!youtubeNextPageToken || !youtubeLastSearchUrl) return;
+    const button = document.getElementById("ytLoadMoreBtn");
+    if (button) { button.disabled = true; button.textContent = "Searching for 25 more..."; }
+    if (ytInlineStatus) ytInlineStatus.textContent = "Searching for 25 more results...";
+    try {
+      const res = await fetch(`${youtubeLastSearchUrl}&pageToken=${encodeURIComponent(youtubeNextPageToken)}`);
+      const data = await res.json();
+      if (!res.ok) throw new Error("more search failed");
+      const old = document.getElementById("ytLoadMoreBtn");
+      if (old) old.parentElement.remove();
+      appendYouTubeResults(data.items || []);
+      youtubeNextPageToken = data.nextPageToken || null;
+      renderLoadMoreButton();
+      if (ytInlineStatus) ytInlineStatus.textContent = `${youtubeDisplayedCount} results found. Click a song to play it.`;
+    } catch (_) {
+      if (ytInlineStatus) ytInlineStatus.textContent = "Could not load more results. Please try again.";
+      renderLoadMoreButton();
+    }
+  }
 
   async function searchYouTube() {
     const query = (ytKeywordInput.value || "").trim();
-    if (!query) {
-      if (ytInlineStatus) ytInlineStatus.textContent = "Type an artist or song name to search.";
-      return;
-    }
-
+    if (!query) { if (ytInlineStatus) ytInlineStatus.textContent = "Type an artist or song name to search."; return; }
     const normalizedSearch = normalizeArtistText(query);
     const approvedArtist = findApprovedArtist(query);
-
-    const approvedSong = (typeof APPROVED_FUNK_SONGS !== "undefined")
-      ? APPROVED_FUNK_SONGS.find(item => normalizedSearch.includes(normalizeArtistText(item.song)))
-      : null;
-
+    const approvedSong = (typeof APPROVED_FUNK_SONGS !== "undefined") ? APPROVED_FUNK_SONGS.find(item => normalizedSearch.includes(normalizeArtistText(item.song))) : null;
     if (!approvedArtist && !approvedSong) {
       ytResultsList.innerHTML = `<div class="artist-blocked-note">That search is not available in Narwhal Station. Search for an approved artist or an approved song.</div>`;
       if (ytInlineStatus) ytInlineStatus.textContent = "Search blocked.";
       return;
     }
-
-    if (!YOUTUBE_API_KEY || YOUTUBE_API_KEY === "PASTE_YOUR_YOUTUBE_API_KEY_HERE") {
-      if (ytInlineStatus) ytInlineStatus.textContent = "Search needs a YouTube Data API key.";
-      return;
-    }
+    if (!YOUTUBE_API_KEY || YOUTUBE_API_KEY === "PASTE_YOUR_YOUTUBE_API_KEY_HERE") { if (ytInlineStatus) ytInlineStatus.textContent = "Search needs a YouTube Data API key."; return; }
 
     ytResultsList.innerHTML = `<div class="yt-note">Searching up to 25 results...</div>`;
     if (ytInlineStatus) ytInlineStatus.textContent = "Searching...";
-
+    youtubeNextPageToken = null; youtubeLastSearchUrl = null; youtubeDisplayedCount = 0;
     try {
-      const searchQuery = approvedSong
-        ? `${approvedSong.artist} ${approvedSong.song}`
-        : query;
-
+      const searchQuery = approvedSong ? `${approvedSong.artist} ${approvedSong.song}` : query;
       const baseUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=25&fields=nextPageToken,items(id(videoId),snippet(title,channelTitle,thumbnails(default/url,medium/url)))&q=${encodeURIComponent(searchQuery)}&key=${YOUTUBE_API_KEY}`;
-
-      // First page: 25 results for faster initial search.
-      const firstResponse = await fetch(baseUrl);
-      const firstData = await firstResponse.json();
-
-      if (!firstResponse.ok) {
-        const reason = firstData?.error?.errors?.[0]?.reason;
+      const res = await fetch(baseUrl);
+      const data = await res.json();
+      if (!res.ok) {
+        const reason = data?.error?.errors?.[0]?.reason;
         let message = "Search failed. Please try again.";
         if (reason === "keyInvalid" || reason === "badRequest") message = "The YouTube API key looks invalid.";
         else if (reason === "quotaExceeded" || reason === "dailyLimitExceeded") message = "YouTube search quota has been used up for today.";
         else if (reason === "accessNotConfigured") message = "YouTube Data API v3 is not enabled for this key.";
-        else if (firstResponse.status === 403) message = "YouTube blocked this request (403).";
+        else if (res.status === 403) message = "YouTube blocked this request (403).";
         ytResultsList.innerHTML = `<div class="yt-note">${message}</div>`;
         if (ytInlineStatus) ytInlineStatus.textContent = message;
         return;
       }
-
-      // Return only 25 results. No second search is made.
-      let allItems = Array.isArray(firstData.items) ? firstData.items.slice(0, 25) : [];
-
-      if (!allItems.length) {
-        ytResultsList.innerHTML = `<div class="yt-note">No results found. Try a different search.</div>`;
-        if (ytInlineStatus) ytInlineStatus.textContent = "No results found.";
-        return;
-      }
-
       ytResultsList.innerHTML = "";
-
-      allItems.forEach(item => {
-        const videoId = item.id?.videoId;
-        if (!videoId) return;
-
-        const title = item.snippet?.title || "YouTube video";
-        const channel = item.snippet?.channelTitle || "";
-        const thumb = item.snippet?.thumbnails?.medium?.url ||
-          item.snippet?.thumbnails?.default?.url || "";
-
-        const row = document.createElement("div");
-        row.className = "yt-result-item";
-        row.innerHTML = `
-          <img src="${thumb}" alt="" loading="lazy" decoding="async">
-          <div>
-            <div class="yt-result-title">${title}</div>
-            <div class="yt-result-channel">${channel}</div>
-          </div>
-        `;
-
-        row.onclick = () => playSelectedYouTubeVideo(videoId, title);
-        ytResultsList.appendChild(row);
-      });
-
-      const renderedCount = ytResultsList.children.length;
-      if (ytInlineStatus) {
-        ytInlineStatus.textContent =
-          `${renderedCount} results found. Click a song to open the player.`;
-      }
-
+      appendYouTubeResults((data.items || []).slice(0,25));
+      youtubeNextPageToken = data.nextPageToken || null;
+      youtubeLastSearchUrl = baseUrl;
+      if (!youtubeDisplayedCount) { ytResultsList.innerHTML = `<div class="yt-note">No results found. Try a different search.</div>`; if (ytInlineStatus) ytInlineStatus.textContent = "No results found."; return; }
+      renderLoadMoreButton();
+      if (ytInlineStatus) ytInlineStatus.textContent = `${youtubeDisplayedCount} results found. Click a song to play it.`;
     } catch (_) {
       ytResultsList.innerHTML = `<div class="yt-note">Network error — check your internet connection and try again.</div>`;
       if (ytInlineStatus) ytInlineStatus.textContent = "Network error.";
@@ -1264,13 +1316,7 @@
   }
 
   if (ytSearchBtn) ytSearchBtn.onclick = searchYouTube;
-  if (ytKeywordInput) ytKeywordInput.addEventListener("keydown", e => {
-    if (e.key === "Enter") searchYouTube();
-  });
-
-  document.getElementById("ytPlayBtn").onclick = () => youtubePlayer && youtubePlayer.playVideo();
-  document.getElementById("ytPauseBtn").onclick = () => youtubePlayer && youtubePlayer.pauseVideo();
-  document.getElementById("ytStopBtn").onclick = () => youtubePlayer && youtubePlayer.stopVideo();
+  if (ytKeywordInput) ytKeywordInput.addEventListener("keydown", e => { if (e.key === "Enter") searchYouTube(); });
 
   function renderGamesGridDummy() {} // placeholder marker (music player removed)
 
