@@ -398,6 +398,14 @@
   .admin-menu-card{width:100%;border:1px solid transparent;background:transparent;color:#16274D;text-align:left;padding:14px 14px;border-radius:12px;margin-bottom:6px;font-size:15px;font-weight:800;cursor:pointer}
   .admin-menu-card:hover{background:#F0F4FA}.admin-menu-card.active{background:#EAF1FC;border-color:#C9D9F2;color:#2255A4}
   .approved-artists-help{font-size:12px;color:#5B6B8C;margin:-4px 0 10px}
+  .approved-artist-helper{margin:10px 0 14px;padding:14px;background:#fff;border:1px solid #D9E3F1;border-radius:14px;box-shadow:0 6px 18px rgba(22,39,77,.06)}
+  .approved-artist-helper-title{font-size:14px;font-weight:900;color:#16274D;margin-bottom:5px}
+  .approved-artist-helper-sub{font-size:12px;color:#5B6B8C;margin-bottom:10px}
+  .approved-artist-helper-row{display:flex;gap:8px;flex-wrap:wrap}
+  .approved-artist-helper input{flex:1 1 240px;min-width:180px;padding:9px 11px;border:1px solid #C9D7EA;border-radius:9px;font:inherit;font-size:12px}
+  .approved-artist-helper button{border:0;border-radius:9px;padding:9px 12px;font:inherit;font-size:12px;font-weight:800;cursor:pointer;background:#2255A4;color:#fff}
+  .approved-artist-helper button.secondary{background:#EAF1FC;color:#16274D;border:1px solid #C9D7EA}
+  .approved-artist-helper button:disabled{opacity:.6;cursor:not-allowed}
   .approved-artists{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;max-height:430px;overflow:auto;padding:4px 4px 10px 0}
   .approved-artist-group{background:#fff;border:1px solid #D9E3F1;border-radius:12px;padding:10px}
   .approved-artist-letter{font-size:11px;font-weight:900;color:#2255A4;margin-bottom:6px;padding-bottom:5px;border-bottom:1px solid #E8EEF7}
@@ -579,7 +587,16 @@
   </div>
 
   <div class="approved-artists-title">🎤 Artists Available to Search</div>
-  <div class="approved-artists-help">Artists are organized alphabetically. Click an artist to search their music.</div>
+  <div class="approved-artists-help">Artists are organized alphabetically. Click an artist to see songs from that artist.</div>
+  <div id="approvedArtistHelper" class="approved-artist-helper">
+    <div class="approved-artist-helper-title">🎵 Looking for a specific song from an artist?</div>
+    <div class="approved-artist-helper-sub">Click any artist above. Then type the song name below, or show the artist's song results.</div>
+    <div class="approved-artist-helper-row">
+      <input id="artistSongInput" type="search" placeholder="Choose an artist first..." disabled>
+      <button id="showArtistSongsBtn" type="button" disabled>🎵 Show Artist Songs</button>
+      <button id="searchArtistSongBtn" class="secondary" type="button" disabled>🔎 Search Specific Song</button>
+    </div>
+  </div>
   <div id="approvedArtists" class="approved-artists"></div>
   <div class="approved-song-note" id="approvedFunkCatalog">
     <strong>🔥 K–7 Approved Funk Collection:</strong> 77 reviewed songs
@@ -1185,10 +1202,8 @@
 
     container.querySelectorAll(".approved-artist-chip").forEach(button => {
       button.addEventListener("click", () => {
-        const input = document.getElementById("ytKeywordInput");
-        const searchButton = document.getElementById("ytSearchBtn");
-        if (input) input.value = button.dataset.artist || "";
-        if (searchButton) searchButton.click();
+        const artist = button.dataset.artist || "";
+        selectApprovedArtist(artist);
       });
     });
   }
@@ -1202,13 +1217,59 @@
     return APPROVED_ARTISTS.find(artist => normalizedQuery.includes(normalizeArtistText(artist))) || null;
   }
 
+  let selectedApprovedArtist = "";
+
+  function selectApprovedArtist(artist) {
+    selectedApprovedArtist = artist || "";
+    const helperInput = document.getElementById("artistSongInput");
+    const showBtn = document.getElementById("showArtistSongsBtn");
+    const specificBtn = document.getElementById("searchArtistSongBtn");
+    if (helperInput) {
+      helperInput.disabled = false;
+      helperInput.placeholder = `Song name from ${selectedApprovedArtist}...`;
+      helperInput.value = "";
+    }
+    if (showBtn) { showBtn.disabled = !selectedApprovedArtist; showBtn.textContent = `🎵 Show ${selectedApprovedArtist} Songs`; }
+    if (specificBtn) { specificBtn.disabled = !selectedApprovedArtist; }
+    const mainInput = document.getElementById("ytKeywordInput");
+    if (mainInput) mainInput.value = selectedApprovedArtist;
+    searchArtistSongs(selectedApprovedArtist);
+  }
+
+  function searchArtistSongs(artist) {
+    if (!artist) return;
+    const mainInput = document.getElementById("ytKeywordInput");
+    if (mainInput) mainInput.value = `${artist} songs`;
+    searchYouTube();
+  }
+
+  function searchSpecificArtistSong() {
+    const helperInput = document.getElementById("artistSongInput");
+    const song = (helperInput?.value || "").trim();
+    if (!selectedApprovedArtist) return;
+    if (!song) {
+      if (helperInput) helperInput.focus();
+      return;
+    }
+    const mainInput = document.getElementById("ytKeywordInput");
+    if (mainInput) mainInput.value = `${selectedApprovedArtist} ${song}`;
+    searchYouTube();
+  }
+
   renderApprovedArtists();
+
+  const artistSongInput = document.getElementById("artistSongInput");
+  const showArtistSongsBtn = document.getElementById("showArtistSongsBtn");
+  const searchArtistSongBtn = document.getElementById("searchArtistSongBtn");
+  if (showArtistSongsBtn) showArtistSongsBtn.onclick = () => searchArtistSongs(selectedApprovedArtist);
+  if (searchArtistSongBtn) searchArtistSongBtn.onclick = searchSpecificArtistSong;
+  if (artistSongInput) artistSongInput.addEventListener("keydown", e => { if (e.key === "Enter") searchSpecificArtistSong(); });
 
 
   const ytKeywordInput = document.getElementById("ytKeywordInput");
   const ytSearchBtn = document.getElementById("ytSearchBtn");
   const ytResultsList = document.getElementById("ytResultsList");
-  const ytInlineStatus = document.getElementById("ytStatus");
+  const ytInlineStatus = document.getElementById("ytInlineStatus") || document.getElementById("ytStatus");
   let youtubeNextPageToken = null;
   let youtubeLastSearchUrl = null;
   let youtubeDisplayedCount = 0;

@@ -3,13 +3,6 @@
   "name": "narwhal-station",
   "main": "index.js",
   "compatibility_date": "2026-09-04",
-  "assets": {
-    "directory": "."
-  },
-  "kv_namespaces": [
-    {
-      "binding": "GLOBAL_CHAT",
-      "id": "d6270ed6d97a496d9b2c4a42b4140f91"
-    }
-  ]
+  "assets": { "directory": "." },
+  "kv_namespaces": [{ "binding": "GLOBAL_CHAT", "id": "d6270ed6d97a496d9b2c4a42b4140f91" }]
 }
