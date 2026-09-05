@@ -1198,7 +1198,7 @@
         ? `${approvedSong.artist} ${approvedSong.song}`
         : query;
 
-      const baseUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=50&q=${encodeURIComponent(searchQuery)}&key=${YOUTUBE_API_KEY}`;
+      const baseUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=50&fields=items(id(videoId),snippet(title,channelTitle,thumbnails(default/url,medium/url)))&q=${encodeURIComponent(searchQuery)}&key=${YOUTUBE_API_KEY}`;
 
       // First page: 50 results.
       const firstResponse = await fetch(baseUrl);
@@ -1239,7 +1239,7 @@
         const row = document.createElement("div");
         row.className = "yt-result-item";
         row.innerHTML = `
-          <img src="${thumb}" alt="">
+          <img src="${thumb}" alt="" loading="lazy" decoding="async">
           <div>
             <div class="yt-result-title">${title}</div>
             <div class="yt-result-channel">${channel}</div>
