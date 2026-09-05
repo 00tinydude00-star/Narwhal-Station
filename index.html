@@ -1198,9 +1198,9 @@
         ? `${approvedSong.artist} ${approvedSong.song}`
         : query;
 
-      const baseUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=50&fields=items(id(videoId),snippet(title,channelTitle,thumbnails(default/url,medium/url)))&q=${encodeURIComponent(searchQuery)}&key=${YOUTUBE_API_KEY}`;
+      const baseUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=25&fields=nextPageToken,items(id(videoId),snippet(title,channelTitle,thumbnails(default/url,medium/url)))&q=${encodeURIComponent(searchQuery)}&key=${YOUTUBE_API_KEY}`;
 
-      // First page: 50 results.
+      // First page: 25 results for faster initial search.
       const firstResponse = await fetch(baseUrl);
       const firstData = await firstResponse.json();
 
@@ -1216,8 +1216,8 @@
         return;
       }
 
-      // Only use the first YouTube page: a maximum of 50 results per search.
-      let allItems = Array.isArray(firstData.items) ? firstData.items.slice(0, 50) : [];
+      // Start with 25 results. More results are loaded only when requested.
+      let allItems = Array.isArray(firstData.items) ? firstData.items.slice(0, 25) : [];
 
       if (!allItems.length) {
         ytResultsList.innerHTML = `<div class="yt-note">No results found. Try a different search.</div>`;
@@ -1254,6 +1254,44 @@
       if (ytInlineStatus) {
         ytInlineStatus.textContent =
           `${renderedCount} results found. Click a song to open the player.`;
+      }
+
+      // Add an optional button for results 26-50. This keeps the first search fast.
+      if (firstData.nextPageToken && renderedCount < 50) {
+        const moreBtn = document.createElement("button");
+        moreBtn.className = "yt-load-btn";
+        moreBtn.textContent = "Load 25 More Results";
+        moreBtn.style.margin = "16px auto";
+        moreBtn.style.display = "block";
+        moreBtn.onclick = async () => {
+          moreBtn.disabled = true;
+          moreBtn.textContent = "Loading...";
+          try {
+            const moreUrl = `${baseUrl}&pageToken=${encodeURIComponent(firstData.nextPageToken)}`;
+            const moreResponse = await fetch(moreUrl);
+            const moreData = await moreResponse.json();
+            if (!moreResponse.ok) throw new Error("Could not load more results.");
+            const moreItems = Array.isArray(moreData.items) ? moreData.items.slice(0, 25) : [];
+            moreItems.forEach(item => {
+              const videoId = item.id?.videoId;
+              if (!videoId) return;
+              const title = item.snippet?.title || "YouTube video";
+              const channel = item.snippet?.channelTitle || "";
+              const thumb = item.snippet?.thumbnails?.medium?.url || item.snippet?.thumbnails?.default?.url || "";
+              const row = document.createElement("div");
+              row.className = "yt-result-item";
+              row.innerHTML = `<img src="${thumb}" alt="" loading="lazy" decoding="async"><div><div class="yt-result-title">${title}</div><div class="yt-result-channel">${channel}</div></div>`;
+              row.onclick = () => playSelectedYouTubeVideo(videoId, title);
+              ytResultsList.insertBefore(row, moreBtn);
+            });
+            moreBtn.remove();
+            if (ytInlineStatus) ytInlineStatus.textContent = `${Math.min(50, renderedCount + moreItems.length)} results found. Click a song to open the player.`;
+          } catch (_) {
+            moreBtn.disabled = false;
+            moreBtn.textContent = "Load 25 More Results";
+          }
+        };
+        ytResultsList.appendChild(moreBtn);
       }
     } catch (_) {
       ytResultsList.innerHTML = `<div class="yt-note">Network error — check your internet connection and try again.</div>`;
