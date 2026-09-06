@@ -3151,7 +3151,7 @@
   }
 
   const ADMIN_COMMAND_ENDPOINT = "/api/admin-command";
-  let lastAdminCommandId = "";
+  let lastAdminCommandId = localStorage.getItem("narwhalLastAdminCommandId") || "";
   let adminCommandPollTimer = null;
   const ADMIN_COMMAND_LABELS = {
     launch:"Launch Sequence", halloween:"Halloween Takeover", snowstorm:"Snowstorm", thanksgiving:"Thanksgiving Parade",
@@ -3181,7 +3181,11 @@
   }
 
   function playAdminCommandEffect(command, payload={}) {
-    if (command === "refresh") { window.location.reload(); return; }
+    if (command === "refresh") {
+      localStorage.setItem("narwhalLastAdminCommandId", String(payload.id || lastAdminCommandId || ""));
+      window.location.reload();
+      return;
+    }
     if (command === "clear-announcement") { document.getElementById("schoolAnnouncement")?.classList.add("hidden"); return; }
     if (command === "lock-music") { localStorage.setItem("narwhalRemoteMusicLocked","1"); applyRemoteCommandLocks(); return; }
     if (command === "disable-games") { localStorage.setItem("narwhalRemoteGamesLocked","1"); applyRemoteCommandLocks(); return; }
@@ -3263,7 +3267,7 @@
       const r=await fetch(ADMIN_COMMAND_ENDPOINT,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({password:getAdminCommandPassword(),command,text}),cache:"no-store"});
       const d=await r.json().catch(()=>({}));
       if(!r.ok) throw new Error(d.error||"Command could not be sent.");
-      if(d?.command?.id) lastAdminCommandId = d.command.id;
+      if(d?.command?.id) { lastAdminCommandId = d.command.id; localStorage.setItem("narwhalLastAdminCommandId", d.command.id); }
       playAdminCommandEffect(command,{text});
       flashFeatureMessage(`🛠️ ${label} sent`);
     }catch(e){ alert(e.message||"Command could not be sent."); }
@@ -3276,6 +3280,7 @@
       const command=d?.command;
       if(!command?.id || command.id===lastAdminCommandId) return;
       lastAdminCommandId=command.id;
+      localStorage.setItem("narwhalLastAdminCommandId", command.id);
       const age=Date.now()-Number(command.time||Date.now());
       if(command.transient && age>15000) return;
       playAdminCommandEffect(command.command,command);
