@@ -51,6 +51,7 @@
   }
 
   .narwhal-mark { width: 52px; height: 52px; flex-shrink: 0; border-radius: 50%; object-fit: cover; box-shadow: 0 0 0 3px rgba(255,255,255,0.25); }
+  .narwhal-mark.admin-sunglasses{filter:drop-shadow(0 0 8px rgba(0,0,0,.55));transform:rotate(-4deg) scale(1.08)}
 
   header h1 {
     color: white;
@@ -335,7 +336,7 @@
   .admin-kicker{font-size:11px;letter-spacing:1px;font-weight:900;color:#BDD5F4;margin-bottom:3px}.admin-modal-header h2{font-size:28px;line-height:1.15}.admin-modal-header p{font-size:14px;color:#DCEAFF;margin-top:4px}
   .admin-close-btn{width:36px;height:36px;flex:0 0 auto;border:0;border-radius:50%;background:rgba(255,255,255,.14);color:#fff;font-size:17px;font-weight:900;cursor:pointer}
   .admin-modal-body{display:flex;min-height:0;flex:1;background:#F4F7FC}
-  .admin-sidebar{width:260px;flex:0 0 260px;background:#fff;border-right:1px solid #DEE6F1;padding:12px}
+  .admin-sidebar{width:260px;flex:0 0 260px;background:#fff;border-right:1px solid #DEE6F1;padding:12px;overflow:auto;overscroll-behavior:contain}
   .admin-menu-card{width:100%;border:1px solid transparent;background:transparent;color:#16274D;text-align:left;padding:14px 14px;border-radius:12px;margin-bottom:6px;font-size:15px;font-weight:800;cursor:pointer}
   .admin-menu-card:hover{background:#F0F4FA}.admin-menu-card.active{background:#EAF1FC;border-color:#C9D9F2;color:#2255A4}
   .approved-artists-help{font-size:12px;color:#5B6B8C;margin:-4px 0 10px}
@@ -368,6 +369,28 @@
   .admin-chat-message{background:#fff;border:1px solid #DCE5F0;border-radius:11px;padding:9px 11px}.admin-chat-meta{font-size:13px;color:#2255A4;font-weight:900;margin-bottom:3px}.admin-chat-text{font-size:16px;color:#16274D;line-height:1.45;word-break:break-word}
   .admin-chat-compose{display:flex;gap:8px}.admin-chat-compose input{flex:1}
   .global-chat-admin-badge.owner-badge{background:#8B4CC8}
+  .admin-commands-scroll{max-height:calc(88vh - 175px);overflow:auto;padding:2px 8px 20px 0;scrollbar-width:thin}
+  .admin-command-effect-layer{position:fixed;inset:0;z-index:11500;pointer-events:none;overflow:hidden}
+  .admin-command-effect-particle{position:absolute;top:-60px;font-size:clamp(24px,3vw,48px);animation:adminCommandFall var(--fall-time,7s) linear forwards;filter:drop-shadow(0 4px 5px rgba(0,0,0,.12))}
+  .admin-command-wave{position:absolute;left:50%;top:50%;width:20px;height:20px;border:8px solid rgba(74,164,224,.55);border-radius:50%;transform:translate(-50%,-50%);animation:adminWave 2.2s ease-out forwards}
+  .admin-command-rainbow{position:absolute;left:50%;top:38%;width:min(90vw,900px);height:min(46vw,440px);transform:translateX(-50%);border:22px solid rgba(255,72,72,.85);border-bottom:0;border-radius:900px 900px 0 0;box-shadow:0 0 0 22px rgba(255,166,0,.7),0 0 0 44px rgba(255,238,64,.65),0 0 0 66px rgba(75,220,120,.6),0 0 0 88px rgba(76,150,255,.55),0 0 0 110px rgba(150,100,240,.5);animation:adminRainbow 7s ease-out forwards}
+  .admin-command-assembly{position:absolute;inset:12%;display:flex;align-items:center;justify-content:center;text-align:center;background:rgba(255,255,255,.96);border:6px solid #2255A4;border-radius:30px;box-shadow:0 30px 90px rgba(0,0,0,.25);padding:30px;color:#16274D;font-size:clamp(26px,4vw,58px);font-weight:900;animation:adminAssembly .55s ease-out both}
+  .admin-command-assembly small{display:block;font-size:.42em;color:#5B6B8C;margin-top:12px}
+  @keyframes adminCommandFall{to{transform:translate(var(--drift),110vh) rotate(var(--spin));opacity:.15}}
+  @keyframes adminWave{to{width:min(120vw,1500px);height:min(120vw,1500px);opacity:0;border-width:2px}}
+  @keyframes adminRainbow{0%{opacity:0;transform:translateX(-50%) scale(.7)}15%{opacity:1}100%{opacity:0;transform:translateX(-50%) scale(1.05)}}
+  @keyframes adminAssembly{from{opacity:0;transform:scale(.82)}to{opacity:1;transform:scale(1)}}
+
+  .admin-command-group{background:#fff;border:1px solid #D9E3F1;border-radius:16px;padding:16px;margin-bottom:14px}
+  .admin-command-group-title{font-size:17px;font-weight:900;color:#16274D;margin-bottom:11px}
+  .admin-command-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+  .admin-command-btn{width:100%;border:1px solid #D0DCEC;background:#F7FAFF;color:#16274D;border-radius:11px;padding:12px 13px;text-align:left;font-size:12px;font-weight:900;cursor:pointer;transition:transform .12s ease,box-shadow .12s ease,background .12s ease}
+  .admin-command-btn:hover{background:#EAF1FC;box-shadow:0 5px 12px rgba(22,39,77,.08);transform:translateY(-1px)}
+  .admin-command-btn.warning{border-color:#E9D5B0;background:#FFF9EE}
+  .admin-assembly-card{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center}
+  .admin-assembly-preview{border:1px dashed #C9D9F2;border-radius:12px;background:#F7FAFF;padding:14px;font-size:13px;line-height:1.5;color:#2255A4;text-align:center;font-weight:800}
+  .admin-command-note{background:#FFF7E8;border:1px solid #E8C574;border-radius:12px;padding:13px;font-size:12px;line-height:1.5;color:#7A5A12;margin-top:4px}
+  @media(max-width:700px){.admin-command-grid{grid-template-columns:1fr}.admin-assembly-card{grid-template-columns:1fr}}
   .admin-editions-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:18px}
   .admin-edition-card{background:#fff;border:1px solid #D9E3F1;border-radius:16px;padding:18px;position:relative;overflow:hidden}
   .admin-edition-card.current{border:2px solid var(--season-accent,#2255A4);box-shadow:0 8px 24px rgba(22,39,77,.08)}
@@ -382,6 +405,8 @@
   .admin-editions-note{background:#F7FAFF;border:1px solid #DDE6F2;border-radius:12px;padding:13px;font-size:12px;color:#5B6B8C;line-height:1.5;margin-top:14px}
   @media(max-width:700px){.admin-editions-grid{grid-template-columns:1fr}}
   .admin-chat-admin-badge.owner-badge{background:#8B4CC8}
+  .global-chat-admin-badge.principal-badge,.admin-chat-admin-badge.principal-badge{background:#C97A10}
+  .global-chat-admin-badge.vice-principal-badge,.admin-chat-admin-badge.vice-principal-badge{background:#2E8B57}
   @media(max-width:560px){.admin-stat-grid{grid-template-columns:1fr 1fr}.admin-section-title{font-size:24px}.admin-modal{min-width:calc(100vw - 20px);min-height:360px}}
   .global-chat-admin-badge.owner-badge{background:#8B4CC8}
   .admin-chat-admin-badge.owner-badge{background:#8B4CC8}
@@ -693,7 +718,7 @@
         <h1>Narwhal Station <span class="music-emoji">🎵🎶</span><span id="seasonMascotAccessory" class="season-mascot-accessory" aria-label="Seasonal decoration">🍂</span></h1>
         <p>Play • Learn • Explore • Be You</p>
         <div id="seasonBadge" class="season-badge">🍂 Fall Edition</div>
-        <div id="holidayBadge" class="holiday-badge hidden">🎉 Holiday Edition</div>
+        <div id="holidayBadge" class="holiday-badge hidden">🎃 Halloween Edition</div>
       </div>
     </div>
     <div class="top-nav">
@@ -719,6 +744,7 @@
     <div id="seasonEventText" class="season-event-text"></div>
   </div>
 </div>
+<div id="adminCommandEffectLayer" class="admin-command-effect-layer" aria-hidden="true"></div>
 <div id="globalChatBanner" class="global-chat-banner hidden" aria-live="polite">
   <div class="global-chat-message">
     <div class="global-chat-author-row">
@@ -913,7 +939,8 @@
         <button class="admin-menu-card" data-admin-section="adminGames">🎮 Games</button>
         <button class="admin-menu-card" data-admin-section="adminLeaderboards">🏆 Leaderboards</button>
         <button class="admin-menu-card" data-admin-section="adminEditions">🍂 Editions</button>
-<button class="admin-menu-card" data-admin-section="adminAnnouncements">📢 Announcements</button>
+        <button class="admin-menu-card" data-admin-section="adminCommands">🛠️ Admin Commands</button>
+        <button class="admin-menu-card" data-admin-section="adminAnnouncements">📢 Announcements</button>
         <button class="admin-menu-card" data-admin-section="adminSettings">⚙️ Settings</button>
         <button class="admin-menu-card" data-admin-section="adminAbout">ℹ️ About</button>
         <button class="admin-menu-card" data-admin-section="adminRequests">📝 Requests</button>
@@ -1025,13 +1052,6 @@
           <div class="admin-section-subtitle" style="margin-top:28px">🎉 Holiday Editions</div>
           <div class="admin-editions-note" style="margin-top:0">Holiday editions can appear automatically on special dates. Preview one here to see the decorations without changing the real calendar.</div>
           <div id="adminHolidayEditionsGrid" class="admin-editions-grid"></div>
-          <div class="admin-form-block" style="margin-top:14px">
-            <div style="font-size:14px;font-weight:950;color:#16274D">🗓️ Holiday Automatic Switching</div>
-            <label class="admin-toggle-row"><input id="adminHolidayAutoEnabled" type="checkbox"> Turn automatic holiday editions ON</label>
-            <div class="admin-status-note">When ON, a holiday edition replaces the normal season on its special date. When OFF, the normal season stays active.</div>
-            <div class="admin-inline-actions"><button id="adminSaveHolidayAutoBtn" class="admin-primary-btn" type="button">💾 Save Holiday Setting</button></div>
-            <div id="adminHolidayAutoStatus" class="admin-status-note">Loading holiday setting...</div>
-          </div>
           <div class="admin-form-block">
             <div style="font-size:14px;font-weight:950;color:#16274D">🎉 Special Seasonal Event</div>
             <label>Event icon
@@ -1052,6 +1072,73 @@
           </div>
           <div class="admin-editions-note">💡 The app changes editions automatically based on the month. Previewing an edition only changes what you see on this computer right now. Refreshing the page goes back to the automatic season.</div>
           <button id="adminEditionAutoBtn" class="admin-edition-btn secondary" type="button" style="margin-top:12px">🔄 Return to Automatic Season</button>
+        </section>
+
+        <section id="adminCommands" class="admin-subsection">
+          <div class="admin-section-title">🛠️ Admin Commands</div>
+          <div class="admin-section-subtitle">Special powers for the administrator. Commands can affect all connected Narwhal Station devices.</div>
+          <div class="admin-commands-scroll">
+            <div class="admin-command-group">
+              <div class="admin-command-group-title">🎬 Special Cutscenes</div>
+              <div class="admin-command-grid">
+                <button class="admin-command-btn" data-admin-command="launch">🚀 Launch Sequence</button>
+                <button class="admin-command-btn" data-admin-command="halloween">🎃 Halloween Takeover</button>
+                <button class="admin-command-btn" data-admin-command="snowstorm">❄️ Snowstorm</button>
+                <button class="admin-command-btn" data-admin-command="thanksgiving">🦃 Thanksgiving Parade</button>
+                <button class="admin-command-btn" data-admin-command="winter">🎄 Winter Celebration</button>
+                <button class="admin-command-btn" data-admin-command="spring">🌷 Spring Bloom</button>
+                <button class="admin-command-btn" data-admin-command="summer">☀️ Summer Blast</button>
+                <button class="admin-command-btn" data-admin-command="dance">🐋 Narwhal Dance Party</button>
+                <button class="admin-command-btn" data-admin-command="school-assembly">🎉 School Celebration</button>
+              </div>
+            </div>
+
+            <div class="admin-command-group">
+              <div class="admin-command-group-title">✨ Global Effects</div>
+              <div class="admin-command-grid">
+                <button class="admin-command-btn" data-admin-command="waves">🌊 Ocean Wave</button>
+                <button class="admin-command-btn" data-admin-command="snow">❄️ Snow Everywhere</button>
+                <button class="admin-command-btn" data-admin-command="leaves">🍂 Leaf Storm</button>
+                <button class="admin-command-btn" data-admin-command="confetti">🎊 Confetti Explosion</button>
+                <button class="admin-command-btn" data-admin-command="rainbow">🌈 Rainbow Effect</button>
+                <button class="admin-command-btn" data-admin-command="notes">🎵 Music-Note Shower</button>
+              </div>
+            </div>
+
+            <div class="admin-command-group">
+              <div class="admin-command-group-title">👑 Admin Powers</div>
+              <div class="admin-command-grid">
+                <button class="admin-command-btn warning" data-admin-command="lock-music">🔒 Lock Music Search</button>
+                <button class="admin-command-btn warning" data-admin-command="disable-games">🎮 Disable Games</button>
+                <button class="admin-command-btn" data-admin-command="unlock-all">🔓 Re-enable Everything</button>
+                <button class="admin-command-btn warning" data-admin-command="emergency">🚨 Emergency School Message</button>
+                <button class="admin-command-btn" data-admin-command="clear-announcement">🧹 Clear Announcement</button>
+                <button class="admin-command-btn" data-admin-command="refresh">🔄 Refresh Everyone</button>
+              </div>
+            </div>
+
+            <div class="admin-command-group">
+              <div class="admin-command-group-title">🐋 Narwhal Powers</div>
+              <div class="admin-command-grid">
+                <button class="admin-command-btn" data-admin-command="narwhal-show">🐋 Show Narwhal</button>
+                <button class="admin-command-btn" data-admin-command="narwhal-dance">💃 Narwhal Dance</button>
+                <button class="admin-command-btn" data-admin-command="narwhal-launch">🚀 Narwhal Launch</button>
+                <button class="admin-command-btn" data-admin-command="narwhal-sunglasses">😎 Sunglasses</button>
+                <button class="admin-command-btn" data-admin-command="narwhal-halloween">🎃 Halloween Narwhal</button>
+                <button class="admin-command-btn" data-admin-command="narwhal-winter">⛄ Winter Narwhal</button>
+              </div>
+            </div>
+
+            <div class="admin-command-group">
+              <div class="admin-command-group-title">🎤 School Assembly Mode</div>
+              <div class="admin-assembly-card">
+                <div class="admin-assembly-preview">🎉 SST NORTHWEST<br><strong>SPECIAL ANNOUNCEMENT</strong><br>🐋 Narwhal Station has an important message!</div>
+                <button class="admin-command-btn" data-admin-command="school-assembly">🎤 Start School Assembly Mode</button>
+              </div>
+            </div>
+
+            <div class="admin-command-note">⚠️ Commands marked as school-wide can affect every connected Narwhal Station device. Cutscenes and effects are temporary. Locking music or games stays active until you use <strong>Re-enable Everything</strong>.</div>
+          </div>
         </section>
 
         <section id="adminAnnouncements" class="admin-subsection">
@@ -1118,6 +1205,8 @@
               <select id="globalChatSenderRole">
                 <option value="ADMIN">Administrator</option>
                 <option value="OWNER">Owner</option>
+                <option value="VICE_PRINCIPAL">Vice Principal</option>
+                <option value="PRINCIPAL">Principal</option>
               </select>
             </label>
           </div>
@@ -3061,6 +3150,143 @@
     adminAccessActual.setAttribute("aria-hidden", "true");
   }
 
+  const ADMIN_COMMAND_ENDPOINT = "/api/admin-command";
+  let lastAdminCommandId = "";
+  let adminCommandPollTimer = null;
+  const ADMIN_COMMAND_LABELS = {
+    launch:"Launch Sequence", halloween:"Halloween Takeover", snowstorm:"Snowstorm", thanksgiving:"Thanksgiving Parade",
+    winter:"Winter Celebration", spring:"Spring Bloom", summer:"Summer Blast", dance:"Narwhal Dance Party",
+    "school-assembly":"School Celebration", waves:"Ocean Wave", snow:"Snow Everywhere", leaves:"Leaf Storm",
+    confetti:"Confetti Explosion", rainbow:"Rainbow Effect", notes:"Music-Note Shower", "lock-music":"Lock Music Search",
+    "disable-games":"Disable Games", "unlock-all":"Re-enable Everything", emergency:"Emergency School Message",
+    "clear-announcement":"Clear Announcement", refresh:"Refresh Everyone", "narwhal-show":"Show Narwhal",
+    "narwhal-dance":"Narwhal Dance", "narwhal-launch":"Narwhal Launch", "narwhal-sunglasses":"Sunglasses",
+    "narwhal-halloween":"Halloween Narwhal", "narwhal-winter":"Winter Narwhal"
+  };
+
+  function getAdminCommandPassword(){ return ADMIN_PASSWORD_ACTUAL; }
+
+  function addCommandParticles(items, count=26, duration=7500){
+    const layer=document.getElementById("adminCommandEffectLayer"); if(!layer) return;
+    for(let i=0;i<count;i++){
+      const el=document.createElement("span"); el.className="admin-command-effect-particle"; el.textContent=items[i%items.length];
+      el.style.left=`${Math.random()*100}%`;
+      el.style.setProperty("--drift",`${Math.round(Math.random()*220-110)}px`);
+      el.style.setProperty("--spin",`${Math.round(Math.random()*720-360)}deg`);
+      el.style.setProperty("--fall-time",`${5.5+Math.random()*4}s`);
+      el.style.animationDelay=`${Math.random()*1.2}s`;
+      layer.appendChild(el);
+      setTimeout(()=>el.remove(),duration+1800);
+    }
+  }
+
+  function playAdminCommandEffect(command, payload={}) {
+    if (command === "refresh") { window.location.reload(); return; }
+    if (command === "clear-announcement") { document.getElementById("schoolAnnouncement")?.classList.add("hidden"); return; }
+    if (command === "lock-music") { localStorage.setItem("narwhalRemoteMusicLocked","1"); applyRemoteCommandLocks(); return; }
+    if (command === "disable-games") { localStorage.setItem("narwhalRemoteGamesLocked","1"); applyRemoteCommandLocks(); return; }
+    if (command === "unlock-all") { localStorage.removeItem("narwhalRemoteMusicLocked"); localStorage.removeItem("narwhalRemoteGamesLocked"); applyRemoteCommandLocks(); return; }
+    if (command === "emergency") { showRemoteCommandBanner(payload.text || "Please follow staff instructions.", "🚨 Emergency School Message"); return; }
+
+    const iconMap={launch:"🚀",halloween:"🎃",snowstorm:"❄️",thanksgiving:"🦃",winter:"🎄",spring:"🌷",summer:"☀️",dance:"🐋","school-assembly":"🎉",waves:"🌊",snow:"❄️",leaves:"🍂",confetti:"🎊",rainbow:"🌈",notes:"🎵","narwhal-show":"🐋","narwhal-dance":"💃","narwhal-launch":"🚀","narwhal-sunglasses":"😎","narwhal-halloween":"🎃","narwhal-winter":"⛄"};
+    const icon=iconMap[command]||"✨", label=ADMIN_COMMAND_LABELS[command]||"Special Command";
+
+    if(command === "launch" || command === "narwhal-launch"){
+      if(typeof playLaunchIntro === "function") playLaunchIntro();
+      else showRemoteCommandBanner("Narwhal Station is launching!",`${icon} Launch Sequence`);
+      return;
+    }
+    if(command === "halloween" || command === "narwhal-halloween"){ addCommandParticles(["🎃","👻","🕷️","🍬","🦇"],30,9000); showRemoteCommandBanner("A spooky-but-friendly celebration is happening now!","🎃 Halloween Takeover"); return; }
+    if(command === "snowstorm" || command === "snow" || command === "narwhal-winter"){ addCommandParticles(["❄️","❄️","❄️","✨","⛄"],34,10000); showRemoteCommandBanner("Snow is falling across Narwhal Station!","❄️ Snowstorm"); return; }
+    if(command === "thanksgiving"){ addCommandParticles(["🦃","🍂","🍁","🥧","🌽"],28,9000); showRemoteCommandBanner("Happy Thanksgiving!","🦃 Thanksgiving Parade"); return; }
+    if(command === "winter"){ addCommandParticles(["🎄","🎁","❄️","✨","🔔"],28,9000); showRemoteCommandBanner("Winter Celebration is happening now!","🎄 Winter Celebration"); return; }
+    if(command === "spring"){ addCommandParticles(["🌸","🌷","🌼","🦋","✨"],28,9000); showRemoteCommandBanner("Flowers and butterflies are blooming!","🌷 Spring Bloom"); return; }
+    if(command === "summer"){ addCommandParticles(["☀️","🌊","🐚","✨","🏖️"],28,9000); showRemoteCommandBanner("Summer Blast is here!","☀️ Summer Blast"); return; }
+    if(command === "dance" || command === "narwhal-dance"){ addCommandParticles(["🐋","🎵","🎶","💃","🕺"],22,7500); showRemoteCommandBanner("Everybody dance!","🐋 Narwhal Dance Party"); return; }
+    if(command === "school-assembly"){
+      const layer=document.getElementById("adminCommandEffectLayer");
+      if(layer){ const box=document.createElement("div"); box.className="admin-command-assembly"; box.innerHTML=`<div>🎉 SST NORTHWEST<br><strong>SPECIAL ANNOUNCEMENT</strong><small>${escapeHtml(payload.text || "Narwhal Station has an important message!")}</small></div>`; layer.appendChild(box); setTimeout(()=>box.remove(),12000); }
+      return;
+    }
+    if(command === "waves"){ const layer=document.getElementById("adminCommandEffectLayer"); if(layer){for(let i=0;i<3;i++){const w=document.createElement("div");w.className="admin-command-wave";w.style.animationDelay=`${i*.45}s`;layer.appendChild(w);setTimeout(()=>w.remove(),3000)}}; showRemoteCommandBanner("Ocean waves are rolling through Narwhal Station!","🌊 Ocean Wave"); return; }
+    if(command === "leaves"){ addCommandParticles(["🍂","🍁","🍂","🌰"],34,10500); showRemoteCommandBanner("Leaf storm incoming!","🍂 Leaf Storm"); return; }
+    if(command === "confetti"){ addCommandParticles(["🎊","🎉","✨","⭐","🎈"],42,8000); showRemoteCommandBanner("Confetti everywhere!","🎊 Confetti Explosion"); return; }
+    if(command === "rainbow"){ const layer=document.getElementById("adminCommandEffectLayer"); if(layer){const r=document.createElement("div");r.className="admin-command-rainbow";layer.appendChild(r);setTimeout(()=>r.remove(),7500)} showRemoteCommandBanner("Look at that rainbow!","🌈 Rainbow Effect"); return; }
+    if(command === "notes"){ addCommandParticles(["🎵","🎶","🎵","🎶","🎼"],30,8500); showRemoteCommandBanner("Music notes are floating everywhere!","🎵 Music-Note Shower"); return; }
+    if(command.startsWith("narwhal-")){ showNarwhalPower(command,icon); return; }
+    showRemoteCommandBanner(`${icon} ${label}!`,`${icon} ${label}`);
+  }
+
+  function escapeHtml(text){ const div=document.createElement("div"); div.textContent=String(text||""); return div.innerHTML; }
+
+  function showRemoteCommandBanner(text,title){
+    const banner=document.getElementById("seasonEventBanner"); if(!banner) return;
+    const icon=(String(title||"").match(/^\S+/)||["🎉"])[0];
+    document.getElementById("seasonEventIcon").textContent=icon;
+    document.getElementById("seasonEventTitle").textContent=title||"Special Event";
+    document.getElementById("seasonEventText").textContent=text;
+    banner.classList.add("show");
+    clearTimeout(window.__adminCommandBannerTimer);
+    window.__adminCommandBannerTimer=setTimeout(()=>banner.classList.remove("show"),9000);
+  }
+
+  function showNarwhalPower(command,icon){
+    const mascot=document.querySelector(".narwhal-mark");
+    if(command === "narwhal-sunglasses"){ mascot?.classList.add("admin-sunglasses"); setTimeout(()=>mascot?.classList.remove("admin-sunglasses"),10000); }
+    else if(command === "narwhal-show") { mascot?.scrollIntoView?.({behavior:"smooth",block:"center"}); showRemoteCommandBanner("The Narwhal is here!",`${icon} Narwhal Power`); }
+    else { addCommandParticles([icon,"🐋","✨"],18,6500); showRemoteCommandBanner(`${icon} Narwhal power activated!`,`${icon} Narwhal Power`); }
+  }
+
+  function applyRemoteCommandLocks(){
+    const musicLocked=localStorage.getItem("narwhalRemoteMusicLocked")==="1";
+    const gamesLocked=localStorage.getItem("narwhalRemoteGamesLocked")==="1";
+    const musicBtn=document.getElementById("navYouTubeBtn"), gamesBtn=document.getElementById("navGamesBtn");
+    if(musicBtn){ musicBtn.disabled=musicLocked; musicBtn.style.opacity=musicLocked?".5":""; musicBtn.title=musicLocked?"Music search is temporarily locked by school staff.":""; }
+    if(gamesBtn){ gamesBtn.disabled=gamesLocked; gamesBtn.style.opacity=gamesLocked?".5":""; gamesBtn.title=gamesLocked?"Games are temporarily disabled by school staff.":""; }
+    document.querySelectorAll("#gamesSection .game-card-tile").forEach(btn=>{btn.disabled=gamesLocked;btn.style.pointerEvents=gamesLocked?"none":"";btn.style.opacity=gamesLocked?".5":"";});
+    if(gamesLocked && !document.getElementById("gamesSection")?.classList.contains("hidden")) showRemoteCommandBanner("Games are temporarily paused by school staff.","🎮 Games Paused");
+    if(musicLocked && !document.getElementById("youtubeSection")?.classList.contains("hidden")) showRemoteCommandBanner("Music search is temporarily paused by school staff.","🔒 Music Search Paused");
+  }
+
+  async function sendAdminCommand(command){
+    const label=ADMIN_COMMAND_LABELS[command] || command;
+    const schoolWide=true;
+    if (["refresh","lock-music","disable-games","unlock-all","clear-announcement","emergency"].includes(command)) {
+      const ok=confirm(`⚠️ ${label}\n\nThis will affect connected Narwhal Station devices.\n\nContinue?`); if(!ok) return;
+    }
+    let text="";
+    if(command === "emergency"){
+      text=prompt("Type the emergency school message:","")?.trim() || "";
+      if(!text) return;
+    }
+    try{
+      const r=await fetch(ADMIN_COMMAND_ENDPOINT,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({password:getAdminCommandPassword(),command,text}),cache:"no-store"});
+      const d=await r.json().catch(()=>({}));
+      if(!r.ok) throw new Error(d.error||"Command could not be sent.");
+      if(d?.command?.id) lastAdminCommandId = d.command.id;
+      playAdminCommandEffect(command,{text});
+      flashFeatureMessage(`🛠️ ${label} sent`);
+    }catch(e){ alert(e.message||"Command could not be sent."); }
+  }
+
+  async function pollAdminCommands(){
+    try{
+      const r=await fetch(ADMIN_COMMAND_ENDPOINT,{cache:"no-store"});
+      const d=await r.json().catch(()=>({}));
+      const command=d?.command;
+      if(!command?.id || command.id===lastAdminCommandId) return;
+      lastAdminCommandId=command.id;
+      const age=Date.now()-Number(command.time||Date.now());
+      if(command.transient && age>15000) return;
+      playAdminCommandEffect(command.command,command);
+    }catch(_){}
+  }
+
+  document.querySelectorAll("[data-admin-command]").forEach(btn=>btn.addEventListener("click",()=>sendAdminCommand(btn.dataset.adminCommand)));
+  applyRemoteCommandLocks();
+  pollAdminCommands();
+  adminCommandPollTimer=setInterval(pollAdminCommands,3000);
+
   function showAdminSection(id) {
     document.querySelectorAll(".admin-subsection").forEach(s => s.classList.toggle("active", s.id === id));
     document.querySelectorAll(".admin-menu-card").forEach(b => b.classList.toggle("active", b.dataset.adminSection === id));
@@ -3686,11 +3912,15 @@
 
     clearTimeout(globalChatFadeTimer);
     banner.classList.remove("hidden", "chat-fading");
-    const role = String(message.role || "ADMIN").toUpperCase() === "OWNER" ? "OWNER" : "ADMIN";
-    nameEl.textContent = message.name || (role === "OWNER" ? "Owner" : "Administrator");
+    const role = ["ADMIN", "OWNER", "VICE_PRINCIPAL", "PRINCIPAL"].includes(String(message.role || "ADMIN").toUpperCase()) ? String(message.role || "ADMIN").toUpperCase() : "ADMIN";
+    const roleLabel = globalChatRoleLabel(role);
+    nameEl.textContent = message.name || roleLabel;
     if (roleEl) {
-      roleEl.textContent = role;
-      roleEl.classList.toggle("owner-badge", role === "OWNER");
+      roleEl.textContent = roleLabel.toUpperCase();
+      roleEl.classList.remove("owner-badge", "principal-badge", "vice-principal-badge");
+      if (role === "OWNER") roleEl.classList.add("owner-badge");
+      if (role === "PRINCIPAL") roleEl.classList.add("principal-badge");
+      if (role === "VICE_PRINCIPAL") roleEl.classList.add("vice-principal-badge");
     }
     textEl.textContent = message.text || "";
     globalChatLatestId = messageId;
@@ -3727,9 +3957,12 @@
     name.className = "admin-chat-name";
     name.textContent = message.name || "Administrator";
     const badge = document.createElement("span");
-    const role = String(message.role || "ADMIN").toUpperCase() === "OWNER" ? "OWNER" : "ADMIN";
-    badge.className = "admin-chat-admin-badge" + (role === "OWNER" ? " owner-badge" : "");
-    badge.textContent = role;
+    const role = ["ADMIN", "OWNER", "VICE_PRINCIPAL", "PRINCIPAL"].includes(String(message.role || "ADMIN").toUpperCase()) ? String(message.role || "ADMIN").toUpperCase() : "ADMIN";
+    badge.className = "admin-chat-admin-badge";
+    if (role === "OWNER") badge.classList.add("owner-badge");
+    if (role === "PRINCIPAL") badge.classList.add("principal-badge");
+    if (role === "VICE_PRINCIPAL") badge.classList.add("vice-principal-badge");
+    badge.textContent = globalChatRoleLabel(role).toUpperCase();
     meta.append(name, badge);
     const text = document.createElement("div");
     text.className = "admin-chat-text";
@@ -3738,23 +3971,39 @@
     box.appendChild(item);
   }
 
+  function getGlobalChatRole() {
+    const value = String(globalChatSenderRole?.value || "ADMIN").toUpperCase();
+    return ["ADMIN", "OWNER", "VICE_PRINCIPAL", "PRINCIPAL"].includes(value) ? value : "ADMIN";
+  }
+
+  function globalChatRoleLabel(role) {
+    return ({
+      ADMIN: "Administrator",
+      OWNER: "Owner",
+      VICE_PRINCIPAL: "Vice Principal",
+      PRINCIPAL: "Principal"
+    })[role] || "Administrator";
+  }
+
   function updateGlobalChatRoleUI() {
-    const role = String(globalChatSenderRole?.value || "ADMIN").toUpperCase() === "OWNER" ? "OWNER" : "ADMIN";
-    const defaultName = role === "OWNER" ? "Owner" : "Administrator";
-    if (globalChatSenderName) globalChatSenderName.value = defaultName;
+    const role = getGlobalChatRole();
+    // Changing roles clears the name box so the sender must choose/type the correct name.
+    if (globalChatSenderName) globalChatSenderName.value = "";
     if (globalChatRoleNote) {
-      globalChatRoleNote.textContent = role === "OWNER"
-        ? "OWNER messages show the OWNER badge to students."
-        : "ADMIN messages show the ADMIN badge to students.";
+      globalChatRoleNote.textContent = `${globalChatRoleLabel(role)} messages show the ${globalChatRoleLabel(role).toUpperCase()} badge to students.`;
     }
   }
   globalChatSenderRole?.addEventListener("change", updateGlobalChatRoleUI);
 
   async function sendAdminChatMessage() {
     const text = (adminChatInput?.value || "").trim();
-    const role = String(globalChatSenderRole?.value || "ADMIN").toUpperCase() === "OWNER" ? "OWNER" : "ADMIN";
-    const defaultName = role === "OWNER" ? "Owner" : "Administrator";
-    const name = (globalChatSenderName?.value || "").trim() || defaultName;
+    const role = getGlobalChatRole();
+    const name = (globalChatSenderName?.value || "").trim();
+    if (!name) {
+      if (globalChatRoleNote) globalChatRoleNote.textContent = "Please enter the name you are sending as.";
+      globalChatSenderName?.focus();
+      return;
+    }
     if (!text) return;
 
     if (adminChatSendBtn) {
@@ -4084,8 +4333,6 @@
 
   let seasonPreviewKey = null;
   let holidayPreviewKey = null;
-  const HOLIDAY_AUTO_STORAGE_KEY = "narwhalHolidayAutoEnabled";
-  let holidayAutoEnabled = localStorage.getItem(HOLIDAY_AUTO_STORAGE_KEY) !== "0";
 
   function getNarwhalSeason(date = new Date()) {
     const month = date.getMonth() + 1;
@@ -4114,40 +4361,31 @@
   }
 
   function getAutomaticHoliday(date = new Date()) {
-    const year = date.getFullYear();
-    const month = date.getMonth() + 1;
-    const day = date.getDate();
-
-    // Exact-date holidays are checked first so they always override a season.
-    if (month === 1 && day === 1) return NARWHAL_HOLIDAYS.newyear;
-    if (month === 1 && day === 20 && year >= 2025 && (year - 2025) % 4 === 0) return NARWHAL_HOLIDAYS.inauguration;
-    if (sameDay(date, nthWeekdayOfMonth(year, 0, 1, 3))) return NARWHAL_HOLIDAYS.mlk;
-    if (sameDay(date, nthWeekdayOfMonth(year, 1, 1, 3))) return NARWHAL_HOLIDAYS.washington;
-    if (month === 2 && day === 14) return NARWHAL_HOLIDAYS.valentines;
-    if (month === 3 && day === 17) return NARWHAL_HOLIDAYS.stpatricks;
-
-    const easter = easterSunday(year);
-    if (sameDay(date, easter)) return NARWHAL_HOLIDAYS.easter;
-
-    if (sameDay(date, nthWeekdayOfMonth(year, 4, 0, 2))) return NARWHAL_HOLIDAYS.mothers;
-    if (sameDay(date, lastWeekdayOfMonth(year, 4, 1))) return NARWHAL_HOLIDAYS.memorial;
-    if (month === 6 && day === 14) return NARWHAL_HOLIDAYS.flag;
-    if (month === 6 && day === 19) return NARWHAL_HOLIDAYS.juneteenth;
-    if (sameDay(date, nthWeekdayOfMonth(year, 5, 0, 3))) return NARWHAL_HOLIDAYS.fathers;
-    if (month === 7 && day === 4) return NARWHAL_HOLIDAYS.independence;
-    if (sameDay(date, nthWeekdayOfMonth(year, 8, 1, 1))) return NARWHAL_HOLIDAYS.labor;
-
-    // October 31 is Halloween; the second Monday is a separate civic holiday.
-    // Indigenous Peoples' Day is used for the automatic edition on that shared date.
-    if (month === 10 && sameDay(date, nthWeekdayOfMonth(year, 9, 1, 2))) return NARWHAL_HOLIDAYS.indigenous;
-    if (month === 10 && day === 31) return NARWHAL_HOLIDAYS.halloween;
-
-    if (month === 11 && day === 11) return NARWHAL_HOLIDAYS.veterans;
-    const thanksgiving = nthWeekdayOfMonth(year, 10, 4, 4);
-    if (sameDay(date, thanksgiving)) return NARWHAL_HOLIDAYS.thanksgiving;
-
-    if (month === 12 && day === 25) return NARWHAL_HOLIDAYS.christmas;
-
+    const year=date.getFullYear(), month=date.getMonth()+1, day=date.getDate();
+    if (month===1 && day===1) return NARWHAL_HOLIDAYS.newyear;
+    if (month===1 && day===20 && year%4===0) return NARWHAL_HOLIDAYS.inauguration;
+    if (sameDay(date,nthWeekdayOfMonth(year,0,1,3))) return NARWHAL_HOLIDAYS.mlk;
+    if (month===2 && day<=14) return NARWHAL_HOLIDAYS.valentines;
+    if (sameDay(date,nthWeekdayOfMonth(year,1,1,3))) return NARWHAL_HOLIDAYS.washington;
+    if (month===3 && day>=10 && day<=17) return NARWHAL_HOLIDAYS.stpatricks;
+    const easter=easterSunday(year);
+    const easterStart=addDays(easter,-3), easterEnd=addDays(easter,2);
+    if (date>=easterStart && date<=easterEnd) return NARWHAL_HOLIDAYS.easter;
+    if (sameDay(date,nthWeekdayOfMonth(year,4,0,2))) return NARWHAL_HOLIDAYS.mothers;
+    if (sameDay(date,lastWeekdayOfMonth(year,4,1))) return NARWHAL_HOLIDAYS.memorial;
+    if (month===6 && day===14) return NARWHAL_HOLIDAYS.flag;
+    if (month===6 && day===19) return NARWHAL_HOLIDAYS.juneteenth;
+    if (sameDay(date,nthWeekdayOfMonth(year,5,0,3))) return NARWHAL_HOLIDAYS.fathers;
+    if (month===7 && day===4) return NARWHAL_HOLIDAYS.independence;
+    if (sameDay(date,nthWeekdayOfMonth(year,8,1,1))) return NARWHAL_HOLIDAYS.labor;
+    if (month===10 && day>=1 && day<=31) return NARWHAL_HOLIDAYS.halloween;
+    if (month===10 && sameDay(date,nthWeekdayOfMonth(year,9,1,2))) return NARWHAL_HOLIDAYS.columbus;
+    if (month===10 && sameDay(date,nthWeekdayOfMonth(year,9,1,2))) return NARWHAL_HOLIDAYS.indigenous;
+    if (month===11 && day===11) return NARWHAL_HOLIDAYS.veterans;
+    const thanksgiving=nthWeekdayOfMonth(year,10,4,4);
+    if (sameDay(date,thanksgiving)) return NARWHAL_HOLIDAYS.thanksgiving;
+    if (month===12 && day===25) return NARWHAL_HOLIDAYS.christmas;
+    if (month===12 && day<=26) return NARWHAL_HOLIDAYS.winter;
     return null;
   }
 
@@ -4155,60 +4393,37 @@
     return seasonPreviewKey ? NARWHAL_EDITIONS[seasonPreviewKey] : getNarwhalSeason();
   }
   function getActiveHoliday() {
-    if (holidayPreviewKey) return NARWHAL_HOLIDAYS[holidayPreviewKey];
-    return holidayAutoEnabled ? getAutomaticHoliday() : null;
+    return holidayPreviewKey ? NARWHAL_HOLIDAYS[holidayPreviewKey] : getAutomaticHoliday();
   }
 
   function applyNarwhalSeason() {
     const season=getActiveNarwhalSeason(), holiday=getActiveHoliday();
     document.body.classList.remove("season-fall","season-winter","season-spring","season-summer");
+    document.body.classList.add(`season-${season.key}`);
     Object.values(NARWHAL_HOLIDAYS).forEach(h=>document.body.classList.remove(h.className));
     if (holiday) document.body.classList.add(holiday.className);
-    else document.body.classList.add(`season-${season.key}`);
-
-    const badge=document.getElementById("seasonBadge");
-    if(badge){ badge.textContent=holiday ? "" : season.label; badge.classList.toggle("hidden",!!holiday); }
+    const badge=document.getElementById("seasonBadge"); if(badge) badge.textContent=season.label;
     const holidayBadge=document.getElementById("holidayBadge");
     if(holidayBadge){ holidayBadge.textContent=holiday?holiday.label:""; holidayBadge.classList.toggle("hidden",!holiday); }
     const accessory=document.getElementById("seasonMascotAccessory");
     if(accessory){ const holidayIcons={newyear:"🎆",mlk:"✊🏾",inauguration:"🇺🇸",valentines:"💗",washington:"🇺🇸",stpatricks:"🍀",easter:"🐰",mothers:"💐",memorial:"🎖️",juneteenth:"❤️",fathers:"👔",flag:"🇺🇸",independence:"🎆",labor:"🧰",halloween:"🎃",columbus:"🗺️",indigenous:"🪶",veterans:"🎖️",thanksgiving:"🦃",christmas:"🎄",winter:"🎄"}; accessory.textContent=holiday ? (holidayIcons[holiday.key]||"🎉") : (season.key === "fall" ? "🍂" : season.key === "winter" ? "❄️" : season.key === "spring" ? "🌷" : "😎"); }
-    const adminEdition=document.getElementById("adminCurrentEdition");
-    if(adminEdition) adminEdition.textContent=holiday?holiday.label.replace(/^\S+\s*/,""):season.label.replace(/^\S+\s*/,"");
+    const adminEdition=document.getElementById("adminCurrentEdition"); if(adminEdition) adminEdition.textContent=holiday?holiday.label.replace(/^\S+\s*/,""):season.label.replace(/^\S+\s*/,"");
     document.title=`Narwhal Station — ${holiday?holiday.label.replace(/^[^ ]+ /,""):season.label.replace(/^[^ ]+ /,"")}`;
 
     const layer=document.getElementById("seasonDecorationLayer");
-    if(layer){ layer.innerHTML=""; if(!holiday){ const count=season.key==="winter"?24:16; for(let i=0;i<count;i++){ const particle=document.createElement("span"); particle.className=`season-particle ${season.particle}`; particle.textContent=season.items[i%season.items.length]; particle.style.left=`${Math.random()*100}%`; particle.style.setProperty("--drift",`${Math.round(Math.random()*180-90)}px`); particle.style.setProperty("--spin",`${Math.round(Math.random()*720-360)}deg`); particle.style.animationDuration=`${8+Math.random()*9}s`; particle.style.animationDelay=`${Math.random()*8}s`; layer.appendChild(particle); } } }
+    if(layer){ layer.innerHTML=""; const count=season.key==="winter"?24:16; for(let i=0;i<count;i++){ const particle=document.createElement("span"); particle.className=`season-particle ${season.particle}`; particle.textContent=season.items[i%season.items.length]; particle.style.left=`${Math.random()*100}%`; particle.style.setProperty("--drift",`${Math.round(Math.random()*180-90)}px`); particle.style.setProperty("--spin",`${Math.round(Math.random()*720-360)}deg`); particle.style.animationDuration=`${8+Math.random()*9}s`; particle.style.animationDelay=`${Math.random()*8}s`; layer.appendChild(particle); } }
     const holidayLayer=document.getElementById("holidayDecorationLayer");
     if(holidayLayer){ holidayLayer.innerHTML=""; if(holiday){ for(let i=0;i<18;i++){ const particle=document.createElement("span"); particle.className=`holiday-particle ${holiday.particleClass}`; particle.textContent=holiday.items[i%holiday.items.length]; particle.style.left=`${Math.random()*100}%`; particle.style.setProperty("--drift",`${Math.round(Math.random()*180-90)}px`); particle.style.setProperty("--spin",`${Math.round(Math.random()*720-360)}deg`); particle.style.animationDuration=`${7+Math.random()*9}s`; particle.style.animationDelay=`${Math.random()*8}s`; holidayLayer.appendChild(particle); } } }
     renderAdminEditions();
-    updateHolidayAutoControls();
   }
 
-  function updateHolidayAutoControls(){ const toggle=document.getElementById("adminHolidayAutoEnabled"), status=document.getElementById("adminHolidayAutoStatus"); if(toggle) toggle.checked=holidayAutoEnabled; if(status) status.textContent=holidayAutoEnabled ? "Automatic holiday editions are ON." : "Automatic holiday editions are OFF. The normal season will stay active on holidays."; }
   function renderAdminEditions() {
     const grid=document.getElementById("adminEditionsGrid"); if(grid){ const automatic=getNarwhalSeason(), active=getActiveNarwhalSeason(); grid.innerHTML=""; Object.values(NARWHAL_EDITIONS).forEach(edition=>{ const card=document.createElement("div"); card.className=`admin-edition-card${active.key===edition.key&&!holidayPreviewKey?" current":""}`; const top=document.createElement("div"); top.className="admin-edition-top"; const name=document.createElement("div"); name.className="admin-edition-name"; name.textContent=edition.label; top.appendChild(name); if(automatic.key===edition.key&&!seasonPreviewKey&&!holidayPreviewKey){const badge=document.createElement("span");badge.className="admin-edition-current";badge.textContent="CURRENT";top.appendChild(badge)} else if(seasonPreviewKey===edition.key&&!holidayPreviewKey){const badge=document.createElement("span");badge.className="admin-edition-current";badge.textContent="PREVIEWING";top.appendChild(badge)} const dates=document.createElement("div");dates.className="admin-edition-dates";dates.textContent=edition.dates; const preview=document.createElement("div");preview.className="admin-edition-preview";preview.textContent=edition.items.join(" "); const desc=document.createElement("div");desc.className="admin-edition-desc";desc.textContent=edition.desc; const btn=document.createElement("button");btn.type="button";btn.className="admin-edition-btn";btn.textContent=active.key===edition.key&&!holidayPreviewKey?"✓ Showing This Edition":"👀 Preview Edition";btn.disabled=active.key===edition.key&&!holidayPreviewKey; if(btn.disabled)btn.style.opacity=".65"; btn.onclick=()=>{seasonPreviewKey=edition.key;holidayPreviewKey=null;trackLocalUsage("season");applyNarwhalSeason();evaluateAchievements("season")}; card.append(top,dates,preview,desc,btn);grid.appendChild(card); }); }
-    const hgrid=document.getElementById("adminHolidayEditionsGrid"); if(hgrid){ const automatic=getAutomaticHoliday(), active=getActiveHoliday(); hgrid.innerHTML=""; Object.values(NARWHAL_HOLIDAYS).forEach(holiday=>{ const card=document.createElement("div"); card.className=`admin-edition-card${active?.key===holiday.key?" current":""}`; const top=document.createElement("div");top.className="admin-edition-top";const name=document.createElement("div");name.className="admin-edition-name";name.textContent=holiday.label;top.appendChild(name); if(automatic?.key===holiday.key&&!holidayPreviewKey){const badge=document.createElement("span");badge.className="admin-edition-current";badge.textContent="CURRENT";top.appendChild(badge)} else if(holidayPreviewKey===holiday.key){const badge=document.createElement("span");badge.className="admin-edition-current";badge.textContent="PREVIEWING";top.appendChild(badge)} const dates=document.createElement("div");dates.className="admin-edition-dates";dates.textContent=holiday.dates;const preview=document.createElement("div");preview.className="admin-edition-preview";preview.textContent=holiday.items.join(" ");const desc=document.createElement("div");desc.className="admin-edition-desc";desc.textContent=holiday.desc;const btn=document.createElement("button");btn.type="button";btn.className="admin-edition-btn";btn.textContent=holidayPreviewKey===holiday.key?"✓ Previewing This Holiday":"👀 Preview Holiday";btn.disabled=holidayPreviewKey===holiday.key;if(btn.disabled)btn.style.opacity=".65";btn.onclick=()=>{holidayPreviewKey=holiday.key;seasonPreviewKey=null;trackLocalUsage("season");applyNarwhalSeason();evaluateAchievements("season")};card.append(top,dates,preview,desc,btn);hgrid.appendChild(card); }); }
+    const hgrid=document.getElementById("adminHolidayEditionsGrid"); if(hgrid){ const automatic=getAutomaticHoliday(), active=getActiveHoliday(); hgrid.innerHTML=""; Object.values(NARWHAL_HOLIDAYS).forEach(holiday=>{ const card=document.createElement("div"); card.className=`admin-edition-card${active?.key===holiday.key?" current":""}`; const top=document.createElement("div");top.className="admin-edition-top";const name=document.createElement("div");name.className="admin-edition-name";name.textContent=holiday.label;top.appendChild(name); if(automatic?.key===holiday.key&&!holidayPreviewKey){const badge=document.createElement("span");badge.className="admin-edition-current";badge.textContent="CURRENT";top.appendChild(badge)} else if(holidayPreviewKey===holiday.key){const badge=document.createElement("span");badge.className="admin-edition-current";badge.textContent="PREVIEWING";top.appendChild(badge)} const dates=document.createElement("div");dates.className="admin-edition-dates";dates.textContent=holiday.dates;const preview=document.createElement("div");preview.className="admin-edition-preview";preview.textContent=holiday.items.join(" ");const desc=document.createElement("div");desc.className="admin-edition-desc";desc.textContent=holiday.desc;const btn=document.createElement("button");btn.type="button";btn.className="admin-edition-btn";btn.textContent=active?.key===holiday.key?"✓ Showing This Holiday":"👀 Preview Holiday";btn.disabled=active?.key===holiday.key;if(btn.disabled)btn.style.opacity=".65";btn.onclick=()=>{holidayPreviewKey=holiday.key;seasonPreviewKey=null;trackLocalUsage("season");applyNarwhalSeason();evaluateAchievements("season")};card.append(top,dates,preview,desc,btn);hgrid.appendChild(card); }); }
   }
 
   const adminEditionAutoBtn=document.getElementById("adminEditionAutoBtn");
   if(adminEditionAutoBtn) adminEditionAutoBtn.onclick=()=>{seasonPreviewKey=null;holidayPreviewKey=null;applyNarwhalSeason()};
-  const adminHolidayAutoToggle=document.getElementById("adminHolidayAutoEnabled");
-  if(adminHolidayAutoToggle) adminHolidayAutoToggle.addEventListener("change",()=>{
-    holidayAutoEnabled=adminHolidayAutoToggle.checked;
-    localStorage.setItem(HOLIDAY_AUTO_STORAGE_KEY,holidayAutoEnabled?"1":"0");
-    seasonPreviewKey=null;
-    holidayPreviewKey=null;
-    applyNarwhalSeason();
-  });
-  const adminHolidayAutoSave=document.getElementById("adminSaveHolidayAutoBtn");
-  if(adminHolidayAutoSave) adminHolidayAutoSave.onclick=()=>{
-    localStorage.setItem(HOLIDAY_AUTO_STORAGE_KEY,holidayAutoEnabled?"1":"0");
-    seasonPreviewKey=null;
-    holidayPreviewKey=null;
-    applyNarwhalSeason();
-    const status=document.getElementById("adminHolidayAutoStatus");
-    if(status)status.textContent=holidayAutoEnabled?"✓ Holiday automatic switching is ON and saved.":"✓ Holiday automatic switching is OFF and saved.";
-  };
 
   applyNarwhalSeason();
   setInterval(()=>{ if(!seasonPreviewKey&&!holidayPreviewKey) applyNarwhalSeason(); },60*60*1000);
