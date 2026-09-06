@@ -526,9 +526,48 @@
 .launch-app h1{font-size:48px;margin:0 0 8px;font-weight:1000}.launch-app p{margin:0;font-size:17px;opacity:.8;font-weight:700}
 @media(max-width:650px){.launch-rocket{font-size:72px}.launch-narwhal{font-size:62px}.launch-sst h1,.launch-app h1{font-size:34px}.sst-logo-mark{width:min(300px,82vw)}}
 
+
+  /* ---------- Automatic Seasonal Editions ---------- */
+  body.season-fall { --bg:#FFF7EC; --card:#FFFFFF; --season-accent:#D97706; --season-accent-soft:#FDE7C2; }
+  body.season-fall header { background:linear-gradient(160deg,#4A2B18 0%,#9A4D17 55%,#C66A18 100%); }
+  body.season-fall .top-nav-btn.active { box-shadow:0 2px 0 #F59E0B inset,0 -2px 8px rgba(0,0,0,.1); }
+  body.season-fall .section-title { color:#7C3F16; }
+  body.season-fall .game-card-tile { border:1px solid rgba(217,119,6,.14); }
+
+  body.season-winter { --bg:#EFF7FF; --card:#FFFFFF; --season-accent:#3B82F6; --season-accent-soft:#DCEEFF; }
+  body.season-winter header { background:linear-gradient(160deg,#102A56 0%,#245B9A 55%,#4D8DC7 100%); }
+  body.season-winter .top-nav-btn.active { box-shadow:0 2px 0 #BFE7FF inset,0 -2px 8px rgba(0,0,0,.1); }
+  body.season-winter .game-card-tile { border:1px solid rgba(59,130,246,.13); }
+
+  body.season-spring { --bg:#F1FBF5; --card:#FFFFFF; --season-accent:#16A34A; --season-accent-soft:#DDF5E5; }
+  body.season-spring header { background:linear-gradient(160deg,#123D35 0%,#187A58 55%,#38A169 100%); }
+  body.season-spring .top-nav-btn.active { box-shadow:0 2px 0 #86EFAC inset,0 -2px 8px rgba(0,0,0,.1); }
+  body.season-spring .game-card-tile { border:1px solid rgba(22,163,74,.13); }
+
+  body.season-summer { --bg:#FFF9E9; --card:#FFFFFF; --season-accent:#EA580C; --season-accent-soft:#FFE7C7; }
+  body.season-summer header { background:linear-gradient(160deg,#123A5A 0%,#1177A8 55%,#18A6B8 100%); }
+  body.season-summer .top-nav-btn.active { box-shadow:0 2px 0 #FDE68A inset,0 -2px 8px rgba(0,0,0,.1); }
+  body.season-summer .game-card-tile { border:1px solid rgba(234,88,12,.12); }
+
+  .season-badge {
+    display:inline-flex; align-items:center; gap:6px; margin-top:6px;
+    padding:4px 10px; border-radius:999px; font-size:11px; font-weight:900;
+    color:var(--season-accent,#D97706); background:var(--season-accent-soft,#FDE7C2);
+    box-shadow:0 1px 4px rgba(0,0,0,.08); width:max-content;
+  }
+  .season-decoration-layer { position:fixed; inset:0; pointer-events:none; z-index:2; overflow:hidden; }
+  .season-particle { position:absolute; top:-50px; user-select:none; animation:seasonFall linear forwards; opacity:.9; }
+  @keyframes seasonFall { 0%{transform:translate3d(0,-50px,0) rotate(0deg);opacity:0} 10%{opacity:.95} 100%{transform:translate3d(var(--drift),110vh,0) rotate(var(--spin));opacity:.15} }
+  .season-particle.leaf { font-size:22px; filter:drop-shadow(0 2px 2px rgba(0,0,0,.12)); }
+  .season-particle.snow { font-size:18px; color:#fff; text-shadow:0 0 7px rgba(80,150,220,.65); }
+  .season-particle.flower { font-size:20px; }
+  .season-particle.sun { font-size:20px; }
+  @media (prefers-reduced-motion:reduce) { .season-particle { animation:none; display:none; } }
+
 </style>
 </head>
 <body>
+<div id="seasonDecorationLayer" class="season-decoration-layer" aria-hidden="true"></div>
 <!-- ============ PRE-LAUNCH LOCK ============ -->
 <div id="preLaunchLockActual" class="prelaunch-lock hidden-by-default" aria-hidden="false">
   <div class="prelaunch-card">
@@ -587,6 +626,7 @@
       <div>
         <h1>Narwhal Station <span class="music-emoji">🎵🎶</span></h1>
         <p>Play • Learn • Explore • Be You</p>
+        <div id="seasonBadge" class="season-badge">🍂 Fall Edition</div>
       </div>
     </div>
     <div class="top-nav">
@@ -3367,6 +3407,43 @@
   window.addEventListener("narwhalGlobalChatUpdated", () => {
     renderStudentGlobalChatBanner(true);
   });
+  // ---------- Automatic Seasonal Edition ----------
+  function getNarwhalSeason(date = new Date()) {
+    const month = date.getMonth() + 1;
+    if (month >= 9 && month <= 11) return { key: "fall", label: "🍂 Fall Edition", particle: "leaf", items: ["🍂","🍁","🍂","🌰"] };
+    if (month === 12 || month <= 2) return { key: "winter", label: "❄️ Winter Edition", particle: "snow", items: ["❄️","❄️","❄️","✨"] };
+    if (month >= 3 && month <= 5) return { key: "spring", label: "🌷 Spring Edition", particle: "flower", items: ["🌸","🌷","🌼","🦋"] };
+    return { key: "summer", label: "☀️ Summer Edition", particle: "sun", items: ["☀️","🌊","🐚","✨"] };
+  }
+
+  function applyNarwhalSeason() {
+    const season = getNarwhalSeason();
+    document.body.classList.remove("season-fall","season-winter","season-spring","season-summer");
+    document.body.classList.add(`season-${season.key}`);
+    const badge = document.getElementById("seasonBadge");
+    if (badge) badge.textContent = season.label;
+    document.title = `Narwhal Station — ${season.label.replace(/^[^ ]+ /, "")}`;
+
+    const layer = document.getElementById("seasonDecorationLayer");
+    if (!layer) return;
+    layer.innerHTML = "";
+    const count = season.key === "winter" ? 24 : 16;
+    for (let i = 0; i < count; i++) {
+      const particle = document.createElement("span");
+      particle.className = `season-particle ${season.particle}`;
+      particle.textContent = season.items[i % season.items.length];
+      particle.style.left = `${Math.random() * 100}%`;
+      particle.style.setProperty("--drift", `${Math.round((Math.random() * 180) - 90)}px`);
+      particle.style.setProperty("--spin", `${Math.round((Math.random() * 720) - 360)}deg`);
+      particle.style.animationDuration = `${8 + Math.random() * 9}s`;
+      particle.style.animationDelay = `${Math.random() * 8}s`;
+      layer.appendChild(particle);
+    }
+  }
+
+  applyNarwhalSeason();
+  setInterval(applyNarwhalSeason, 60 * 60 * 1000);
+
   updateRealPreLaunchLock();
   setInterval(updateRealPreLaunchLock, 1000);
   window.addEventListener("pageshow", updateRealPreLaunchLock);
