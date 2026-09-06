@@ -368,6 +368,19 @@
   .admin-chat-message{background:#fff;border:1px solid #DCE5F0;border-radius:11px;padding:9px 11px}.admin-chat-meta{font-size:13px;color:#2255A4;font-weight:900;margin-bottom:3px}.admin-chat-text{font-size:16px;color:#16274D;line-height:1.45;word-break:break-word}
   .admin-chat-compose{display:flex;gap:8px}.admin-chat-compose input{flex:1}
   .global-chat-admin-badge.owner-badge{background:#8B4CC8}
+  .admin-editions-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:18px}
+  .admin-edition-card{background:#fff;border:1px solid #D9E3F1;border-radius:16px;padding:18px;position:relative;overflow:hidden}
+  .admin-edition-card.current{border:2px solid var(--season-accent,#2255A4);box-shadow:0 8px 24px rgba(22,39,77,.08)}
+  .admin-edition-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
+  .admin-edition-name{font-size:21px;font-weight:900;color:#16274D}
+  .admin-edition-dates{font-size:11px;font-weight:800;color:#6E7E9B;margin-bottom:10px}
+  .admin-edition-preview{font-size:28px;letter-spacing:4px;min-height:42px;margin-bottom:12px}
+  .admin-edition-desc{font-size:12px;line-height:1.5;color:#5B6B8C;min-height:38px;margin-bottom:13px}
+  .admin-edition-btn{border:0;border-radius:10px;padding:10px 13px;background:#2255A4;color:#fff;font-size:11px;font-weight:900;cursor:pointer}
+  .admin-edition-btn.secondary{background:#EAF1FC;color:#2255A4}
+  .admin-edition-current{display:inline-block;padding:4px 8px;border-radius:999px;background:#EAF1FC;color:#2255A4;font-size:9px;font-weight:900}
+  .admin-editions-note{background:#F7FAFF;border:1px solid #DDE6F2;border-radius:12px;padding:13px;font-size:12px;color:#5B6B8C;line-height:1.5;margin-top:14px}
+  @media(max-width:700px){.admin-editions-grid{grid-template-columns:1fr}}
   .admin-chat-admin-badge.owner-badge{background:#8B4CC8}
   @media(max-width:560px){.admin-stat-grid{grid-template-columns:1fr 1fr}.admin-section-title{font-size:24px}.admin-modal{min-width:calc(100vw - 20px);min-height:360px}}
   .global-chat-admin-badge.owner-badge{background:#8B4CC8}
@@ -816,6 +829,7 @@
         <button class="admin-menu-card" data-admin-section="adminArtists">🎤 Artist Management</button>
         <button class="admin-menu-card" data-admin-section="adminGames">🎮 Games</button>
         <button class="admin-menu-card" data-admin-section="adminLeaderboards">🏆 Leaderboards</button>
+        <button class="admin-menu-card" data-admin-section="adminEditions">🍂 Editions</button>
         <button class="admin-menu-card" data-admin-section="adminSettings">⚙️ Settings</button>
         <button class="admin-menu-card" data-admin-section="adminAbout">ℹ️ About</button>
         <button class="admin-menu-card" data-admin-section="adminRequests">📝 Requests</button>
@@ -910,6 +924,14 @@
               </tbody>
             </table>
           </div>
+        </section>
+
+        <section id="adminEditions" class="admin-subsection">
+          <div class="admin-section-title">🍂 Narwhal Station Editions</div>
+          <div class="admin-section-subtitle">See all four seasonal editions and preview what the app looks like.</div>
+          <div id="adminEditionsGrid" class="admin-editions-grid"></div>
+          <div class="admin-editions-note">💡 The app changes editions automatically based on the month. Previewing an edition only changes what you see on this computer right now. Refreshing the page goes back to the automatic season.</div>
+          <button id="adminEditionAutoBtn" class="admin-edition-btn secondary" type="button" style="margin-top:12px">🔄 Return to Automatic Season</button>
         </section>
 
         <section id="adminSettings" class="admin-subsection">
@@ -3408,16 +3430,29 @@
     renderStudentGlobalChatBanner(true);
   });
   // ---------- Automatic Seasonal Edition ----------
+  const NARWHAL_EDITIONS = {
+    fall: { key: "fall", label: "🍂 Fall Edition", dates: "September – November", particle: "leaf", items: ["🍂","🍁","🍂","🌰"], desc: "Warm autumn colors with leaves and acorns falling across the app." },
+    winter: { key: "winter", label: "❄️ Winter Edition", dates: "December – February", particle: "snow", items: ["❄️","❄️","❄️","✨"], desc: "Cool winter colors with snowflakes and sparkles drifting down the screen." },
+    spring: { key: "spring", label: "🌷 Spring Edition", dates: "March – May", particle: "flower", items: ["🌸","🌷","🌼","🦋"], desc: "Fresh spring colors with flowers and butterflies floating around." },
+    summer: { key: "summer", label: "☀️ Summer Edition", dates: "June – August", particle: "sun", items: ["☀️","🌊","🐚","✨"], desc: "Bright summer colors with sunshine, waves, shells, and sparkles." }
+  };
+
+  let seasonPreviewKey = null;
+
   function getNarwhalSeason(date = new Date()) {
     const month = date.getMonth() + 1;
-    if (month >= 9 && month <= 11) return { key: "fall", label: "🍂 Fall Edition", particle: "leaf", items: ["🍂","🍁","🍂","🌰"] };
-    if (month === 12 || month <= 2) return { key: "winter", label: "❄️ Winter Edition", particle: "snow", items: ["❄️","❄️","❄️","✨"] };
-    if (month >= 3 && month <= 5) return { key: "spring", label: "🌷 Spring Edition", particle: "flower", items: ["🌸","🌷","🌼","🦋"] };
-    return { key: "summer", label: "☀️ Summer Edition", particle: "sun", items: ["☀️","🌊","🐚","✨"] };
+    if (month >= 9 && month <= 11) return NARWHAL_EDITIONS.fall;
+    if (month === 12 || month <= 2) return NARWHAL_EDITIONS.winter;
+    if (month >= 3 && month <= 5) return NARWHAL_EDITIONS.spring;
+    return NARWHAL_EDITIONS.summer;
+  }
+
+  function getActiveNarwhalSeason() {
+    return seasonPreviewKey ? NARWHAL_EDITIONS[seasonPreviewKey] : getNarwhalSeason();
   }
 
   function applyNarwhalSeason() {
-    const season = getNarwhalSeason();
+    const season = getActiveNarwhalSeason();
     document.body.classList.remove("season-fall","season-winter","season-spring","season-summer");
     document.body.classList.add(`season-${season.key}`);
     const badge = document.getElementById("seasonBadge");
@@ -3439,10 +3474,48 @@
       particle.style.animationDelay = `${Math.random() * 8}s`;
       layer.appendChild(particle);
     }
+    renderAdminEditions();
   }
 
+  function renderAdminEditions() {
+    const grid = document.getElementById("adminEditionsGrid");
+    if (!grid) return;
+    const automatic = getNarwhalSeason();
+    const active = getActiveNarwhalSeason();
+    grid.innerHTML = "";
+    Object.values(NARWHAL_EDITIONS).forEach(edition => {
+      const card = document.createElement("div");
+      card.className = `admin-edition-card${active.key === edition.key ? " current" : ""}`;
+      const top = document.createElement("div"); top.className = "admin-edition-top";
+      const name = document.createElement("div"); name.className = "admin-edition-name"; name.textContent = edition.label;
+      top.appendChild(name);
+      if (automatic.key === edition.key && !seasonPreviewKey) {
+        const badge = document.createElement("span"); badge.className = "admin-edition-current"; badge.textContent = "CURRENT"; top.appendChild(badge);
+      } else if (seasonPreviewKey === edition.key) {
+        const badge = document.createElement("span"); badge.className = "admin-edition-current"; badge.textContent = "PREVIEWING"; top.appendChild(badge);
+      }
+      const dates = document.createElement("div"); dates.className = "admin-edition-dates"; dates.textContent = edition.dates;
+      const preview = document.createElement("div"); preview.className = "admin-edition-preview"; preview.textContent = edition.items.join(" ");
+      const desc = document.createElement("div"); desc.className = "admin-edition-desc"; desc.textContent = edition.desc;
+      const btn = document.createElement("button"); btn.type = "button"; btn.className = "admin-edition-btn"; btn.textContent = active.key === edition.key ? "✓ Showing This Edition" : "👀 Preview Edition";
+      btn.disabled = active.key === edition.key;
+      if (btn.disabled) btn.style.opacity = ".65";
+      btn.onclick = () => { seasonPreviewKey = edition.key; applyNarwhalSeason(); };
+      card.append(top, dates, preview, desc, btn);
+      grid.appendChild(card);
+    });
+  }
+
+  const adminEditionAutoBtn = document.getElementById("adminEditionAutoBtn");
+  if (adminEditionAutoBtn) adminEditionAutoBtn.onclick = () => {
+    seasonPreviewKey = null;
+    applyNarwhalSeason();
+  };
+
   applyNarwhalSeason();
-  setInterval(applyNarwhalSeason, 60 * 60 * 1000);
+  setInterval(() => {
+    if (!seasonPreviewKey) applyNarwhalSeason();
+  }, 60 * 60 * 1000);
 
   updateRealPreLaunchLock();
   setInterval(updateRealPreLaunchLock, 1000);
