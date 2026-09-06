@@ -360,14 +360,18 @@
   .admin-window-note{font-size:11px;color:#6E7E9B;margin:-8px 0 14px}.admin-music-search{margin:0 0 10px}.admin-music-search input{width:100%;box-sizing:border-box;padding:13px 15px;border:1px solid #CDD8E7;border-radius:10px;outline:none;background:#fff;color:#16274D;font-size:13px}.admin-music-search input:focus{border-color:#2255A4;box-shadow:0 0 0 3px rgba(34,85,164,.10)}.admin-music-open{padding:7px 10px;font-size:10px;border-radius:8px}
   .admin-minimized-btn{position:fixed;right:18px;bottom:18px;z-index:9001;border:0;border-radius:12px;background:#16274D;color:#fff;padding:12px 16px;font-size:13px;font-weight:900;box-shadow:0 10px 30px rgba(0,0,0,.25);cursor:pointer}
   .admin-minimized-btn:hover{background:#2255A4}
-  .admin-settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}.admin-settings-grid label,.chat-identity-row label{font-size:10.5px;font-weight:900;color:#344567}.admin-settings-grid input,.admin-settings-grid select,.chat-identity-row input{display:block;margin-top:5px}
+  .admin-settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}.admin-settings-grid label,.chat-identity-row label{font-size:10.5px;font-weight:900;color:#344567}.admin-settings-grid input,.admin-settings-grid select,.chat-identity-row input,.chat-identity-row select{display:block;margin-top:5px}
   .admin-saved-note{display:none;color:#2E8B57;font-size:11px;font-weight:900;margin-top:8px}
-  .chat-identity-row{display:grid;grid-template-columns:1fr 140px;gap:10px;margin-bottom:12px}.chat-role-preview{background:#EAF1FC;border:1px solid #C9D9F2;border-radius:10px;padding:9px;display:flex;flex-direction:column;justify-content:center}.chat-role-preview span{font-size:15px;font-weight:900;color:#2255A4}.chat-role-preview small{font-size:11px;color:#6E7E9B}
+  .chat-identity-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:6px}.chat-role-note{font-size:11px;color:#6E7E9B;margin:0 0 12px 2px}.chat-identity-row select{width:100%;padding:14px 15px;border:1px solid #CDD8E7;border-radius:10px;outline:none;background:#fff;color:#16274D}
   .admin-chat-messages{
     min-height:320px;height:420px;overflow:auto;background:#F8FAFD;border:1px solid #D9E3F1;border-radius:14px;padding:11px;display:flex;flex-direction:column;gap:8px;margin-bottom:10px}.admin-chat-empty{text-align:center;color:#7B8AA5;font-size:12px;padding:22px}
   .admin-chat-message{background:#fff;border:1px solid #DCE5F0;border-radius:11px;padding:9px 11px}.admin-chat-meta{font-size:13px;color:#2255A4;font-weight:900;margin-bottom:3px}.admin-chat-text{font-size:16px;color:#16274D;line-height:1.45;word-break:break-word}
   .admin-chat-compose{display:flex;gap:8px}.admin-chat-compose input{flex:1}
+  .global-chat-admin-badge.owner-badge{background:#8B4CC8}
+  .admin-chat-admin-badge.owner-badge{background:#8B4CC8}
   @media(max-width:560px){.admin-stat-grid{grid-template-columns:1fr 1fr}.admin-section-title{font-size:24px}.admin-modal{min-width:calc(100vw - 20px);min-height:360px}}
+  .global-chat-admin-badge.owner-badge{background:#8B4CC8}
+  .admin-chat-admin-badge.owner-badge{background:#8B4CC8}
   @media(max-width:560px){.admin-modal-body{flex-direction:column}.admin-sidebar{width:100%;flex-basis:auto;display:flex;overflow:auto;border-right:0;border-bottom:1px solid #DEE6F1}.admin-menu-card{width:auto;flex:0 0 auto;white-space:nowrap}.admin-content{padding:14px}.chat-identity-row,.admin-settings-grid{grid-template-columns:1fr}.admin-chat-compose{flex-direction:column}}
   .global-chat-banner{
     width:100%;
@@ -597,7 +601,7 @@
   <div class="global-chat-message">
     <div class="global-chat-author-row">
       <span id="globalChatBannerName" class="global-chat-author">Administrator</span>
-      <span class="global-chat-admin-badge">ADMIN</span>
+      <span id="globalChatBannerRole" class="global-chat-admin-badge">ADMIN</span>
     </div>
     <div id="globalChatBannerText" class="global-chat-text"></div>
   </div>
@@ -907,11 +911,17 @@
           <div class="admin-section-title">💬 Global Chat</div>
           <div class="admin-section-subtitle">Send a message to the school-wide chat.</div>
           <div class="chat-identity-row">
-            <label>Sending as
-              <input id="globalChatSenderName" type="text" maxlength="40" placeholder="Your name">
+            <label>Role
+              <select id="globalChatSenderRole">
+                <option value="ADMIN">Administrator</option>
+                <option value="OWNER">Owner</option>
+              </select>
             </label>
-            <div class="chat-role-preview"><span>Admin</span><small>Role</small></div>
+            <label>Sending as
+              <input id="globalChatSenderName" type="text" maxlength="40" value="Administrator" placeholder="Your name">
+            </label>
           </div>
+          <div class="chat-role-note" id="globalChatRoleNote">ADMIN messages show the ADMIN badge to students.</div>
           <div id="adminGlobalChatMessages" class="admin-chat-messages">
             <div class="admin-chat-empty">No messages yet.</div>
           </div>
@@ -3071,6 +3081,8 @@
   const adminChatInput = document.getElementById("adminGlobalChatInput");
   const adminChatSendBtn = document.getElementById("adminGlobalChatSendBtn");
   const globalChatSenderName = document.getElementById("globalChatSenderName");
+  const globalChatSenderRole = document.getElementById("globalChatSenderRole");
+  const globalChatRoleNote = document.getElementById("globalChatRoleNote");
   const GLOBAL_CHAT_ENDPOINT = "/api/global-chat";
   let globalChatLatestId = null;
   let globalChatFadeTimer = null;
@@ -3098,6 +3110,7 @@
     const banner = document.getElementById("globalChatBanner");
     const nameEl = document.getElementById("globalChatBannerName");
     const textEl = document.getElementById("globalChatBannerText");
+    const roleEl = document.getElementById("globalChatBannerRole");
     if (!banner || !nameEl || !textEl || !message) return;
 
     const messageId = String(message.id || message.time || "") + "|" +
@@ -3110,7 +3123,12 @@
 
     clearTimeout(globalChatFadeTimer);
     banner.classList.remove("hidden", "chat-fading");
-    nameEl.textContent = message.name || "Administrator";
+    const role = String(message.role || "ADMIN").toUpperCase() === "OWNER" ? "OWNER" : "ADMIN";
+    nameEl.textContent = message.name || (role === "OWNER" ? "Owner" : "Administrator");
+    if (roleEl) {
+      roleEl.textContent = role;
+      roleEl.classList.toggle("owner-badge", role === "OWNER");
+    }
     textEl.textContent = message.text || "";
     globalChatLatestId = messageId;
 
@@ -3146,8 +3164,9 @@
     name.className = "admin-chat-name";
     name.textContent = message.name || "Administrator";
     const badge = document.createElement("span");
-    badge.className = "admin-chat-admin-badge";
-    badge.textContent = "ADMIN";
+    const role = String(message.role || "ADMIN").toUpperCase() === "OWNER" ? "OWNER" : "ADMIN";
+    badge.className = "admin-chat-admin-badge" + (role === "OWNER" ? " owner-badge" : "");
+    badge.textContent = role;
     meta.append(name, badge);
     const text = document.createElement("div");
     text.className = "admin-chat-text";
@@ -3156,9 +3175,23 @@
     box.appendChild(item);
   }
 
+  function updateGlobalChatRoleUI() {
+    const role = String(globalChatSenderRole?.value || "ADMIN").toUpperCase() === "OWNER" ? "OWNER" : "ADMIN";
+    const defaultName = role === "OWNER" ? "Owner" : "Administrator";
+    if (globalChatSenderName) globalChatSenderName.value = defaultName;
+    if (globalChatRoleNote) {
+      globalChatRoleNote.textContent = role === "OWNER"
+        ? "OWNER messages show the OWNER badge to students."
+        : "ADMIN messages show the ADMIN badge to students.";
+    }
+  }
+  globalChatSenderRole?.addEventListener("change", updateGlobalChatRoleUI);
+
   async function sendAdminChatMessage() {
     const text = (adminChatInput?.value || "").trim();
-    const name = (globalChatSenderName?.value || "").trim();
+    const role = String(globalChatSenderRole?.value || "ADMIN").toUpperCase() === "OWNER" ? "OWNER" : "ADMIN";
+    const defaultName = role === "OWNER" ? "Owner" : "Administrator";
+    const name = (globalChatSenderName?.value || "").trim() || defaultName;
     if (!text) return;
 
     if (adminChatSendBtn) {
@@ -3172,7 +3205,8 @@
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           password: getAdminPasswordForServer(),
-          name: name || "Administrator",
+          name,
+          role,
           text
         })
       });

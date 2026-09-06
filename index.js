@@ -5,6 +5,7 @@ const MAX_MESSAGE = 500;
 const MAX_REQUESTS = 200;
 const MAX_TITLE = 240;
 const MAX_ARTIST = 120;
+const ALLOWED_CHAT_ROLES = new Set(["ADMIN", "OWNER"]);
 
 function json(body, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -53,11 +54,15 @@ async function handleGlobalChat(request, env) {
       return json({ error: "Global Chat is not configured: ADMIN_CHAT_PASSWORD secret is missing." }, 500);
     }
 
-    const name = String(body.name || "Administrator").trim().slice(0, MAX_NAME) || "Administrator";
+    const role = ALLOWED_CHAT_ROLES.has(String(body.role || "ADMIN").toUpperCase())
+      ? String(body.role || "ADMIN").toUpperCase()
+      : "ADMIN";
+    const defaultName = role === "OWNER" ? "Owner" : "Administrator";
+    const name = String(body.name || defaultName).trim().slice(0, MAX_NAME) || defaultName;
     const text = String(body.text || "").trim().slice(0, MAX_MESSAGE);
     if (!text) return json({ error: "Message cannot be empty." }, 400);
 
-    const message = { id: crypto.randomUUID(), name, text, time: Date.now() };
+    const message = { id: crypto.randomUUID(), name, role, text, time: Date.now() };
     await kv.put(STORE_KEY, JSON.stringify(message));
     return json({ ok: true, message });
   } catch (error) {
