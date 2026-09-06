@@ -1334,18 +1334,21 @@
   }
 
   let selectedApprovedArtist = "";
+  let artistSelectedByClick = false;
 
   function selectApprovedArtist(artist) {
     selectedApprovedArtist = artist || "";
+    artistSelectedByClick = true;
     const mainInput = document.getElementById("ytKeywordInput");
-    // Clicking an artist only fills the search box with "Artist Lyrics".
-    // It does not search automatically and does not add any extra words.
-    if (mainInput) mainInput.value = selectedApprovedArtist ? `${selectedApprovedArtist} Lyrics` : "";
+    // Clicking an approved artist adds Lyrics + Clean for extra safety.
+    // Typing a search does NOT add Clean automatically.
+    if (mainInput) mainInput.value = selectedApprovedArtist ? `${selectedApprovedArtist} Lyrics Clean` : "";
   }
 
   renderApprovedArtists();
 
   const ytKeywordInput = document.getElementById("ytKeywordInput");
+  if (ytKeywordInput) ytKeywordInput.addEventListener("input", () => { artistSelectedByClick = false; });
   const ytSearchBtn = document.getElementById("ytSearchBtn");
   const ytResultsList = document.getElementById("ytResultsList");
   const ytInlineStatus = document.getElementById("ytInlineStatus") || document.getElementById("ytStatus");
@@ -1488,10 +1491,13 @@
       }
     }
 
-    // The final YouTube search ALWAYS ends with "Lyrics".
-    const finalQuery = `${approvedArtist}${songQuery ? ` ${songQuery}` : ""} Lyrics`
-      .replace(/\s+/g, " ")
-      .trim();
+    // Clicking an approved artist is the ONLY case that adds the extra "Clean" safety word.
+    // Manually typed artist/song searches only end with "Lyrics".
+    const finalQuery = (artistSelectedByClick && selectedApprovedArtist && normalizeArtistText(rawQuery) === normalizeArtistText(`${selectedApprovedArtist} Lyrics Clean`))
+      ? `${selectedApprovedArtist} Lyrics Clean`
+      : `${approvedArtist}${songQuery ? ` ${songQuery}` : ""} Lyrics`;
+    artistSelectedByClick = false;
+
 
     ytResultsList.innerHTML = `<div class="yt-note">Searching for ${finalQuery}...</div>`;
     if (ytInlineStatus) ytInlineStatus.textContent = `Searching: ${finalQuery}`;
