@@ -1176,16 +1176,20 @@
           }
         },
         onStateChange: function(event) {
-          if (!window.YT || !ytStatus) return;
+          if (!window.YT) return;
           if (event.data === YT.PlayerState.PLAYING) {
-            ytStatus.textContent = "▶️ Playing";
+            if (ytStatus) ytStatus.textContent = "▶️ Playing";
             if (currentYouTubeTrack?.id && !countedListenVideoIds.has(currentYouTubeTrack.id)) {
               countedListenVideoIds.add(currentYouTubeTrack.id);
               recordWeeklyListen(currentYouTubeTrack);
             }
           }
-          else if (event.data === YT.PlayerState.PAUSED) ytStatus.textContent = "⏸ Paused";
-          else if (event.data === YT.PlayerState.ENDED) ytStatus.textContent = "Song finished.";
+          else if (event.data === YT.PlayerState.PAUSED) {
+            if (ytStatus) ytStatus.textContent = "⏸ Paused";
+          }
+          else if (event.data === YT.PlayerState.ENDED) {
+            if (ytStatus) ytStatus.textContent = "Song finished.";
+          }
         },
         onError: function(event) {
           if (!ytStatus) return;
