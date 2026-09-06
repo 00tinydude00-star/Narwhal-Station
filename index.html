@@ -489,6 +489,40 @@
   @media(max-width:600px){
     .yt-mini-player{width:96vw;border-radius:16px;}
   }
+
+/* ============ LAUNCH INTRO / LOADING SCREEN ============ */
+#launchIntroScreen{position:fixed;inset:0;z-index:99999;background:#07152f;color:#fff;display:none;overflow:hidden;font-family:inherit}
+#launchIntroScreen.show{display:block}
+.launch-scene{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center;opacity:0;pointer-events:none;transition:opacity .35s ease}
+.launch-scene.active{opacity:1}
+.launch-ocean{background:radial-gradient(circle at 50% 40%,#123b78 0,#07152f 58%,#020812 100%)}
+.launch-stars{position:absolute;inset:0;background-image:radial-gradient(circle,rgba(255,255,255,.8) 1px,transparent 1.5px);background-size:90px 90px;opacity:.22}
+.launch-rocket-scene{justify-content:flex-end;padding-bottom:18vh}
+.launch-ground{position:absolute;bottom:0;left:0;right:0;height:22%;background:linear-gradient(#0b2d4b,#061425);border-top:2px solid rgba(96,214,255,.35)}
+.launch-rocket{position:absolute;bottom:19vh;left:50%;transform:translateX(-50%);font-size:92px;line-height:1;filter:drop-shadow(0 10px 18px rgba(0,0,0,.45));transition:transform 1.5s cubic-bezier(.2,.8,.2,1)}
+.launch-rocket.launching{transform:translate(-50%,-110vh) rotate(-3deg)}
+.launch-rocket.shake{animation:rocketShake .7s ease-in-out 3}
+@keyframes rocketShake{0%,100%{margin-left:0}25%{margin-left:-8px}75%{margin-left:8px}}
+.launch-narwhal{position:absolute;bottom:20vh;left:-180px;font-size:78px;line-height:1;z-index:3;filter:drop-shadow(0 8px 12px rgba(0,0,0,.35));transform:scaleX(-1)}
+.launch-narwhal.walking{animation:narwhalWalk 3.2s cubic-bezier(.25,.7,.25,1) forwards}
+@keyframes narwhalWalk{0%{left:-180px;bottom:20vh}70%{left:calc(50% - 150px);bottom:20vh}84%{left:calc(50% - 82px);bottom:20vh}100%{left:calc(50% - 38px);bottom:20vh}}
+.launch-horn{position:absolute;right:-7px;top:20px;width:0;height:0;border-top:9px solid transparent;border-bottom:9px solid transparent;border-left:28px solid #9fe9ff;filter:drop-shadow(0 0 4px rgba(159,233,255,.7))}
+.launch-spark{position:absolute;width:10px;height:10px;border-radius:50%;background:#ffd45c;box-shadow:0 0 18px #ffd45c;animation:sparkFloat 1s infinite ease-in-out}
+.launch-spark.s1{left:20%;top:25%}.launch-spark.s2{left:76%;top:30%;animation-delay:.2s}.launch-spark.s3{left:62%;top:68%;animation-delay:.4s}
+@keyframes sparkFloat{50%{transform:translateY(-15px) scale(1.4);opacity:.45}}
+.launch-small-text{font-size:16px;letter-spacing:4px;text-transform:uppercase;font-weight:800;opacity:.9}
+.launch-sst{background:#fff;color:#14213d}
+.sst-logo-mark{width:132px;height:132px;border-radius:32px;background:linear-gradient(145deg,#1e4e9a,#102d62);display:flex;align-items:center;justify-content:center;box-shadow:0 18px 50px rgba(0,0,0,.28);position:relative;margin-bottom:28px}
+.sst-logo-mark:before{content:"";position:absolute;inset:12px;border:3px solid rgba(255,255,255,.8);border-radius:24px}
+.sst-logo-text{font-weight:1000;font-size:46px;letter-spacing:-3px;color:#fff;position:relative;z-index:1}
+.launch-sst h1{font-size:44px;margin:0 0 8px;font-weight:1000}.launch-sst p{margin:0;font-size:18px;color:#62708b;font-weight:700}
+.launch-black{background:#000}
+.launch-app{background:#07152f}
+.launch-app-logo{width:150px;height:150px;border-radius:36px;background:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 20px 70px rgba(0,0,0,.45);overflow:hidden;margin-bottom:26px}
+.launch-app-logo img{width:90%;height:90%;object-fit:contain}
+.launch-app h1{font-size:48px;margin:0 0 8px;font-weight:1000}.launch-app p{margin:0;font-size:17px;opacity:.8;font-weight:700}
+@media(max-width:650px){.launch-rocket{font-size:72px}.launch-narwhal{font-size:62px}.launch-sst h1,.launch-app h1{font-size:34px}.sst-logo-mark{width:105px;height:105px}.sst-logo-text{font-size:37px}}
+
 </style>
 </head>
 <body>
@@ -509,8 +543,25 @@
     <div class="prelaunch-date">Launch Date: <strong>September 11, 2026</strong></div>
   </div>
 </div>
-
-<!-- ============ ADMIN ACCESS ============ -->
+<!-- ============ LAUNCH INTRO ============ -->
+<div id="launchIntroScreen" aria-hidden="true">
+  <div class="launch-scene launch-rocket-scene launch-ocean" id="launchRocketScene">
+    <div class="launch-stars"></div><div class="launch-ground"></div>
+    <div class="launch-rocket" id="launchRocket">🚀</div>
+    <div class="launch-narwhal" id="launchNarwhal">🐋<span class="launch-horn"></span></div>
+    <div class="launch-spark s1"></div><div class="launch-spark s2"></div><div class="launch-spark s3"></div>
+    <div class="launch-small-text" style="position:absolute;top:8vh">Narwhal Station is launching...</div>
+  </div>
+  <div class="launch-scene launch-sst" id="launchSstScene">
+    <div class="sst-logo-mark"><div class="sst-logo-text">SST</div></div>
+    <h1>SST Studios Present</h1><p>Something awesome is about to begin.</p>
+  </div>
+  <div class="launch-scene launch-black" id="launchBlackScene"></div>
+  <div class="launch-scene launch-app" id="launchAppScene">
+    <div class="launch-app-logo"><img id="launchAppLogo" alt="Narwhal Station logo"></div>
+    <h1>Narwhal Station</h1><p>Play • Learn • Explore • Be You</p>
+  </div>
+</div>
 <div id="adminPanelAccessActual" class="admin-access-overlay hidden" aria-hidden="true">
   <div class="admin-access-card">
     <button id="adminPanelAccessCloseActual" class="admin-access-close" type="button" aria-label="Close">✕</button>
@@ -828,6 +879,11 @@
             <label>Admin Display Name<input id="adminDisplayName" value="Administrator"></label>
           </div>
           <button id="adminSaveSettingsBtn" class="admin-primary-btn" type="button">Save Settings</button>
+          <div style="margin-top:18px;padding:16px;border:1px solid #DDE6F2;border-radius:14px;background:#F7FAFF">
+            <div style="font-weight:900;color:#16274D;margin-bottom:5px">🚀 Test Loading Screen</div>
+            <div style="font-size:12px;color:#71809A;margin-bottom:12px;line-height:1.5">Preview the launch animation now. This does not change the real countdown.</div>
+            <button id="adminTestLoadingScreenBtn" class="admin-primary-btn" type="button">▶️ Test Launch Animation</button>
+          </div>
           <div id="adminSettingsSaved" class="admin-saved-note">✓ Settings saved.</div>
         </section>
 
@@ -2549,11 +2605,71 @@
   let adminUnlockedForSession = false;
   try { sessionStorage.removeItem("narwhalAdminUnlocked"); } catch (_) {}
 
+  const launchIntroScreen = document.getElementById("launchIntroScreen");
+  const launchRocketScene = document.getElementById("launchRocketScene");
+  const launchSstScene = document.getElementById("launchSstScene");
+  const launchBlackScene = document.getElementById("launchBlackScene");
+  const launchAppScene = document.getElementById("launchAppScene");
+  const launchRocket = document.getElementById("launchRocket");
+  const launchNarwhal = document.getElementById("launchNarwhal");
+  const launchAppLogo = document.getElementById("launchAppLogo");
+  const adminTestLoadingScreenBtn = document.getElementById("adminTestLoadingScreenBtn");
+  let launchIntroRunning = false;
+  let launchIntroFinished = false;
+
+  function showLaunchScene(scene) {
+    [launchRocketScene, launchSstScene, launchBlackScene, launchAppScene].forEach(el => el?.classList.remove("active"));
+    scene?.classList.add("active");
+  }
+
+  function getNarwhalLogoSrc() {
+    const headerLogo = document.querySelector(".narwhal-mark");
+    return headerLogo?.src || "";
+  }
+
+  async function playLaunchIntro() {
+    if (launchIntroRunning) return;
+    launchIntroRunning = true;
+    launchIntroFinished = false;
+    if (!launchIntroScreen) { launchIntroRunning = false; return; }
+    launchIntroScreen.classList.add("show");
+    launchIntroScreen.setAttribute("aria-hidden", "false");
+    if (launchAppLogo) launchAppLogo.src = getNarwhalLogoSrc();
+    if (launchRocket) { launchRocket.classList.remove("shake","launching"); void launchRocket.offsetWidth; }
+    if (launchNarwhal) { launchNarwhal.classList.remove("walking"); void launchNarwhal.offsetWidth; }
+    showLaunchScene(launchRocketScene);
+    requestAnimationFrame(() => launchNarwhal?.classList.add("walking"));
+    await new Promise(r => setTimeout(r, 3500));
+    launchRocket?.classList.add("shake");
+    await new Promise(r => setTimeout(r, 1900));
+    launchRocket?.classList.add("launching");
+    await new Promise(r => setTimeout(r, 1500));
+    showLaunchScene(launchSstScene);
+    await new Promise(r => setTimeout(r, 2600));
+    showLaunchScene(launchBlackScene);
+    await new Promise(r => setTimeout(r, 900));
+    showLaunchScene(launchAppScene);
+    await new Promise(r => setTimeout(r, 2200));
+    launchIntroScreen.classList.remove("show");
+    launchIntroScreen.setAttribute("aria-hidden", "true");
+    showLaunchScene(null);
+    launchIntroRunning = false;
+    launchIntroFinished = true;
+  }
+
+  if (adminTestLoadingScreenBtn) adminTestLoadingScreenBtn.onclick = () => playLaunchIntro();
+
   function updateRealPreLaunchLock() {
     if (!preLaunchLockActual) return;
-    if (adminUnlockedForSession || Date.now() >= PRELAUNCH_LAUNCH_TIME) {
+    if (adminUnlockedForSession) {
       preLaunchLockActual.style.display = "none";
       preLaunchLockActual.setAttribute("aria-hidden", "true");
+      return;
+    }
+    if (Date.now() >= PRELAUNCH_LAUNCH_TIME) {
+      preLaunchLockActual.style.display = "none";
+      preLaunchLockActual.setAttribute("aria-hidden", "true");
+      if (!launchIntroFinished && !launchIntroRunning) playLaunchIntro();
       return;
     }
     preLaunchLockActual.style.display = "flex";
