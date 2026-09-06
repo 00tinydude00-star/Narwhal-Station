@@ -329,6 +329,8 @@
   .admin-access-submit{width:100%;padding:11px;border:0;border-radius:10px;background:#2255A4;color:#fff;font-weight:800;cursor:pointer}
 
   .approved-song-note{background:#F3F8FF;border:1px solid #C9D9F2;border-radius:12px;padding:10px 12px;margin:4px 0 14px;font-size:12.5px;line-height:1.5;color:var(--navy)}
+  .yt-autoplay-row{display:flex;align-items:center;gap:10px;margin:-4px 0 12px;padding:8px 11px;border-radius:10px;background:#F8FAFD;border:1px solid #D9E3F1}.yt-autoplay-label{font-size:12px;font-weight:900;color:var(--navy);cursor:pointer;display:flex;align-items:center;gap:7px}.yt-autoplay-label input{width:15px;height:15px}.yt-autoplay-help{font-size:11px;color:#6E7E9B}
+  @media(max-width:560px){.yt-autoplay-row{align-items:flex-start;flex-direction:column;gap:4px}}
 
 
   .admin-modal-overlay{position:fixed;inset:0;z-index:9000;display:block;padding:0;background:rgba(8,20,45,.18);backdrop-filter:blur(2px)}
@@ -546,8 +548,7 @@
 .launch-rocket.launching{transform:translate(-50%,-110vh) rotate(-3deg)}
 .launch-rocket.shake{animation:rocketShake .7s ease-in-out 3}
 @keyframes rocketShake{0%,100%{margin-left:0}25%{margin-left:-8px}75%{margin-left:8px}}
-.launch-narwhal{position:absolute;bottom:20vh;left:-180px;width:96px;height:96px;z-index:3;filter:drop-shadow(0 8px 12px rgba(0,0,0,.35));transform:scaleX(-1)}
-.launch-narwhal img{display:block;width:100%;height:100%;object-fit:contain}
+.launch-narwhal{position:absolute;bottom:20vh;left:-180px;font-size:78px;line-height:1;z-index:3;filter:drop-shadow(0 8px 12px rgba(0,0,0,.35));transform:scaleX(-1)}
 .launch-narwhal.walking{animation:narwhalWalk 5s cubic-bezier(.2,.75,.2,1) forwards}.launch-narwhal.entered{display:none}
 @keyframes narwhalWalk{0%{left:-180px;bottom:20vh}58%{left:calc(50% - 170px);bottom:20vh}82%{left:calc(50% - 115px);bottom:20vh}100%{left:calc(50% - 55px);bottom:20vh}}
 .launch-horn{position:absolute;right:-7px;top:20px;width:0;height:0;border-top:9px solid transparent;border-bottom:9px solid transparent;border-left:28px solid #9fe9ff;filter:drop-shadow(0 0 4px rgba(159,233,255,.7))}
@@ -564,7 +565,7 @@
 .launch-app-logo{width:150px;height:150px;border-radius:36px;background:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 20px 70px rgba(0,0,0,.45);overflow:hidden;margin-bottom:26px}
 .launch-app-logo img{width:90%;height:90%;object-fit:contain}
 .launch-app h1{font-size:48px;margin:0 0 8px;font-weight:1000}.launch-app p{margin:0;font-size:17px;opacity:.8;font-weight:700}
-@media(max-width:650px){.launch-rocket{font-size:72px}.launch-narwhal{width:72px;height:72px}.launch-sst h1,.launch-app h1{font-size:34px}.sst-logo-mark{width:min(300px,82vw)}}
+@media(max-width:650px){.launch-rocket{font-size:72px}.launch-narwhal{font-size:62px}.launch-sst h1,.launch-app h1{font-size:34px}.sst-logo-mark{width:min(300px,82vw)}}
 
 
   /* ---------- Automatic Seasonal Editions ---------- */
@@ -656,6 +657,24 @@
   .progress-top{display:flex;align-items:center;justify-content:space-between;gap:12px}.progress-level{font-size:19px;font-weight:950;color:#16274D}.progress-streak{font-size:13px;font-weight:950;color:#B45309}.progress-xp-row{display:flex;align-items:center;gap:10px;margin-top:9px}.progress-bar-bg{height:10px;background:#DCE6F3;border-radius:999px;overflow:hidden;flex:1}.progress-bar{height:100%;width:0;background:var(--season-accent,#2255A4);border-radius:999px;transition:width .35s ease}.progress-xp-text{font-size:10.5px;font-weight:900;color:#5B6B8C;white-space:nowrap}
   @media(max-width:700px){.achievement-grid{grid-template-columns:1fr}.daily-challenge-card{align-items:flex-start}.admin-stat-grid.admin-stat-grid-more{grid-template-columns:1fr 1fr}}
 
+
+  /* ---------- New Home + Learning + Safety Features ---------- */
+  .home-dashboard-card{max-width:760px;margin:0 auto 14px;background:linear-gradient(135deg,#fff,#F7FAFF);border:1px solid #D9E3F1;border-radius:18px;padding:16px;box-shadow:0 8px 22px rgba(22,39,77,.06)}
+  .home-dashboard-title{font-size:16px;font-weight:950;color:#16274D}.home-dashboard-sub{font-size:11.5px;color:#667795;margin:4px 0 12px;line-height:1.45}
+  .home-dashboard-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}.home-dashboard-btn{border:1px solid #D3DFEE;background:#fff;border-radius:12px;padding:10px 8px;color:#16274D;font-weight:900;font-size:11px;cursor:pointer}.home-dashboard-btn:hover{background:#EEF5FF;transform:translateY(-1px)}
+  .music-category-wrap{max-width:760px;margin:12px auto 0}.music-category-title{font-size:13px;font-weight:950;color:#16274D;margin:8px 2px}.music-category-row{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 7px;scrollbar-width:thin}.music-category-btn{flex:0 0 auto;border:1px solid #D3DFEE;background:#fff;border-radius:999px;padding:9px 13px;color:#16274D;font-size:11px;font-weight:900;cursor:pointer}.music-category-btn:hover{background:#EEF5FF}
+  .search-safety-note{max-width:760px;margin:10px auto 0;background:#F3F8FF;border:1px solid #C9D9F2;border-radius:12px;padding:10px 12px;font-size:11.5px;color:#36537B;line-height:1.5}
+  .learning-overlay{position:fixed;inset:0;z-index:12000;background:rgba(8,20,45,.75);display:flex;align-items:center;justify-content:center;padding:16px}.learning-box{width:min(650px,96vw);max-height:90vh;overflow:auto;background:#fff;border-radius:22px;box-shadow:0 30px 100px rgba(0,0,0,.38);padding:22px}.learning-header{display:flex;align-items:center;gap:10px;justify-content:space-between}.learning-header h2{font-size:24px;color:#16274D}.learning-close{border:0;border-radius:50%;width:36px;height:36px;background:#16274D;color:#fff;cursor:pointer}.learning-subject-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:15px}.learning-subject-btn{border:2px solid #D9E3F1;background:#F7FAFF;border-radius:14px;padding:15px;text-align:left;font-weight:900;color:#16274D;cursor:pointer}.learning-subject-btn:hover{background:#EEF5FF}.learning-quiz{margin-top:16px;background:#F7FAFF;border:1px solid #D9E3F1;border-radius:16px;padding:16px}.learning-q{font-size:18px;font-weight:900;color:#16274D;margin-bottom:12px}.learning-answers{display:grid;grid-template-columns:1fr 1fr;gap:9px}.learning-answer{border:2px solid #A9C3E5;background:#fff;border-radius:12px;padding:11px;font-weight:800;color:#16274D;cursor:pointer}.learning-answer.correct{background:#DFF5E7;border-color:#2E9E5B}.learning-answer.wrong{background:#FBEAEC;border-color:#C8202F}.learning-score{font-size:12px;font-weight:900;color:#2255A4;margin-bottom:8px}.learning-back{margin-top:12px;border:0;border-radius:10px;background:#EAF1FC;color:#2255A4;font-weight:900;padding:9px 12px;cursor:pointer}
+  .narwhal-reaction{position:fixed;right:24px;bottom:22px;z-index:11900;display:flex;align-items:center;gap:10px;background:#fff;border:2px solid #C9D9F2;border-radius:18px;padding:9px 12px;box-shadow:0 14px 36px rgba(22,39,77,.2);transform:translateY(16px) scale(.92);opacity:0;pointer-events:none;transition:opacity .22s ease,transform .22s ease}.narwhal-reaction.show{opacity:1;transform:translateY(0) scale(1)}.narwhal-reaction img{width:46px;height:46px;border-radius:50%;object-fit:cover}.narwhal-reaction-text{font-size:12px;font-weight:950;color:#16274D}.narwhal-reaction-text small{display:block;color:#6E7E9B;font-size:10px;margin-top:2px}
+  .offline-indicator{position:fixed;left:50%;top:12px;transform:translateX(-50%);z-index:11950;background:#FFF4D8;border:1px solid #E8C574;color:#7A5A12;border-radius:999px;padding:7px 12px;font-size:10.5px;font-weight:900;box-shadow:0 8px 22px rgba(0,0,0,.1)}
+  .admin-test-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.admin-test-btn{border:1px solid #D0DCEC;background:#F7FAFF;border-radius:11px;padding:12px 13px;text-align:left;font-size:12px;font-weight:900;color:#16274D;cursor:pointer}.admin-test-btn:hover{background:#EAF1FC}
+  .admin-activity-log{background:#F8FAFD;border:1px solid #D9E3F1;border-radius:14px;max-height:280px;overflow:auto;padding:8px}.admin-log-row{padding:8px 9px;border-bottom:1px solid #E9EEF5;font-size:11px;color:#3E557A}.admin-log-row:last-child{border-bottom:0}.admin-log-time{font-weight:900;color:#2255A4;margin-right:7px}.admin-offline-note{margin-top:10px;background:#F3F8FF;border:1px solid #C9D9F2;border-radius:11px;padding:9px;font-size:11px;color:#516A91}
+  @media(max-width:700px){.home-dashboard-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.learning-subject-grid{grid-template-columns:1fr}.learning-answers{grid-template-columns:1fr}.admin-test-grid{grid-template-columns:1fr}}
+  /* ---------- Launch confetti ---------- */
+  .launch-confetti-layer{position:absolute;inset:0;overflow:hidden;pointer-events:none}.launch-confetti{position:absolute;top:46%;width:11px;height:18px;border-radius:2px;animation:launchConfettiFall var(--confetti-duration,2.8s) cubic-bezier(.2,.75,.3,1) forwards;opacity:0;transform:translate3d(0,0,0) rotate(0deg)}
+  .launch-confetti.c1{background:#FFD447}.launch-confetti.c2{background:#FF5FA2}.launch-confetti.c3{background:#48C6FF}.launch-confetti.c4{background:#7FE08A}.launch-confetti.c5{background:#A77BFF}.launch-confetti.c6{background:#FF8C42}
+  @keyframes launchConfettiFall{0%{opacity:0;transform:translate3d(0,0,0) rotate(0deg) scale(.8)}12%{opacity:1}100%{opacity:0;transform:translate3d(var(--x),var(--y),0) rotate(var(--rot)) scale(1)}}
+
 </style>
 </head>
 <body>
@@ -683,7 +702,7 @@
   <div class="launch-scene launch-rocket-scene launch-ocean" id="launchRocketScene">
     <div class="launch-stars"></div><div class="launch-ground"></div>
     <div class="launch-rocket" id="launchRocket">🚀</div>
-    <div class="launch-narwhal" id="launchNarwhal"><img id="launchNarwhalImage" alt="Narwhal Station mascot"></div>
+    <div class="launch-narwhal" id="launchNarwhal">🐋<span class="launch-horn"></span></div>
     <div class="launch-spark s1"></div><div class="launch-spark s2"></div><div class="launch-spark s3"></div>
     <div class="launch-small-text" style="position:absolute;top:8vh">Narwhal Station is launching...</div>
   </div>
@@ -693,6 +712,7 @@
   </div>
   <div class="launch-scene launch-black" id="launchBlackScene"></div>
   <div class="launch-scene launch-app" id="launchAppScene">
+    <div id="launchConfettiLayer" class="launch-confetti-layer" aria-hidden="true"></div>
     <div class="launch-app-logo"><img id="launchAppLogo" alt="Narwhal Station logo"></div>
     <h1>Narwhal Station</h1><p>Play • Learn • Explore • Be You</p>
   </div>
@@ -778,6 +798,22 @@
     <input id="ytKeywordInput" type="search" placeholder="Search an approved artist or song...">
     <button id="ytSearchBtn" class="yt-load-btn">🔍 Search</button>
   </div>
+
+  <div class="music-category-wrap">
+    <div class="music-category-title">🎶 Music Categories</div>
+    <div class="music-category-row" id="musicCategoryRow">
+      <button class="music-category-btn" data-music-category="80s">📼 80s</button>
+      <button class="music-category-btn" data-music-category="90s">📻 90s</button>
+      <button class="music-category-btn" data-music-category="2000s">💿 2000s</button>
+      <button class="music-category-btn" data-music-category="today">✨ Today</button>
+      <button class="music-category-btn" data-music-category="spanish">🌎 Spanish</button>
+      <button class="music-category-btn" data-music-category="funk">🕺 Funk</button>
+      <button class="music-category-btn" data-music-category="movies">🎬 Movie Music</button>
+      <button class="music-category-btn" data-music-category="kidzbop">🎤 KIDZ BOP</button>
+    </div>
+  </div>
+
+  <div class="search-safety-note">🛡️ <strong>Music Safety:</strong> Narwhal Station only searches approved artists. Song searches are checked against the approved artist list before results are shown.</div>
 
   <div class="music-action-row">
     <button id="shuffleMusicBtn" class="music-action-btn primary" type="button">🔀 Shuffle</button>
@@ -942,6 +978,8 @@
         <button class="admin-menu-card" data-admin-section="adminLeaderboards">🏆 Leaderboards</button>
         <button class="admin-menu-card" data-admin-section="adminEditions">🍂 Editions</button>
         <button class="admin-menu-card" data-admin-section="adminCommands">🛠️ Admin Commands</button>
+        <button class="admin-menu-card" data-admin-section="adminTestMode">🧪 Test Mode</button>
+        <button class="admin-menu-card" data-admin-section="adminActivityLog">📜 Activity Log</button>
         <button class="admin-menu-card" data-admin-section="adminAnnouncements">📢 Announcements</button>
         <button class="admin-menu-card" data-admin-section="adminSettings">⚙️ Settings</button>
         <button class="admin-menu-card" data-admin-section="adminAbout">ℹ️ About</button>
@@ -1032,19 +1070,20 @@
         </section>
 
         <section id="adminLeaderboards" class="admin-subsection">
-          <div class="admin-section-title">🏆 Leaderboards</div>
-          <div class="admin-section-subtitle">Current leaderboard snapshot.</div>
-          <div class="admin-table-wrap">
-            <table class="admin-table">
-              <thead><tr><th>Game</th><th>Top Score</th><th>Player</th></tr></thead>
-              <tbody>
-                <tr><td>Narwhal Math Dash</td><td>980</td><td>Student</td></tr>
-                <tr><td>Word &amp; Number Pop</td><td>760</td><td>Student</td></tr>
-                <tr><td>Shape &amp; Letter Splash</td><td>530</td><td>Student</td></tr>
-                <tr><td>Fraction Frenzy</td><td>910</td><td>Student</td></tr>
-              </tbody>
-            </table>
+          <div class="admin-section-title">🏆 School Leaderboards</div>
+          <div class="admin-section-subtitle">Scores can be shared across Narwhal Station devices when the Cloudflare Worker is connected.</div>
+          <div class="admin-inline-form">
+            <select id="adminLeaderboardGame" class="admin-primary-btn" style="background:#fff;color:#16274D;border:1px solid #CDD8E7">
+              <option value="math_3_4">Narwhal Math Dash</option><option value="word_number_1_2">Word &amp; Number Pop</option><option value="shapes_prek_k">Shape &amp; Letter Splash</option><option value="fraction_frenzy_5_7">Fraction Frenzy</option>
+              <option value="abc_narwhal_prek_k">ABC Narwhal</option><option value="counting_cove_prek_k">Narwhal Counting Cove</option><option value="addition_ocean_1_2">Addition Ocean</option><option value="word_wave_1_2">Word Wave</option>
+              <option value="multiplication_reef_3_4">Multiplication Reef</option><option value="brain_quest_3_4">Narwhal Brain Quest</option><option value="science_splash_5_7">Science Splash</option><option value="logic_lab_5_7">Logic Lab</option>
+              <option value="color_coral_prek_k">Color Coral</option><option value="animal_splash_prek_k">Animal Splash</option><option value="subtraction_ship_1_2">Subtraction Ship</option><option value="spelling_sail_1_2">Spelling Sail</option>
+              <option value="division_dock_3_4">Division Dock</option><option value="decimal_dive_3_4">Decimal Dive</option><option value="geography_quest_5_7">Geography Quest</option><option value="coding_cove_5_7">Coding Cove</option>
+            </select>
+            <button id="adminRefreshLeaderboardBtn" class="admin-primary-btn" type="button">🔄 Refresh</button>
           </div>
+          <div id="adminLeaderboardStatus" class="admin-window-note">Choose a game to load scores.</div>
+          <div id="adminLeaderboardTable" class="admin-table-wrap"></div>
         </section>
 
         <section id="adminEditions" class="admin-subsection">
@@ -1161,6 +1200,34 @@
           </div>
         </section>
 
+        <section id="adminTestMode" class="admin-subsection">
+          <div class="admin-section-title">🧪 Admin Test Mode</div>
+          <div class="admin-section-subtitle">Test effects on this computer only. These buttons do not send commands to students.</div>
+          <div class="admin-info-panel" style="margin-bottom:12px"><strong>Safe local testing</strong><p>Use this area before school to check cutscenes, effects, the learning mode, and the seasonal decorations.</p></div>
+          <div class="admin-test-grid">
+            <button class="admin-test-btn" data-admin-local-command="confetti">🎊 Test Confetti</button>
+            <button class="admin-test-btn" data-admin-local-command="leaves">🍂 Test Leaves</button>
+            <button class="admin-test-btn" data-admin-local-command="snow">❄️ Test Snow</button>
+            <button class="admin-test-btn" data-admin-local-command="rainbow">🌈 Test Rainbow</button>
+            <button class="admin-test-btn" data-admin-local-command="waves">🌊 Test Ocean Wave</button>
+            <button class="admin-test-btn" data-admin-local-command="notes">🎵 Test Music Notes</button>
+            <button class="admin-test-btn" data-admin-local-command="dance">🐋 Test Narwhal Dance</button>
+            <button class="admin-test-btn" data-admin-local-command="school-assembly">🎤 Test Assembly</button>
+            <button class="admin-test-btn" id="adminTestLearningBtn">📚 Test Learning Mode</button>
+            <button class="admin-test-btn" id="adminTestSeasonBtn">🍂 Test Current Season</button>
+            <button class="admin-test-btn" id="adminTestHolidayBtn">🎉 Test Current Holiday</button>
+            <button class="admin-test-btn" id="adminTestLaunchBtn">🚀 Test Launch</button>
+          </div>
+          <div class="admin-offline-note">💡 Local testing does not change the real school calendar, student settings, or Cloudflare commands.</div>
+        </section>
+
+        <section id="adminActivityLog" class="admin-subsection">
+          <div class="admin-section-title">📜 Activity Log</div>
+          <div class="admin-section-subtitle">Recent administrator actions on this computer.</div>
+          <div id="adminActivityLogList" class="admin-activity-log"></div>
+          <button id="adminClearActivityLogBtn" class="admin-edition-btn secondary" type="button" style="margin-top:10px">🧹 Clear Activity Log</button>
+        </section>
+
         <section id="adminSettings" class="admin-subsection">
           <div class="admin-section-title">⚙️ Settings</div>
           <div class="admin-section-subtitle">Basic administrator settings.</div>
@@ -1227,6 +1294,17 @@
 </div>
 <button id="adminRestoreBtn" class="admin-minimized-btn hidden" type="button" title="Restore Admin Panel">⚙️ Admin Panel</button>
 <main id="gamesSection" class="hidden">
+  <div class="home-dashboard-card">
+    <div class="home-dashboard-title">🏠 Narwhal Station Home</div>
+    <div class="home-dashboard-sub">Jump right into music, learning, or today's challenge.</div>
+    <div class="home-dashboard-grid">
+      <button class="home-dashboard-btn" id="homeMusicBtn" type="button">🎵 Music</button>
+      <button class="home-dashboard-btn" id="homeShuffleBtn" type="button">🔀 Shuffle</button>
+      <button class="home-dashboard-btn" id="homeSurpriseBtn" type="button">🎲 Surprise</button>
+      <button class="home-dashboard-btn" id="homeLearningBtn" type="button">📚 Learn</button>
+      <button class="home-dashboard-btn" id="homeDailyBtn" type="button">🎯 Daily Challenge</button>
+    </div>
+  </div>
   <div class="section-title">Learning Games by Grade</div>
   <div class="daily-challenge-card" id="dailyChallengeCard">
     <div class="daily-challenge-icon">🎯</div>
@@ -1371,6 +1449,28 @@
   </div>
 </main>
 
+<div id="learningModeOverlay" class="learning-overlay hidden" aria-hidden="true">
+  <div class="learning-box" role="dialog" aria-modal="true" aria-label="Learning Mode">
+    <div class="learning-header"><h2>📚 Learning Mode</h2><button id="learningCloseBtn" class="learning-close" type="button">✕</button></div>
+    <div id="learningSubjectArea">
+      <div style="font-size:12px;color:#5B6B8C;line-height:1.5;margin-top:4px">Pick a subject. You will get a quick 5-question mini quiz.</div>
+      <div class="learning-subject-grid">
+        <button class="learning-subject-btn" data-learning-subject="reading">📖 Reading</button>
+        <button class="learning-subject-btn" data-learning-subject="math">🧮 Math</button>
+        <button class="learning-subject-btn" data-learning-subject="science">🔬 Science</button>
+        <button class="learning-subject-btn" data-learning-subject="geography">🌎 Geography</button>
+        <button class="learning-subject-btn" data-learning-subject="coding">💻 Coding</button>
+      </div>
+    </div>
+    <div id="learningQuizArea" class="learning-quiz hidden"></div>
+  </div>
+</div>
+<div id="offlineIndicator" class="offline-indicator hidden">📡 You're offline — local games, progress, and recent songs still work.</div>
+<div id="narwhalReaction" class="narwhal-reaction" aria-live="polite">
+  <img id="narwhalReactionImage" alt="Narwhal mascot">
+  <div class="narwhal-reaction-text"><span id="narwhalReactionText">Let's go!</span><small>Narwhal Station</small></div>
+</div>
+
 <div id="gradeModalOverlay" class="game-modal-overlay hidden">
   <div class="grade-modal-box">
     <h2>What grade are you in? 🎓</h2>
@@ -1454,6 +1554,9 @@
   let youtubePlayerReady = false;
   let pendingYouTubeVideo = null;
   let currentYouTubeTrack = null;
+  let youtubeAutoplayEnabled = readJsonStorage("narwhal-autoplay-enabled", true) !== false;
+  let youtubeAutoplayQueue = [];
+  let youtubeAutoplayIndex = -1;
   const countedListenVideoIds = new Set();
   const ytStatus = null;
 
@@ -1487,14 +1590,34 @@
         onStateChange: function(event) {
           if (!window.YT) return;
           if (event.data === YT.PlayerState.PLAYING) {
-            ytStatus.textContent = "▶️ Playing";
+            if (ytStatus) ytStatus.textContent = "▶️ Playing";
             if (currentYouTubeTrack?.id && !countedListenVideoIds.has(currentYouTubeTrack.id)) {
               countedListenVideoIds.add(currentYouTubeTrack.id);
               recordWeeklyListen(currentYouTubeTrack);
             }
           }
-          else if (event.data === YT.PlayerState.PAUSED) ytStatus.textContent = "⏸ Paused";
-          else if (event.data === YT.PlayerState.ENDED) ytStatus.textContent = "Song finished.";
+          else if (event.data === YT.PlayerState.PAUSED) { if (ytStatus) ytStatus.textContent = "⏸ Paused"; }
+          else if (event.data === YT.PlayerState.ENDED) {
+            if (ytStatus) ytStatus.textContent = "Song finished.";
+            const nextIndex = youtubeAutoplayIndex + 1;
+            if (youtubeAutoplayEnabled && nextIndex >= 0 && nextIndex < youtubeAutoplayQueue.length) {
+              const next = youtubeAutoplayQueue[nextIndex];
+              youtubeAutoplayIndex = nextIndex;
+              setTimeout(() => {
+                if (!youtubePlayer || !youtubePlayerReady) return;
+                currentYouTubeTrack = { id: next.id, title: next.title, artist: next.artist || "" };
+                saveRecentlyPlayed(currentYouTubeTrack);
+                trackLocalUsage("song");
+                evaluateAchievements("songPlayed");
+                flashNarwhalReaction("Next song! 🎵");
+                openMiniPlayer(next.title);
+                try {
+                  youtubePlayer.loadVideoById(next.id);
+                  if (ytStatus) ytStatus.textContent = `Playing: ${next.title}`;
+                } catch (_) {}
+              }, 150);
+            }
+          }
         },
         onError: function(event) {
           if (!ytStatus) return;
@@ -1542,9 +1665,12 @@
   function playSelectedYouTubeVideo(id, label, artist = "") {
     if (!id) return;
     currentYouTubeTrack = { id, title: label || "YouTube video", artist: artist || "" };
+    const queuedIndex = youtubeAutoplayQueue.findIndex(item => item.id === id);
+    youtubeAutoplayIndex = queuedIndex;
     saveRecentlyPlayed(currentYouTubeTrack);
     trackLocalUsage("song");
     evaluateAchievements("songPlayed");
+    flashNarwhalReaction("Let's listen! 🎵");
     openMiniPlayer(label);
     if (!youtubePlayer && window.YT && YT.Player) createYouTubePlayer();
     if (!youtubePlayer || !youtubePlayerReady) {
@@ -1561,6 +1687,14 @@
   }
 
   if (ytMiniCloseBtn) ytMiniCloseBtn.onclick = closeMiniPlayer;
+  const ytAutoplayToggle = document.getElementById("ytAutoplayToggle");
+  if (ytAutoplayToggle) {
+    ytAutoplayToggle.checked = youtubeAutoplayEnabled;
+    ytAutoplayToggle.addEventListener("change", () => {
+      youtubeAutoplayEnabled = ytAutoplayToggle.checked;
+      writeJsonStorage("narwhal-autoplay-enabled", youtubeAutoplayEnabled);
+    });
+  }
   if (ytMiniPlayerOverlay) {
     ytMiniPlayerOverlay.addEventListener("click", e => {
       if (e.target === ytMiniPlayerOverlay) closeMiniPlayer();
@@ -2113,6 +2247,13 @@
         return;
       }
 
+      youtubeAutoplayQueue = allItems.map(item => ({
+        id: item.id?.videoId,
+        title: item.snippet?.title || "YouTube video",
+        artist: approvedArtist || ""
+      })).filter(item => item.id);
+      youtubeAutoplayIndex = -1;
+
       ytResultsList.innerHTML = "";
 
       allItems.forEach(item => {
@@ -2181,6 +2322,7 @@
   let activeGameCleanup = null;
 
   window.openGame = function(gameId) {
+    flashNarwhalReaction("Game time! 🎮");
     trackLocalUsage("game");
     evaluateAchievements("gameStarted");
     const container = document.getElementById("gameContainer");
@@ -2217,7 +2359,7 @@
   };
 
   // ---- Shared leaderboard helpers (Netlify Blobs backend, local fallback per game) ----
-  const LB_ENDPOINT = "/.netlify/functions/leaderboard";
+  const LB_ENDPOINT = "/api/leaderboard";
   const lbMemFallback = {};
 
   async function lbLoad(gameId) {
@@ -3067,6 +3209,7 @@
   const launchNarwhal = document.getElementById("launchNarwhal");
   const launchNarwhalImage = document.getElementById("launchNarwhalImage");
   const launchAppLogo = document.getElementById("launchAppLogo");
+  const launchConfettiLayer = document.getElementById("launchConfettiLayer");
   const adminTestLoadingScreenBtn = document.getElementById("adminTestLoadingScreenBtn");
   let launchIntroRunning = false;
   let launchIntroFinished = false;
@@ -3074,6 +3217,23 @@
   function showLaunchScene(scene) {
     [launchRocketScene, launchSstScene, launchBlackScene, launchAppScene].forEach(el => el?.classList.remove("active"));
     scene?.classList.add("active");
+    if (scene === launchAppScene && launchConfettiLayer) createLaunchConfetti();
+  }
+
+  function createLaunchConfetti(){
+    launchConfettiLayer.innerHTML="";
+    const classes=["c1","c2","c3","c4","c5","c6"];
+    for(let i=0;i<90;i++){
+      const piece=document.createElement("span");
+      piece.className=`launch-confetti ${classes[i%classes.length]}`;
+      piece.style.left=`${8+Math.random()*84}%`;
+      piece.style.setProperty("--x",`${Math.round((Math.random()-0.5)*520)}px`);
+      piece.style.setProperty("--y",`${Math.round(190+Math.random()*520)}px`);
+      piece.style.setProperty("--rot",`${Math.round(Math.random()*1080-540)}deg`);
+      piece.style.setProperty("--confetti-duration",`${2.2+Math.random()*1.8}s`);
+      piece.style.animationDelay=`${Math.random()*0.8}s`;
+      launchConfettiLayer.appendChild(piece);
+    }
   }
 
   function getNarwhalLogoSrc() {
@@ -3273,6 +3433,7 @@
       if(!r.ok) throw new Error(d.error||"Command could not be sent.");
       if(d?.command?.id) { lastAdminCommandId = d.command.id; localStorage.setItem("narwhalLastAdminCommandId", d.command.id); }
       playAdminCommandEffect(command,{text});
+      logAdminActivity(`Sent command: ${label}`);
       flashFeatureMessage(`🛠️ ${label} sent`);
     }catch(e){ alert(e.message||"Command could not be sent."); }
   }
@@ -3295,6 +3456,30 @@
   applyRemoteCommandLocks();
   pollAdminCommands();
   adminCommandPollTimer=setInterval(pollAdminCommands,3000);
+
+
+  // ---------- Admin Activity Log ----------
+  const ADMIN_ACTIVITY_KEY = "narwhalStationAdminActivity";
+  function getAdminActivityLog(){ try{return JSON.parse(localStorage.getItem(ADMIN_ACTIVITY_KEY)||"[]")}catch(_){return[]} }
+  function logAdminActivity(text){ try{ const list=getAdminActivityLog(); list.unshift({text:String(text||""),time:Date.now()}); localStorage.setItem(ADMIN_ACTIVITY_KEY,JSON.stringify(list.slice(0,100))); }catch(_){} renderAdminActivityLog(); }
+  function renderAdminActivityLog(){ const box=document.getElementById("adminActivityLogList"); if(!box)return; const list=getAdminActivityLog(); box.innerHTML=list.length?list.map(x=>`<div class="admin-log-row"><span class="admin-log-time">${new Date(x.time).toLocaleString()}</span>${escapeHtml(x.text)}</div>`).join(""):'<div class="admin-chat-empty">No administrator activity yet.</div>'; }
+  document.getElementById("adminClearActivityLogBtn")?.addEventListener("click",()=>{localStorage.removeItem(ADMIN_ACTIVITY_KEY);renderAdminActivityLog();});
+  renderAdminActivityLog();
+
+  // ---------- Local Admin Test Mode ----------
+  document.querySelectorAll("[data-admin-local-command]").forEach(btn=>btn.addEventListener("click",()=>{ const command=btn.dataset.adminLocalCommand; playAdminCommandEffect(command,{text:"Local test mode"}); logAdminActivity(`Tested local command: ${ADMIN_COMMAND_LABELS[command]||command}`); }));
+  document.getElementById("adminTestLearningBtn")?.addEventListener("click",()=>{openLearningMode();logAdminActivity("Tested Learning Mode")});
+  document.getElementById("adminTestSeasonBtn")?.addEventListener("click",()=>{seasonPreviewKey=getNarwhalSeason().key;holidayPreviewKey=null;applyNarwhalSeason();logAdminActivity("Previewed current season")});
+  document.getElementById("adminTestHolidayBtn")?.addEventListener("click",()=>{const h=getAutomaticHoliday(); if(h){holidayPreviewKey=h.key;seasonPreviewKey=null;} else {holidayPreviewKey="halloween";seasonPreviewKey=null;} applyNarwhalSeason();logAdminActivity("Previewed holiday")});
+  document.getElementById("adminTestLaunchBtn")?.addEventListener("click",()=>{playLaunchIntro();logAdminActivity("Tested launch animation")});
+
+  // ---------- School-wide leaderboard admin view ----------
+  const ADMIN_LEADERBOARD_ENDPOINT = "/api/leaderboard";
+  const ADMIN_GAME_LABELS = {math_3_4:"Narwhal Math Dash",word_number_1_2:"Word & Number Pop",shapes_prek_k:"Shape & Letter Splash",fraction_frenzy_5_7:"Fraction Frenzy",abc_narwhal_prek_k:"ABC Narwhal",counting_cove_prek_k:"Narwhal Counting Cove",addition_ocean_1_2:"Addition Ocean",word_wave_1_2:"Word Wave",multiplication_reef_3_4:"Multiplication Reef",brain_quest_3_4:"Narwhal Brain Quest",science_splash_5_7:"Science Splash",logic_lab_5_7:"Logic Lab",color_coral_prek_k:"Color Coral",animal_splash_prek_k:"Animal Splash",subtraction_ship_1_2:"Subtraction Ship",spelling_sail_1_2:"Spelling Sail",division_dock_3_4:"Division Dock",decimal_dive_3_4:"Decimal Dive",geography_quest_5_7:"Geography Quest",coding_cove_5_7:"Coding Cove"};
+  async function loadAdminLeaderboard(){ const game=document.getElementById("adminLeaderboardGame")?.value||"math_3_4",wrap=document.getElementById("adminLeaderboardTable"),status=document.getElementById("adminLeaderboardStatus"); if(!wrap)return; status.textContent=`Loading ${ADMIN_GAME_LABELS[game]||game}...`; try{ const r=await fetch(`${ADMIN_LEADERBOARD_ENDPOINT}?game=${encodeURIComponent(game)}`,{cache:"no-store"}); const d=await r.json().catch(()=>({})); if(!r.ok)throw new Error(d.error||"Leaderboard unavailable"); const list=Array.isArray(d.list)?d.list:[]; wrap.innerHTML=`<table class="admin-table"><thead><tr><th>#</th><th>Player</th><th>Score</th></tr></thead><tbody>${list.length?list.slice(0,10).map((x,i)=>`<tr><td>${i+1}</td><td>${escapeHtml(x.name||"Student")}</td><td>${Number(x.score||0)}</td></tr>`).join(""):'<tr><td colspan="3">No scores yet.</td></tr>'}</tbody></table>`; status.textContent=`${list.length} score${list.length===1?'':'s'} • ${ADMIN_GAME_LABELS[game]||game}`; }catch(e){ wrap.innerHTML='<div style="padding:14px;font-size:12px;color:#7B8AA5">School leaderboard is not available yet.</div>'; status.textContent=e.message||"Leaderboard unavailable."; } }
+  document.getElementById("adminRefreshLeaderboardBtn")?.addEventListener("click",loadAdminLeaderboard);
+  document.getElementById("adminLeaderboardGame")?.addEventListener("change",loadAdminLeaderboard);
+  loadAdminLeaderboard();
 
   function showAdminSection(id) {
     document.querySelectorAll(".admin-subsection").forEach(s => s.classList.toggle("active", s.id === id));
@@ -3487,6 +3672,7 @@
       const r = await fetch(ANNOUNCEMENT_ENDPOINT,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({password:getAdminPasswordForExtras(),title,text}),cache:"no-store"});
       const d = await r.json().catch(()=>({})); if (!r.ok) throw new Error(d.error||"Could not publish.");
       document.getElementById("adminAnnouncementStatus").textContent = "✓ Announcement published.";
+      logAdminActivity("Published school announcement");
       await loadSchoolAnnouncement();
     } catch (e) { alert(e.message||"Could not publish announcement."); }
   }
@@ -3503,6 +3689,7 @@
     try {
       const r = await fetch(SEASON_EVENT_ENDPOINT,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body),cache:"no-store"}); const d=await r.json().catch(()=>({})); if(!r.ok) throw new Error(d.error||"Could not save event.");
       document.getElementById("adminSeasonEventStatusNote").textContent = body.enabled ? "✓ Seasonal event saved and turned ON." : "✓ Seasonal event is OFF.";
+      logAdminActivity(body.enabled ? "Turned special event ON" : "Turned special event OFF");
       await loadSeasonEvent();
     } catch (e) { alert(e.message||"Could not save seasonal event."); }
   }
@@ -4066,6 +4253,62 @@
   window.addEventListener("narwhalGlobalChatUpdated", () => {
     renderStudentGlobalChatBanner(true);
   });
+
+  // ---------- Home shortcuts, Music Categories, Learning Mode, Reactions ----------
+  const MUSIC_CATEGORY_ARTISTS = {
+    "80s": ["a-ha","Bonnie Tyler","The Bangles","Billy Joel","Culture Club","Europe","Huey Lewis and the News","Journey","Kenny Loggins","Lionel Richie","Phil Collins","Rick Astley","Tears for Fears","The Go-Go's","Whitney Houston","Cyndi Lauper","ABBA","Queen","Wham!","Deniece Williams","Joe Jackson","Glenn Frey","Peter Cetera","Alphaville","Starship","The Human League"],
+    "90s": ["Ace of Base","Backstreet Boys","Celine Dion","Cher","Hanson","Mariah Carey","Men at Work","Natalie Imbruglia","NSYNC","Selena","Shania Twain","Smash Mouth","Spice Girls","R.E.M.","Sixpence None the Richer","Ricky Martin","Luis Miguel","Mecano","Chumbawamba","The Cranberries","Seal","Dido","Vanessa Williams"],
+    "2000s": ["Justin Timberlake","Marshmello","Ariana Grande","Bruno Mars","Shakira","Coldplay","KIDZ BOP","Trolls World Tour","Encanto"],
+    "today": ["Bad Bunny","Taylor Swift","Sabrina Carpenter","Olivia Rodrigo","Billie Eilish","Ariana Grande","Bruno Mars","Dua Lipa","Tate McRae","KAROL G","Becky G","Rauw Alejandro","KATSEYE"],
+    "spanish": ["Bad Bunny","Jesse & Joy","Reik","Matisse","Camila","Maná","Natalia Lafourcade","Carlos Rivera","Ha*Ash","Grupo Frontera","Banda MS","Intocable","Los Tigres del Norte","Pepe Aguilar","Morat","Julieta Venegas","Shakira","KAROL G","Becky G","Rauw Alejandro","Selena","Ricky Martin","Luis Miguel","Mecano"],
+    "funk": ["Earth, Wind & Fire","James Brown","Chic","Kool & the Gang","Sly and the Family Stone","Stevie Wonder","The Isley Brothers","The Pointer Sisters","Sister Sledge","The Commodores","Parliament","Marvin Gaye","Diana Ross","KC and the Sunshine Band","Jamiroquai","Chromeo","Prince","Bill Withers","Mark Morrison","Silk Sonic"],
+    "movies": ["Encanto","Trolls World Tour","Sing 2 / Ariana Grande & Stevie Wonder","KIDZ BOP Kids","KIDZ BOP"],
+    "kidzbop": ["KIDZ BOP Kids","KIDZ BOP"]
+  };
+  function categoryArtists(key){ return (MUSIC_CATEGORY_ARTISTS[key]||[]).filter(a=>APPROVED_ARTISTS.includes(a)); }
+  function searchMusicCategory(key){ const list=categoryArtists(key); const artist=list[Math.floor(Math.random()*Math.max(1,list.length))]||"KIDZ BOP Kids"; doSafeMusicSearch(`${artist} Lyrics Clean`,"category"); flashFeatureMessage(`🎶 ${key.toUpperCase()} category: ${artist}`); logAdminActivity?.(`Used music category: ${key}`); }
+  document.querySelectorAll("[data-music-category]").forEach(btn=>btn.addEventListener("click",()=>searchMusicCategory(btn.dataset.musicCategory)));
+
+  const learningSets = {
+    reading:[
+      ["Which word is a synonym for HAPPY?","GLAD",["GLAD","LOUD","COLD","FAST"]],
+      ["Which word rhymes with CAT?","HAT",["HAT","DOG","SUN","TREE"]],
+      ["Which is a complete sentence?","The dog ran.",["The dog ran.","dog running","Blue sky","Because school"]],
+      ["What is the opposite of BIG?","SMALL",["SMALL","FAST","LOUD","BRIGHT"]],
+      ["Which word begins with the letter B?","Ball",["Ball","Cat","Fish","Sun"]]
+    ],
+    math:[
+      ["7 + 6 = ?","13",["13","12","14","16"]],["8 × 4 = ?","32",["32","24","28","36"]],["45 ÷ 5 = ?","9",["9","8","10","11"]],["Which is greater?","0.8",["0.8","0.5","0.3","0.4"]],["What is 100 − 27?","73",["73","63","83","77"]]
+    ],
+    science:[
+      ["What do plants use sunlight to help make?","Food",["Food","Snow","Rocks","Metal"]],["Which planet do we live on?","Earth",["Earth","Mars","Venus","Jupiter"]],["What gas do humans breathe in?","Oxygen",["Oxygen","Helium","Carbon monoxide","Steam"]],["What is frozen water called?","Ice",["Ice","Steam","Salt","Rain"]],["Which animal is a mammal?","Dolphin",["Dolphin","Shark","Tuna","Octopus"]]
+    ],
+    geography:[
+      ["Which continent is Brazil in?","South America",["South America","Europe","Asia","Africa"]],["What is the largest ocean?","Pacific Ocean",["Pacific Ocean","Atlantic Ocean","Indian Ocean","Arctic Ocean"]],["Which country is shaped like a boot?","Italy",["Italy","Canada","India","Egypt"]],["What is the capital of France?","Paris",["Paris","Madrid","Rome","Berlin"]],["Which continent is Egypt in?","Africa",["Africa","Asia","Europe","Australia"]]
+    ],
+    coding:[
+      ["What does a loop do?","Repeats instructions",["Repeats instructions","Deletes the computer","Turns off the screen","Prints a picture"]],["What is a bug in a program?","An error",["An error","A game level","A keyboard key","A web page"]],["What comes next: 2, 4, 6, 8, ?","10",["10","9","11","12"]],["What is an algorithm?","A set of steps",["A set of steps","A computer mouse","A password","A color"]],["Which language is commonly used to make web pages interactive?","JavaScript",["JavaScript","Paint","Calculator","Speaker"]]
+    ]
+  };
+  let learningState=null;
+  function openLearningMode(){ const o=document.getElementById("learningModeOverlay"); if(!o)return; o.classList.remove("hidden"); o.setAttribute("aria-hidden","false"); document.getElementById("learningSubjectArea")?.classList.remove("hidden"); document.getElementById("learningQuizArea")?.classList.add("hidden"); learningState=null; }
+  function closeLearningMode(){ const o=document.getElementById("learningModeOverlay"); if(o){o.classList.add("hidden");o.setAttribute("aria-hidden","true");} }
+  function startLearningSubject(subject){ const qs=learningSets[subject]||learningSets.math; learningState={subject,qs,index:0,score:0}; document.getElementById("learningSubjectArea")?.classList.add("hidden"); document.getElementById("learningQuizArea")?.classList.remove("hidden"); renderLearningQuestion(); trackLocalUsage("learning"); evaluateAchievements("learning"); }
+  function renderLearningQuestion(){ const area=document.getElementById("learningQuizArea"); if(!area||!learningState)return; if(learningState.index>=learningState.qs.length){ area.innerHTML=`<div class="learning-score">⭐ Score: ${learningState.score}/${learningState.qs.length}</div><div style="font-size:20px;font-weight:950;color:#16274D;text-align:center;padding:20px 4px">Great job! 🎉</div><div style="text-align:center;color:#5B6B8C;font-size:12px">You finished ${learningState.subject} learning mode.</div><button class="learning-back" id="learningBackBtn">📚 Pick Another Subject</button>`; document.getElementById("learningBackBtn").onclick=openLearningMode; return; } const q=learningState.qs[learningState.index]; area.innerHTML=`<div class="learning-score">${learningState.subject.toUpperCase()} • Question ${learningState.index+1}/5 • Score ${learningState.score}</div><div class="learning-q">${escapeHtml(q[0])}</div><div class="learning-answers" id="learningAnswers"></div>`; const ans=document.getElementById("learningAnswers"); q[2].forEach(choice=>{ const b=document.createElement("button"); b.className="learning-answer"; b.textContent=choice; b.onclick=()=>answerLearningQuestion(choice,b); ans.appendChild(b); }); }
+  function answerLearningQuestion(choice,btn){ if(!learningState)return; const q=learningState.qs[learningState.index]; [...document.querySelectorAll("#learningAnswers .learning-answer")].forEach(b=>b.disabled=true); const ok=choice===q[1]; btn.classList.add(ok?"correct":"wrong"); if(ok){learningState.score++; awardXp(5); flashFeatureMessage("📚 Correct! +5 XP"); flashNarwhalReaction("Nice work! 📚");} else { flashFeatureMessage(`The answer was ${q[1]}. Keep learning!`); flashNarwhalReaction("Keep trying! 💪"); [...document.querySelectorAll("#learningAnswers .learning-answer")].forEach(b=>{if(b.textContent===q[1])b.classList.add("correct")}); } setTimeout(()=>{learningState.index++;renderLearningQuestion()},550); }
+  document.querySelectorAll("[data-learning-subject]").forEach(b=>b.addEventListener("click",()=>startLearningSubject(b.dataset.learningSubject)));
+  document.getElementById("learningCloseBtn")?.addEventListener("click",closeLearningMode);
+  document.getElementById("learningModeOverlay")?.addEventListener("click",e=>{if(e.target.id==="learningModeOverlay")closeLearningMode()});
+
+  function flashNarwhalReaction(text){ const box=document.getElementById("narwhalReaction"),img=document.getElementById("narwhalReactionImage"),label=document.getElementById("narwhalReactionText"); if(!box)return; if(img) img.src=getNarwhalLogoSrc?.()||document.querySelector(".narwhal-mark")?.src||""; if(label)label.textContent=text; box.classList.add("show"); clearTimeout(window.__narwhalReactionTimer); window.__narwhalReactionTimer=setTimeout(()=>box.classList.remove("show"),2400); }
+  function updateOfflineIndicator(){ const el=document.getElementById("offlineIndicator"); if(!el)return; el.classList.toggle("hidden",navigator.onLine); }
+  window.addEventListener("online",updateOfflineIndicator); window.addEventListener("offline",updateOfflineIndicator); updateOfflineIndicator();
+  document.getElementById("homeMusicBtn")?.addEventListener("click",()=>navYouTubeBtn?.click());
+  document.getElementById("homeShuffleBtn")?.addEventListener("click",()=>{navYouTubeBtn?.click();setTimeout(()=>shuffleMusic(),100);});
+  document.getElementById("homeSurpriseBtn")?.addEventListener("click",()=>{navYouTubeBtn?.click();setTimeout(()=>surpriseMe(),100);});
+  document.getElementById("homeLearningBtn")?.addEventListener("click",openLearningMode);
+  document.getElementById("homeDailyBtn")?.addEventListener("click",()=>document.getElementById("dailyChallengeBtn")?.click());
+
   // ---------- Local Progress, Shuffle, Daily Challenge & Achievements ----------
   const NARWHAL_RECENTS_KEY = "narwhalStationRecentlyPlayed";
   const NARWHAL_USAGE_KEY = "narwhalStationUsage";
@@ -4102,7 +4345,8 @@
     { id:"shuffle-master", icon:"🔀", name:"Shuffle Master", desc:"Use Shuffle 3 times.", check:u => u.shuffles >= 3 },
     { id:"surprise-star", icon:"🎲", name:"Surprise Star", desc:"Use Surprise Me 3 times.", check:u => u.surprises >= 3 },
     { id:"daily-challenger", icon:"🎯", name:"Daily Challenger", desc:"Try the Daily Challenge.", check:u => u.dailyChallenges >= 1 },
-    { id:"season-explorer", icon:"🍂", name:"Season Explorer", desc:"Preview 4 different editions.", check:u => u.seasonsPreviewed >= 4 }
+    { id:"season-explorer", icon:"🍂", name:"Season Explorer", desc:"Preview 4 different editions.", check:u => u.seasonsPreviewed >= 4 },
+    { id:"learning-hero", icon:"📚", name:"Learning Hero", desc:"Start a Learning Mode quiz.", check:u => u.learningSessions >= 1 }
   ];
 
   function readJsonStorage(key, fallback) {
@@ -4111,7 +4355,7 @@
   function writeJsonStorage(key, value) { try { localStorage.setItem(key, JSON.stringify(value)); } catch (_) {} }
 
   function getLocalUsage() {
-    return Object.assign({songsPlayed:0, gamesStarted:0, shuffles:0, surprises:0, dailyChallenges:0, seasonsPreviewed:0, xp:0, streak:0, lastActiveDate:""}, readJsonStorage(NARWHAL_USAGE_KEY, {}));
+    return Object.assign({songsPlayed:0, gamesStarted:0, shuffles:0, surprises:0, dailyChallenges:0, seasonsPreviewed:0, learningSessions:0, xp:0, streak:0, lastActiveDate:""}, readJsonStorage(NARWHAL_USAGE_KEY, {}));
   }
   function updateActivityStreak() {
     const u = getLocalUsage();
@@ -4143,6 +4387,7 @@
     if (type === "surprise") { u.surprises++; xpGain = 5; }
     if (type === "daily") { u.dailyChallenges++; xpGain = 20; }
     if (type === "season") { u.seasonsPreviewed++; xpGain = 5; }
+    if (type === "learning") { u.learningSessions++; xpGain = 5; }
     u.xp = Number(u.xp || 0) + xpGain;
     writeJsonStorage(NARWHAL_USAGE_KEY, u);
     renderProgress();

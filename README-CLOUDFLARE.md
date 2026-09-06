@@ -8,9 +8,6 @@ Files:
 - wrangler.jsonc
 - README-CLOUDFLARE.md
 
-YouTube search starts with 25 results. The approved artist helper lets students select an artist, show that artist's YouTube song results, or search for a specific song from that artist.
+Deploy with: npx wrangler deploy
 
-Extras include automatic seasonal editions, local shuffle/recent-history/daily challenge/achievements, and shared school announcements and seasonal events through Cloudflare KV.
-
-
-Global Chat roles: Administrator, Owner, Vice Principal, Principal.
+The app uses official YouTube search/player APIs and Cloudflare KV for shared chat, commands, announcements, seasonal events, and school leaderboards.

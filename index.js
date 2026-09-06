@@ -7,6 +7,10 @@ const MAX_TITLE = 240;
 const MAX_ARTIST = 120;
 const ALLOWED_CHAT_ROLES = new Set(["ADMIN", "OWNER", "VICE_PRINCIPAL", "PRINCIPAL"]);
 const ADMIN_COMMAND_KEY = "admin-command";
+const ANNOUNCEMENT_KEY = "announcement";
+const SEASON_EVENT_KEY = "season-event";
+const LEADERBOARD_PREFIX = "leaderboard:";
+const MAX_LEADERBOARD = 50;
 const MAX_COMMAND_TEXT = 500;
 const ALLOWED_ADMIN_COMMANDS = new Set([
   "launch","halloween","snowstorm","thanksgiving","winter","spring","summer","dance","school-assembly",
@@ -140,6 +144,86 @@ async function handleAdminCommand(request, env) {
   }
 }
 
+
+async function handleAnnouncement(request, env) {
+  if (request.method === "OPTIONS") return json({}, 204);
+  if (!["GET","POST","DELETE"].includes(request.method)) return json({ error: "Method not allowed." }, 405);
+  try {
+    const kv = env.GLOBAL_CHAT;
+    if (!kv) return json({ error: "Announcements are not configured: GLOBAL_CHAT KV binding is missing." }, 500);
+    if (request.method === "GET") return json({ announcement: await kv.get(ANNOUNCEMENT_KEY, "json") || null });
+    const body = await request.json().catch(() => null);
+    if (!body || typeof body !== "object") return json({ error: "Invalid request." }, 400);
+    if (!adminAuthorized(body, env)) return json({ error: "Unauthorized." }, 401);
+    if (request.method === "DELETE") { await kv.delete(ANNOUNCEMENT_KEY); return json({ ok: true }); }
+    const title = String(body.title || "School Announcement").trim().slice(0, 80) || "School Announcement";
+    const text = String(body.text || "").trim().slice(0, MAX_MESSAGE);
+    if (!text) return json({ error: "Announcement cannot be empty." }, 400);
+    const announcement = { id: crypto.randomUUID(), title, text, time: Date.now() };
+    await kv.put(ANNOUNCEMENT_KEY, JSON.stringify(announcement));
+    return json({ ok: true, announcement });
+  } catch (error) {
+    console.error("Narwhal announcement error:", error);
+    return json({ error: `Announcement backend error: ${error?.message || "unknown error"}` }, 500);
+  }
+}
+
+async function handleSeasonEvent(request, env) {
+  if (request.method === "OPTIONS") return json({}, 204);
+  if (!["GET","POST","DELETE"].includes(request.method)) return json({ error: "Method not allowed." }, 405);
+  try {
+    const kv = env.GLOBAL_CHAT;
+    if (!kv) return json({ error: "Seasonal events are not configured: GLOBAL_CHAT KV binding is missing." }, 500);
+    if (request.method === "GET") return json({ event: await kv.get(SEASON_EVENT_KEY, "json") || null });
+    const body = await request.json().catch(() => null);
+    if (!body || typeof body !== "object") return json({ error: "Invalid request." }, 400);
+    if (!adminAuthorized(body, env)) return json({ error: "Unauthorized." }, 401);
+    if (request.method === "DELETE") { await kv.delete(SEASON_EVENT_KEY); return json({ ok: true }); }
+    const icon = String(body.icon || "🎉").trim().slice(0, 8) || "🎉";
+    const title = String(body.title || "Special Event").trim().slice(0, 80) || "Special Event";
+    const text = String(body.text || "").trim().slice(0, 300);
+    const enabled = !!body.enabled;
+    if (enabled && !text) return json({ error: "Event message cannot be empty when enabled." }, 400);
+    const event = { id: crypto.randomUUID(), icon, title, text, enabled, time: Date.now() };
+    await kv.put(SEASON_EVENT_KEY, JSON.stringify(event));
+    return json({ ok: true, event });
+  } catch (error) {
+    console.error("Narwhal seasonal event error:", error);
+    return json({ error: `Seasonal event backend error: ${error?.message || "unknown error"}` }, 500);
+  }
+}
+
+async function handleLeaderboard(request, env) {
+  if (request.method === "OPTIONS") return json({}, 204);
+  if (!["GET","POST"].includes(request.method)) return json({ error: "Method not allowed." }, 405);
+  try {
+    const kv = env.GLOBAL_CHAT;
+    if (!kv) return json({ error: "Leaderboards are not configured: GLOBAL_CHAT KV binding is missing." }, 500);
+    const url = new URL(request.url);
+    const game = String(url.searchParams.get("game") || "").trim().slice(0, 80);
+    if (!game || !/^[A-Za-z0-9_-]+$/.test(game)) return json({ error: "Invalid game." }, 400);
+    const key = `${LEADERBOARD_PREFIX}${game}`;
+    if (request.method === "GET") {
+      const list = await kv.get(key, "json") || [];
+      return json({ game, list: Array.isArray(list) ? list.slice(0, 10) : [] });
+    }
+    const body = await request.json().catch(() => null);
+    if (!body || typeof body !== "object") return json({ error: "Invalid request." }, 400);
+    const name = String(body.name || "Student").trim().slice(0, 14) || "Student";
+    const score = Math.max(0, Math.min(999999999, Math.floor(Number(body.score || 0)) || 0));
+    const existing = await kv.get(key, "json") || [];
+    const list = Array.isArray(existing) ? existing : [];
+    list.push({ name, score, time: Date.now() });
+    list.sort((a,b) => Number(b.score||0) - Number(a.score||0) || Number(a.time||0) - Number(b.time||0));
+    const trimmed = list.slice(0, MAX_LEADERBOARD);
+    await kv.put(key, JSON.stringify(trimmed));
+    return json({ ok: true, game, list: trimmed.slice(0, 10) });
+  } catch (error) {
+    console.error("Narwhal leaderboard error:", error);
+    return json({ error: `Leaderboard backend error: ${error?.message || "unknown error"}` }, 500);
+  }
+}
+
 async function handleRequests(request, env) {
   if (request.method === "OPTIONS") return json({}, 204);
   if (!["GET", "POST", "DELETE"].includes(request.method)) return json({ error: "Method not allowed." }, 405);
@@ -185,6 +269,9 @@ export default {
     if (url.pathname === "/api/weekly-listens" || url.pathname === "/api/weekly-listens/") return handleWeeklyListens(request, env);
     if (url.pathname === "/api/requests" || url.pathname === "/api/requests/") return handleRequests(request, env);
     if (url.pathname === "/api/admin-command" || url.pathname === "/api/admin-command/") return handleAdminCommand(request, env);
+    if (url.pathname === "/api/announcement" || url.pathname === "/api/announcement/") return handleAnnouncement(request, env);
+    if (url.pathname === "/api/seasonal-event" || url.pathname === "/api/seasonal-event/") return handleSeasonEvent(request, env);
+    if (url.pathname === "/api/leaderboard" || url.pathname === "/api/leaderboard/") return handleLeaderboard(request, env);
     return env.ASSETS.fetch(request);
   }
 };
