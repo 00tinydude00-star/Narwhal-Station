@@ -911,14 +911,14 @@
           <div class="admin-section-title">💬 Global Chat</div>
           <div class="admin-section-subtitle">Send a message to the school-wide chat.</div>
           <div class="chat-identity-row">
+            <label>Sending as
+              <input id="globalChatSenderName" type="text" maxlength="40" value="Administrator" placeholder="Your name">
+            </label>
             <label>Role
               <select id="globalChatSenderRole">
                 <option value="ADMIN">Administrator</option>
                 <option value="OWNER">Owner</option>
               </select>
-            </label>
-            <label>Sending as
-              <input id="globalChatSenderName" type="text" maxlength="40" value="Administrator" placeholder="Your name">
             </label>
           </div>
           <div class="chat-role-note" id="globalChatRoleNote">ADMIN messages show the ADMIN badge to students.</div>
