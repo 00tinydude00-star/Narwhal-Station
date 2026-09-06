@@ -440,6 +440,14 @@
   .admin-lock-btn{border:1px solid rgba(255,255,255,.25);border-radius:9px;background:rgba(255,255,255,.12);color:#fff;padding:8px 10px;font-size:10px;font-weight:900;cursor:pointer}
   .admin-lock-btn:hover{background:rgba(255,255,255,.2)}
 
+  /* ---------- Requests + Weekly Top Song ---------- */
+  .weekly-top-card{margin:18px auto 0;max-width:720px;background:linear-gradient(135deg,#16274D,#2255A4);color:#fff;border-radius:18px;padding:18px 20px;box-shadow:0 8px 24px rgba(22,39,77,.18);display:flex;align-items:center;gap:14px}
+  .weekly-top-icon{width:48px;height:48px;border-radius:14px;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-size:24px;flex:0 0 auto}
+  .weekly-top-info{min-width:0;flex:1}.weekly-top-kicker{font-size:10px;font-weight:900;letter-spacing:.7px;color:#CFE1FF;text-transform:uppercase}.weekly-top-title{font-size:16px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}.weekly-top-meta{font-size:11.5px;color:#DCEAFF;margin-top:3px}
+  .weekly-top-play{border:0;border-radius:10px;background:#fff;color:#16274D;padding:10px 13px;font-weight:900;cursor:pointer;flex:0 0 auto}.weekly-top-play:hover{filter:brightness(.95)}
+  .requests-card{background:#fff;border-radius:18px;padding:22px;box-shadow:0 3px 12px rgba(22,39,77,.08);margin-top:10px}.requests-card h2{font-size:22px;margin-bottom:5px}.requests-card p{font-size:13px;color:#5B6B8C;line-height:1.5;margin-bottom:16px}.request-form{display:grid;gap:12px}.request-form label{font-size:11px;font-weight:900;color:#344567}.request-form input,.request-form select,.request-form textarea{display:block;width:100%;margin-top:5px;padding:12px 13px;border:1px solid #CDD8E7;border-radius:10px;outline:none;background:#fff;color:#16274D;font:inherit}.request-form textarea{min-height:110px;resize:vertical}.request-submit{border:0;border-radius:11px;padding:13px 16px;background:#2255A4;color:#fff;font-weight:900;cursor:pointer}.request-submit:hover{filter:brightness(.96)}.request-status{font-size:12px;font-weight:800;color:#2E8B57;min-height:16px}.request-note{font-size:11px!important;color:#6E7E9B!important;margin:0!important}
+  .admin-request-list{display:grid;gap:8px;max-height:520px;overflow:auto}.admin-request-item{background:#fff;border:1px solid #D9E3F1;border-radius:12px;padding:12px}.admin-request-top{display:flex;align-items:center;justify-content:space-between;gap:10px}.admin-request-type{font-size:10px;font-weight:900;text-transform:uppercase;color:#2255A4;background:#EAF1FC;border-radius:999px;padding:4px 8px}.admin-request-time{font-size:10px;color:#7B8AA5}.admin-request-text{font-size:14px;font-weight:800;color:#16274D;margin-top:7px;white-space:pre-wrap;word-break:break-word}.admin-request-name{font-size:11px;color:#5B6B8C;margin-top:5px}.admin-request-actions{margin-top:8px}.admin-request-delete{border:0;border-radius:8px;background:#FBEAEC;color:#B62231;font-size:10px;font-weight:900;padding:6px 9px;cursor:pointer}
+
   /* ---------- Floating mini music player ---------- */
   .yt-mini-player-overlay{
     position:fixed;
@@ -530,6 +538,7 @@
     <div class="top-nav">
       <button class="top-nav-btn" id="navGamesBtn">🎮 Games</button>
       <button class="top-nav-btn" id="navYouTubeBtn">🔍 Search for Songs!</button>
+      <button class="top-nav-btn" id="navRequestsBtn">📝 Requests</button>
       <button class="top-nav-btn active" id="navAboutBtn">ℹ️ About</button>
     </div>
   </div>
@@ -544,6 +553,15 @@
   </div>
 </div>
 
+<div id="weeklyTopSongCard" class="weekly-top-card" aria-live="polite">
+  <div class="weekly-top-icon">🏆</div>
+  <div class="weekly-top-info">
+    <div class="weekly-top-kicker">Most Listened This Week</div>
+    <div id="weeklyTopSongTitle" class="weekly-top-title">Loading this week’s #1 song...</div>
+    <div id="weeklyTopSongMeta" class="weekly-top-meta">Listening data is shared across Narwhal Station.</div>
+  </div>
+  <button id="weeklyTopPlayBtn" class="weekly-top-play hidden" type="button">▶ Play</button>
+</div>
 
 <!-- ============ SEARCH FOR SONGS: YouTube keyword search + official player ============ -->
 <main id="youtubeSection" class="hidden">
@@ -587,6 +605,34 @@
     </div>
   </div>
 </div>
+
+<!-- ============ REQUESTS ============ -->
+<main id="requestsSection" class="hidden">
+  <div class="section-title">Requests</div>
+  <div class="requests-card">
+    <h2>📝 Make a Request</h2>
+    <p>Want a song, artist, game, or something else? Tell us what you would like to see in Narwhal Station.</p>
+    <form id="requestForm" class="request-form">
+      <label>What are you requesting?
+        <select id="requestType">
+          <option value="Song">🎵 Song</option>
+          <option value="Artist">🎤 Artist</option>
+          <option value="Game">🎮 Game</option>
+          <option value="Other">💡 Other</option>
+        </select>
+      </label>
+      <label>Your request
+        <textarea id="requestText" maxlength="500" required placeholder="Example: Please add a game about space!"></textarea>
+      </label>
+      <label>Your name (optional)
+        <input id="requestName" type="text" maxlength="40" placeholder="You can leave this blank">
+      </label>
+      <button class="request-submit" id="requestSubmitBtn" type="submit">📨 Send Request</button>
+      <div id="requestStatus" class="request-status" aria-live="polite"></div>
+      <p class="request-note">Requests go to the Narwhal Station administrator for review. Sending a request does not automatically add it to the app.</p>
+    </form>
+  </div>
+</main>
 
 <!-- ============ GAMES SECTION: grade picker + game grid + in-app game modal ============ -->
 
@@ -678,6 +724,7 @@
         <button class="admin-menu-card" data-admin-section="adminLeaderboards">🏆 Leaderboards</button>
         <button class="admin-menu-card" data-admin-section="adminSettings">⚙️ Settings</button>
         <button class="admin-menu-card" data-admin-section="adminAbout">ℹ️ About</button>
+        <button class="admin-menu-card" data-admin-section="adminRequests">📝 Requests</button>
         <button class="admin-menu-card" data-admin-section="adminGlobalChat">💬 Global Chat</button>
       </aside>
 
@@ -688,7 +735,7 @@
           <div class="admin-stat-grid">
             <div class="admin-stat"><span>Approved Artists</span><strong id="adminArtistCount">0</strong></div>
             <div class="admin-stat"><span>Music Artists</span><strong id="adminMusicArtistCount">0</strong></div>
-            <div class="admin-stat"><span>Games</span><strong>4</strong></div>
+            <div class="admin-stat"><span>Games</span><strong>20</strong></div>
             <div class="admin-stat"><span>System</span><strong>OK</strong></div>
           </div>
           <div class="admin-info-panel">
@@ -793,6 +840,12 @@
             <h4>About the Creator</h4>
             <p>The creator started making apps since age 10 and continues building projects that combine technology, creativity, music, and learning.</p>
           </div>
+        </section>
+
+        <section id="adminRequests" class="admin-subsection">
+          <div class="admin-section-title">📝 Requests</div>
+          <div class="admin-section-subtitle">Review song, artist, game, and other student requests.</div>
+          <div id="adminRequestsList" class="admin-request-list"><div class="admin-chat-empty">Loading requests...</div></div>
         </section>
 
         <section id="adminGlobalChat" class="admin-subsection">
@@ -977,16 +1030,18 @@
 <script>
   const navGamesBtn = document.getElementById("navGamesBtn");
   const navYouTubeBtn = document.getElementById("navYouTubeBtn");
+  const navRequestsBtn = document.getElementById("navRequestsBtn");
   const navGlobalChatBtn = document.getElementById("navGlobalChatBtn");
   const navAboutBtn = document.getElementById("navAboutBtn");
   const gamesSection = document.getElementById("gamesSection");
   const youtubeSection = document.getElementById("youtubeSection");
+  const requestsSection = document.getElementById("requestsSection");
   const globalChatSection = document.getElementById("globalChatSection");
   const aboutSection = document.getElementById("aboutSection");
 
   function showSection(section, button) {
-    [gamesSection, youtubeSection, aboutSection, globalChatSection].forEach(s => s && s.classList.add("hidden"));
-    [navGamesBtn, navYouTubeBtn, navAboutBtn, navGlobalChatBtn].forEach(b => b && b.classList.remove("active"));
+    [gamesSection, youtubeSection, requestsSection, aboutSection, globalChatSection].forEach(s => s && s.classList.add("hidden"));
+    [navGamesBtn, navYouTubeBtn, navRequestsBtn, navAboutBtn, navGlobalChatBtn].forEach(b => b && b.classList.remove("active"));
     section.classList.remove("hidden");
     button.classList.add("active");
     if (section === gamesSection && !selectedGradeBand) {
@@ -1002,6 +1057,7 @@
     // Local music player removed — nothing to pause here anymore.
   };
 
+  if (navRequestsBtn) navRequestsBtn.onclick = () => showSection(requestsSection, navRequestsBtn);
   if (navAboutBtn) navAboutBtn.onclick = () => showSection(aboutSection, navAboutBtn);
   if (navGlobalChatBtn) navGlobalChatBtn.onclick = () => showSection(globalChatSection, navGlobalChatBtn);
 
@@ -1023,6 +1079,8 @@
   let youtubePlayer = null;
   let youtubePlayerReady = false;
   let pendingYouTubeVideo = null;
+  let currentYouTubeTrack = null;
+  const countedListenVideoIds = new Set();
   const ytStatus = null;
 
   function createYouTubePlayer() {
@@ -1054,7 +1112,13 @@
         },
         onStateChange: function(event) {
           if (!window.YT || !ytStatus) return;
-          if (event.data === YT.PlayerState.PLAYING) ytStatus.textContent = "▶️ Playing";
+          if (event.data === YT.PlayerState.PLAYING) {
+            ytStatus.textContent = "▶️ Playing";
+            if (currentYouTubeTrack?.id && !countedListenVideoIds.has(currentYouTubeTrack.id)) {
+              countedListenVideoIds.add(currentYouTubeTrack.id);
+              recordWeeklyListen(currentYouTubeTrack);
+            }
+          }
           else if (event.data === YT.PlayerState.PAUSED) ytStatus.textContent = "⏸ Paused";
           else if (event.data === YT.PlayerState.ENDED) ytStatus.textContent = "Song finished.";
         },
@@ -1101,8 +1165,9 @@
     }
   }
 
-  function playSelectedYouTubeVideo(id, label) {
+  function playSelectedYouTubeVideo(id, label, artist = "") {
     if (!id) return;
+    currentYouTubeTrack = { id, title: label || "YouTube video", artist: artist || "" };
     openMiniPlayer(label);
     if (!youtubePlayer && window.YT && YT.Player) createYouTubePlayer();
     if (!youtubePlayer || !youtubePlayerReady) {
@@ -1128,7 +1193,7 @@
     if (e.key === "Escape" && ytMiniPlayerOverlay && !ytMiniPlayerOverlay.classList.contains("hidden")) closeMiniPlayer();
   });
 
-  // ---- Keyword search using the official YouTube Data API v3 ----
+  // ---------- Weekly listening + Requests ----------\n  const WEEKLY_MUSIC_ENDPOINT = "/api/weekly-listens";\n  const REQUESTS_ENDPOINT = "/api/requests";\n\n  async function recordWeeklyListen(track) {\n    try {\n      await fetch(WEEKLY_MUSIC_ENDPOINT, {\n        method: "POST",\n        headers: { "Content-Type": "application/json" },\n        body: JSON.stringify({\n          videoId: track.id,\n          title: track.title,\n          artist: track.artist || ""\n        }),\n        cache: "no-store"\n      });\n      loadWeeklyTopSong();\n    } catch (_) {}\n  }\n\n  function setWeeklyTopSong(song) {\n    const titleEl = document.getElementById("weeklyTopSongTitle");\n    const metaEl = document.getElementById("weeklyTopSongMeta");\n    const playBtn = document.getElementById("weeklyTopPlayBtn");\n    if (!titleEl || !metaEl || !playBtn) return;\n    if (!song) {\n      titleEl.textContent = "No song has been listened to yet.";\n      metaEl.textContent = "Be the first person to listen this week!";\n      playBtn.classList.add("hidden");\n      return;\n    }\n    titleEl.textContent = song.title || "Unknown song";\n    metaEl.textContent = `${song.artist ? song.artist + " • " : ""}${Number(song.count || 0)} listen${Number(song.count || 0) === 1 ? "" : "s"} this week`;\n    playBtn.classList.remove("hidden");\n    playBtn.onclick = () => playSelectedYouTubeVideo(song.videoId, song.title, song.artist || "");\n  }\n\n  async function loadWeeklyTopSong() {\n    try {\n      const response = await fetch(WEEKLY_MUSIC_ENDPOINT, { cache: "no-store" });\n      if (!response.ok) return;\n      const data = await response.json();\n      setWeeklyTopSong(data?.top || null);\n    } catch (_) {}\n  }\n\n  async function submitRequest(event) {\n    event.preventDefault();\n    const type = document.getElementById("requestType")?.value || "Other";\n    const textEl = document.getElementById("requestText");\n    const nameEl = document.getElementById("requestName");\n    const status = document.getElementById("requestStatus");\n    const button = document.getElementById("requestSubmitBtn");\n    const text = (textEl?.value || "").trim();\n    const name = (nameEl?.value || "").trim();\n    if (!text) return;\n    if (button) { button.disabled = true; button.textContent = "Sending..."; }\n    if (status) status.textContent = "";\n    try {\n      const response = await fetch(REQUESTS_ENDPOINT, {\n        method: "POST",\n        headers: { "Content-Type": "application/json" },\n        body: JSON.stringify({ type, text, name }),\n        cache: "no-store"\n      });\n      const data = await response.json().catch(() => ({}));\n      if (!response.ok || !data.ok) throw new Error(data.error || "Could not send request.");\n      if (textEl) textEl.value = "";\n      if (nameEl) nameEl.value = "";\n      if (status) status.textContent = "✓ Request sent! Thanks for the idea.";\n      loadAdminRequests();\n    } catch (err) {\n      if (status) status.textContent = err?.message || "Could not send request. Please try again.";\n    } finally {\n      if (button) { button.disabled = false; button.textContent = "📨 Send Request"; }\n    }\n  }\n\n  const requestForm = document.getElementById("requestForm");\n  if (requestForm) requestForm.addEventListener("submit", submitRequest);\n  loadWeeklyTopSong();\n\n  // ---- Keyword search using the official YouTube Data API v3 ----
   // NOTE: Search requires your own free API key from Google Cloud Console
   // (the same kind of setup used for the official YouTube Data API).
   // Get one at https://console.cloud.google.com -> enable "YouTube Data API v3"
@@ -1562,7 +1627,7 @@
           </div>
         `;
 
-        row.onclick = () => playSelectedYouTubeVideo(videoId, title);
+        row.onclick = () => playSelectedYouTubeVideo(videoId, title, approvedArtist || "");
         ytResultsList.appendChild(row);
       });
 
@@ -2884,7 +2949,7 @@
     }
   };
 
-  // ---------- GLOBAL CHAT: Cloudflare Pages Function + KV ----------
+  // ---------- ADMIN REQUESTS ----------\n  function getAdminPasswordForRequests() { return "SSTSchools123!"; }\n\n  async function loadAdminRequests() {\n    const box = document.getElementById("adminRequestsList");\n    if (!box) return;\n    try {\n      const response = await fetch(`${REQUESTS_ENDPOINT}?password=${encodeURIComponent(getAdminPasswordForRequests())}`, { cache: "no-store" });\n      const data = await response.json().catch(() => ({}));\n      if (!response.ok) throw new Error(data.error || "Could not load requests.");\n      const requests = Array.isArray(data.requests) ? data.requests : [];\n      box.innerHTML = "";\n      if (!requests.length) { box.innerHTML = '<div class="admin-chat-empty">No requests yet.</div>'; return; }\n      requests.forEach(req => {\n        const item = document.createElement("div");\n        item.className = "admin-request-item";\n        const top = document.createElement("div"); top.className = "admin-request-top";\n        const type = document.createElement("span"); type.className = "admin-request-type"; type.textContent = req.type || "Other";\n        const time = document.createElement("span"); time.className = "admin-request-time"; time.textContent = req.time ? new Date(req.time).toLocaleString() : "";\n        top.append(type, time);\n        const text = document.createElement("div"); text.className = "admin-request-text"; text.textContent = req.text || "";\n        const name = document.createElement("div"); name.className = "admin-request-name"; name.textContent = req.name ? `From: ${req.name}` : "From: Student (name not provided)";\n        const actions = document.createElement("div"); actions.className = "admin-request-actions";\n        const del = document.createElement("button"); del.type = "button"; del.className = "admin-request-delete"; del.textContent = "Delete";\n        del.onclick = async () => {\n          if (!confirm("Delete this request?")) return;\n          try {\n            const r = await fetch(REQUESTS_ENDPOINT, { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ password: getAdminPasswordForRequests(), id: req.id }), cache: "no-store" });\n            if (!r.ok) throw new Error();\n            await loadAdminRequests();\n          } catch (_) { alert("Could not delete the request."); }\n        };\n        actions.appendChild(del); item.append(top, text, name, actions); box.appendChild(item);\n      });\n    } catch (err) {\n      box.innerHTML = `<div class="admin-chat-empty">${err?.message || "Could not load requests."}</div>`;\n    }\n  }\n  loadAdminRequests();\n\n  // ---------- GLOBAL CHAT: Cloudflare Pages Function + KV ----------
   // The newest admin message is stored centrally in Cloudflare KV so all
   // connected Chromebooks can read the same school-wide message.
   const adminChatInput = document.getElementById("adminGlobalChatInput");
