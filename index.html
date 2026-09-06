@@ -1176,20 +1176,16 @@
           }
         },
         onStateChange: function(event) {
-          if (!window.YT) return;
+          if (!window.YT || !ytStatus) return;
           if (event.data === YT.PlayerState.PLAYING) {
-            if (ytStatus) ytStatus.textContent = "▶️ Playing";
+            ytStatus.textContent = "▶️ Playing";
             if (currentYouTubeTrack?.id && !countedListenVideoIds.has(currentYouTubeTrack.id)) {
               countedListenVideoIds.add(currentYouTubeTrack.id);
               recordWeeklyListen(currentYouTubeTrack);
             }
           }
-          else if (event.data === YT.PlayerState.PAUSED) {
-            if (ytStatus) ytStatus.textContent = "⏸ Paused";
-          }
-          else if (event.data === YT.PlayerState.ENDED) {
-            if (ytStatus) ytStatus.textContent = "Song finished.";
-          }
+          else if (event.data === YT.PlayerState.PAUSED) ytStatus.textContent = "⏸ Paused";
+          else if (event.data === YT.PlayerState.ENDED) ytStatus.textContent = "Song finished.";
         },
         onError: function(event) {
           if (!ytStatus) return;
@@ -1262,7 +1258,89 @@
     if (e.key === "Escape" && ytMiniPlayerOverlay && !ytMiniPlayerOverlay.classList.contains("hidden")) closeMiniPlayer();
   });
 
-  // ---------- Weekly listening + Requests ----------\n  const WEEKLY_MUSIC_ENDPOINT = "/api/weekly-listens";\n  const REQUESTS_ENDPOINT = "/api/requests";\n\n  async function recordWeeklyListen(track) {\n    try {\n      await fetch(WEEKLY_MUSIC_ENDPOINT, {\n        method: "POST",\n        headers: { "Content-Type": "application/json" },\n        body: JSON.stringify({\n          videoId: track.id,\n          title: track.title,\n          artist: track.artist || ""\n        }),\n        cache: "no-store"\n      });\n      loadWeeklyTopSong();\n    } catch (_) {}\n  }\n\n  function setWeeklyTopSong(song) {\n    const titleEl = document.getElementById("weeklyTopSongTitle");\n    const metaEl = document.getElementById("weeklyTopSongMeta");\n    const playBtn = document.getElementById("weeklyTopPlayBtn");\n    if (!titleEl || !metaEl || !playBtn) return;\n    if (!song) {\n      titleEl.textContent = "No song has been listened to yet.";\n      metaEl.textContent = "Be the first person to listen this week!";\n      playBtn.classList.add("hidden");\n      return;\n    }\n    titleEl.textContent = song.title || "Unknown song";\n    metaEl.textContent = `${song.artist ? song.artist + " • " : ""}${Number(song.count || 0)} listen${Number(song.count || 0) === 1 ? "" : "s"} this week`;\n    playBtn.classList.remove("hidden");\n    playBtn.onclick = () => playSelectedYouTubeVideo(song.videoId, song.title, song.artist || "");\n  }\n\n  async function loadWeeklyTopSong() {\n    try {\n      const response = await fetch(WEEKLY_MUSIC_ENDPOINT, { cache: "no-store" });\n      if (!response.ok) return;\n      const data = await response.json();\n      setWeeklyTopSong(data?.top || null);\n    } catch (_) {}\n  }\n\n  async function submitRequest(event) {\n    event.preventDefault();\n    const type = document.getElementById("requestType")?.value || "Other";\n    const textEl = document.getElementById("requestText");\n    const nameEl = document.getElementById("requestName");\n    const status = document.getElementById("requestStatus");\n    const button = document.getElementById("requestSubmitBtn");\n    const text = (textEl?.value || "").trim();\n    const name = (nameEl?.value || "").trim();\n    if (!text) return;\n    if (button) { button.disabled = true; button.textContent = "Sending..."; }\n    if (status) status.textContent = "";\n    try {\n      const response = await fetch(REQUESTS_ENDPOINT, {\n        method: "POST",\n        headers: { "Content-Type": "application/json" },\n        body: JSON.stringify({ type, text, name }),\n        cache: "no-store"\n      });\n      const data = await response.json().catch(() => ({}));\n      if (!response.ok || !data.ok) throw new Error(data.error || "Could not send request.");\n      if (textEl) textEl.value = "";\n      if (nameEl) nameEl.value = "";\n      if (status) status.textContent = "✓ Request sent! Thanks for the idea.";\n      loadAdminRequests();\n    } catch (err) {\n      if (status) status.textContent = err?.message || "Could not send request. Please try again.";\n    } finally {\n      if (button) { button.disabled = false; button.textContent = "📨 Send Request"; }\n    }\n  }\n\n  const requestForm = document.getElementById("requestForm");\n  if (requestForm) requestForm.addEventListener("submit", submitRequest);\n  loadWeeklyTopSong();\n\n  // ---- Keyword search using the official YouTube Data API v3 ----
+  // ---------- Weekly listening + Requests ----------
+  const WEEKLY_MUSIC_ENDPOINT = "/api/weekly-listens";
+  const REQUESTS_ENDPOINT = "/api/requests";
+
+  async function recordWeeklyListen(track) {
+    try {
+      await fetch(WEEKLY_MUSIC_ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          videoId: track.id,
+          title: track.title,
+          artist: track.artist || ""
+        }),
+        cache: "no-store"
+      });
+      loadWeeklyTopSong();
+    } catch (_) {}
+  }
+
+  function setWeeklyTopSong(song) {
+    const titleEl = document.getElementById("weeklyTopSongTitle");
+    const metaEl = document.getElementById("weeklyTopSongMeta");
+    const playBtn = document.getElementById("weeklyTopPlayBtn");
+    if (!titleEl || !metaEl || !playBtn) return;
+    if (!song) {
+      titleEl.textContent = "No song has been listened to yet.";
+      metaEl.textContent = "Be the first person to listen this week!";
+      playBtn.classList.add("hidden");
+      return;
+    }
+    titleEl.textContent = song.title || "Unknown song";
+    metaEl.textContent = `${song.artist ? song.artist + " • " : ""}${Number(song.count || 0)} listen${Number(song.count || 0) === 1 ? "" : "s"} this week`;
+    playBtn.classList.remove("hidden");
+    playBtn.onclick = () => playSelectedYouTubeVideo(song.videoId, song.title, song.artist || "");
+  }
+
+  async function loadWeeklyTopSong() {
+    try {
+      const response = await fetch(WEEKLY_MUSIC_ENDPOINT, { cache: "no-store" });
+      if (!response.ok) return;
+      const data = await response.json();
+      setWeeklyTopSong(data?.top || null);
+    } catch (_) {}
+  }
+
+  async function submitRequest(event) {
+    event.preventDefault();
+    const type = document.getElementById("requestType")?.value || "Other";
+    const textEl = document.getElementById("requestText");
+    const nameEl = document.getElementById("requestName");
+    const status = document.getElementById("requestStatus");
+    const button = document.getElementById("requestSubmitBtn");
+    const text = (textEl?.value || "").trim();
+    const name = (nameEl?.value || "").trim();
+    if (!text) return;
+    if (button) { button.disabled = true; button.textContent = "Sending..."; }
+    if (status) status.textContent = "";
+    try {
+      const response = await fetch(REQUESTS_ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type, text, name }),
+        cache: "no-store"
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok || !data.ok) throw new Error(data.error || "Could not send request.");
+      if (textEl) textEl.value = "";
+      if (nameEl) nameEl.value = "";
+      if (status) status.textContent = "✓ Request sent! Thanks for the idea.";
+      loadAdminRequests();
+    } catch (err) {
+      if (status) status.textContent = err?.message || "Could not send request. Please try again.";
+    } finally {
+      if (button) { button.disabled = false; button.textContent = "📨 Send Request"; }
+    }
+  }
+
+  const requestForm = document.getElementById("requestForm");
+  if (requestForm) requestForm.addEventListener("submit", submitRequest);
+  loadWeeklyTopSong();
+
+  // ---- Keyword search using the official YouTube Data API v3 ----
   // NOTE: Search requires your own free API key from Google Cloud Console
   // (the same kind of setup used for the official YouTube Data API).
   // Get one at https://console.cloud.google.com -> enable "YouTube Data API v3"
@@ -3079,7 +3157,47 @@
     }
   };
 
-  // ---------- ADMIN REQUESTS ----------\n  function getAdminPasswordForRequests() { return "SSTSchools123!"; }\n\n  async function loadAdminRequests() {\n    const box = document.getElementById("adminRequestsList");\n    if (!box) return;\n    try {\n      const response = await fetch(`${REQUESTS_ENDPOINT}?password=${encodeURIComponent(getAdminPasswordForRequests())}`, { cache: "no-store" });\n      const data = await response.json().catch(() => ({}));\n      if (!response.ok) throw new Error(data.error || "Could not load requests.");\n      const requests = Array.isArray(data.requests) ? data.requests : [];\n      box.innerHTML = "";\n      if (!requests.length) { box.innerHTML = '<div class="admin-chat-empty">No requests yet.</div>'; return; }\n      requests.forEach(req => {\n        const item = document.createElement("div");\n        item.className = "admin-request-item";\n        const top = document.createElement("div"); top.className = "admin-request-top";\n        const type = document.createElement("span"); type.className = "admin-request-type"; type.textContent = req.type || "Other";\n        const time = document.createElement("span"); time.className = "admin-request-time"; time.textContent = req.time ? new Date(req.time).toLocaleString() : "";\n        top.append(type, time);\n        const text = document.createElement("div"); text.className = "admin-request-text"; text.textContent = req.text || "";\n        const name = document.createElement("div"); name.className = "admin-request-name"; name.textContent = req.name ? `From: ${req.name}` : "From: Student (name not provided)";\n        const actions = document.createElement("div"); actions.className = "admin-request-actions";\n        const del = document.createElement("button"); del.type = "button"; del.className = "admin-request-delete"; del.textContent = "Delete";\n        del.onclick = async () => {\n          if (!confirm("Delete this request?")) return;\n          try {\n            const r = await fetch(REQUESTS_ENDPOINT, { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ password: getAdminPasswordForRequests(), id: req.id }), cache: "no-store" });\n            if (!r.ok) throw new Error();\n            await loadAdminRequests();\n          } catch (_) { alert("Could not delete the request."); }\n        };\n        actions.appendChild(del); item.append(top, text, name, actions); box.appendChild(item);\n      });\n    } catch (err) {\n      box.innerHTML = `<div class="admin-chat-empty">${err?.message || "Could not load requests."}</div>`;\n    }\n  }\n  loadAdminRequests();\n\n  // ---------- GLOBAL CHAT: Cloudflare Pages Function + KV ----------
+  // ---------- ADMIN REQUESTS ----------
+  function getAdminPasswordForRequests() { return "SSTSchools123!"; }
+
+  async function loadAdminRequests() {
+    const box = document.getElementById("adminRequestsList");
+    if (!box) return;
+    try {
+      const response = await fetch(`${REQUESTS_ENDPOINT}?password=${encodeURIComponent(getAdminPasswordForRequests())}`, { cache: "no-store" });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.error || "Could not load requests.");
+      const requests = Array.isArray(data.requests) ? data.requests : [];
+      box.innerHTML = "";
+      if (!requests.length) { box.innerHTML = '<div class="admin-chat-empty">No requests yet.</div>'; return; }
+      requests.forEach(req => {
+        const item = document.createElement("div");
+        item.className = "admin-request-item";
+        const top = document.createElement("div"); top.className = "admin-request-top";
+        const type = document.createElement("span"); type.className = "admin-request-type"; type.textContent = req.type || "Other";
+        const time = document.createElement("span"); time.className = "admin-request-time"; time.textContent = req.time ? new Date(req.time).toLocaleString() : "";
+        top.append(type, time);
+        const text = document.createElement("div"); text.className = "admin-request-text"; text.textContent = req.text || "";
+        const name = document.createElement("div"); name.className = "admin-request-name"; name.textContent = req.name ? `From: ${req.name}` : "From: Student (name not provided)";
+        const actions = document.createElement("div"); actions.className = "admin-request-actions";
+        const del = document.createElement("button"); del.type = "button"; del.className = "admin-request-delete"; del.textContent = "Delete";
+        del.onclick = async () => {
+          if (!confirm("Delete this request?")) return;
+          try {
+            const r = await fetch(REQUESTS_ENDPOINT, { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ password: getAdminPasswordForRequests(), id: req.id }), cache: "no-store" });
+            if (!r.ok) throw new Error();
+            await loadAdminRequests();
+          } catch (_) { alert("Could not delete the request."); }
+        };
+        actions.appendChild(del); item.append(top, text, name, actions); box.appendChild(item);
+      });
+    } catch (err) {
+      box.innerHTML = `<div class="admin-chat-empty">${err?.message || "Could not load requests."}</div>`;
+    }
+  }
+  loadAdminRequests();
+
+  // ---------- GLOBAL CHAT: Cloudflare Pages Function + KV ----------
   // The newest admin message is stored centrally in Cloudflare KV so all
   // connected Chromebooks can read the same school-wide message.
   const adminChatInput = document.getElementById("adminGlobalChatInput");
