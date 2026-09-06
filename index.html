@@ -693,7 +693,7 @@
         <h1>Narwhal Station <span class="music-emoji">🎵🎶</span><span id="seasonMascotAccessory" class="season-mascot-accessory" aria-label="Seasonal decoration">🍂</span></h1>
         <p>Play • Learn • Explore • Be You</p>
         <div id="seasonBadge" class="season-badge">🍂 Fall Edition</div>
-        <div id="holidayBadge" class="holiday-badge hidden">🎃 Halloween Edition</div>
+        <div id="holidayBadge" class="holiday-badge hidden">🎉 Holiday Edition</div>
       </div>
     </div>
     <div class="top-nav">
@@ -1027,10 +1027,10 @@
           <div id="adminHolidayEditionsGrid" class="admin-editions-grid"></div>
           <div class="admin-form-block" style="margin-top:14px">
             <div style="font-size:14px;font-weight:950;color:#16274D">🗓️ Holiday Automatic Switching</div>
-            <label class="admin-toggle-row"><input id="adminHolidayAutoEnabled" type="checkbox" checked> Turn automatic holiday editions ON</label>
-            <div class="admin-status-note">When ON, a holiday edition replaces the normal season on its holiday date. When OFF, the normal season stays active.</div>
+            <label class="admin-toggle-row"><input id="adminHolidayAutoEnabled" type="checkbox"> Turn automatic holiday editions ON</label>
+            <div class="admin-status-note">When ON, a holiday edition replaces the normal season on its special date. When OFF, the normal season stays active.</div>
             <div class="admin-inline-actions"><button id="adminSaveHolidayAutoBtn" class="admin-primary-btn" type="button">💾 Save Holiday Setting</button></div>
-            <div id="adminHolidayAutoStatus" class="admin-status-note">Automatic holiday editions are ON.</div>
+            <div id="adminHolidayAutoStatus" class="admin-status-note">Loading holiday setting...</div>
           </div>
           <div class="admin-form-block">
             <div style="font-size:14px;font-weight:950;color:#16274D">🎉 Special Seasonal Event</div>
@@ -4114,32 +4114,43 @@
   }
 
   function getAutomaticHoliday(date = new Date()) {
-    const year=date.getFullYear(), month=date.getMonth(), day=date.getDate();
-    if(month===0 && day===1) return NARWHAL_HOLIDAYS.newyear;
-    if(month===0 && day===20 && year%4===0) return NARWHAL_HOLIDAYS.inauguration;
-    if(sameDay(date,nthWeekdayOfMonth(year,0,1,3))) return NARWHAL_HOLIDAYS.mlk;
-    if(sameDay(date,nthWeekdayOfMonth(year,1,1,3))) return NARWHAL_HOLIDAYS.washington;
-    if(month===1 && day<=14) return NARWHAL_HOLIDAYS.valentines;
-    if(month===2 && day>=10 && day<=17) return NARWHAL_HOLIDAYS.stpatricks;
-    const easterDay=easterDate(year), easterStart=new Date(easterDay), easterEnd=new Date(easterDay); easterStart.setDate(easterStart.getDate()-2); easterEnd.setDate(easterEnd.getDate()+1);
-    if(date>=easterStart && date<=easterEnd) return NARWHAL_HOLIDAYS.easter;
-    if(sameDay(date,nthWeekdayOfMonth(year,4,0,2))) return NARWHAL_HOLIDAYS.mothers;
-    if(sameDay(date,lastWeekdayOfMonth(year,4,1))) return NARWHAL_HOLIDAYS.memorial;
-    if(month===5 && day===14) return NARWHAL_HOLIDAYS.flag;
-    if(month===5 && day===19) return NARWHAL_HOLIDAYS.juneteenth;
-    if(sameDay(date,nthWeekdayOfMonth(year,5,0,3))) return NARWHAL_HOLIDAYS.fathers;
-    if(month===6 && day===4) return NARWHAL_HOLIDAYS.independence;
-    if(sameDay(date,nthWeekdayOfMonth(year,8,1,1))) return NARWHAL_HOLIDAYS.labor;
-    if(month===9 && sameDay(date,nthWeekdayOfMonth(year,9,1,2))) return NARWHAL_HOLIDAYS.columbus;
-    if(month===9 && sameDay(date,nthWeekdayOfMonth(year,9,1,2))) return NARWHAL_HOLIDAYS.indigenous;
-    if(month===9 && day>=1 && day<=31) return NARWHAL_HOLIDAYS.halloween;
-    if(month===10 && day===11) return NARWHAL_HOLIDAYS.veterans;
-    const thanksgiving=nthWeekdayOfMonth(year,10,4,4);
-    if(sameDay(date,thanksgiving)) return NARWHAL_HOLIDAYS.thanksgiving;
-    if(month===11 && day===25) return NARWHAL_HOLIDAYS.christmas;
-    if(month===11 && day<=26) return NARWHAL_HOLIDAYS.winter;
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+
+    // Exact-date holidays are checked first so they always override a season.
+    if (month === 1 && day === 1) return NARWHAL_HOLIDAYS.newyear;
+    if (month === 1 && day === 20 && year >= 2025 && (year - 2025) % 4 === 0) return NARWHAL_HOLIDAYS.inauguration;
+    if (sameDay(date, nthWeekdayOfMonth(year, 0, 1, 3))) return NARWHAL_HOLIDAYS.mlk;
+    if (sameDay(date, nthWeekdayOfMonth(year, 1, 1, 3))) return NARWHAL_HOLIDAYS.washington;
+    if (month === 2 && day === 14) return NARWHAL_HOLIDAYS.valentines;
+    if (month === 3 && day === 17) return NARWHAL_HOLIDAYS.stpatricks;
+
+    const easter = easterSunday(year);
+    if (sameDay(date, easter)) return NARWHAL_HOLIDAYS.easter;
+
+    if (sameDay(date, nthWeekdayOfMonth(year, 4, 0, 2))) return NARWHAL_HOLIDAYS.mothers;
+    if (sameDay(date, lastWeekdayOfMonth(year, 4, 1))) return NARWHAL_HOLIDAYS.memorial;
+    if (month === 6 && day === 14) return NARWHAL_HOLIDAYS.flag;
+    if (month === 6 && day === 19) return NARWHAL_HOLIDAYS.juneteenth;
+    if (sameDay(date, nthWeekdayOfMonth(year, 5, 0, 3))) return NARWHAL_HOLIDAYS.fathers;
+    if (month === 7 && day === 4) return NARWHAL_HOLIDAYS.independence;
+    if (sameDay(date, nthWeekdayOfMonth(year, 8, 1, 1))) return NARWHAL_HOLIDAYS.labor;
+
+    // October 31 is Halloween; the second Monday is a separate civic holiday.
+    // Indigenous Peoples' Day is used for the automatic edition on that shared date.
+    if (month === 10 && sameDay(date, nthWeekdayOfMonth(year, 9, 1, 2))) return NARWHAL_HOLIDAYS.indigenous;
+    if (month === 10 && day === 31) return NARWHAL_HOLIDAYS.halloween;
+
+    if (month === 11 && day === 11) return NARWHAL_HOLIDAYS.veterans;
+    const thanksgiving = nthWeekdayOfMonth(year, 10, 4, 4);
+    if (sameDay(date, thanksgiving)) return NARWHAL_HOLIDAYS.thanksgiving;
+
+    if (month === 12 && day === 25) return NARWHAL_HOLIDAYS.christmas;
+
     return null;
   }
+
   function getActiveNarwhalSeason() {
     return seasonPreviewKey ? NARWHAL_EDITIONS[seasonPreviewKey] : getNarwhalSeason();
   }
@@ -4182,9 +4193,22 @@
   const adminEditionAutoBtn=document.getElementById("adminEditionAutoBtn");
   if(adminEditionAutoBtn) adminEditionAutoBtn.onclick=()=>{seasonPreviewKey=null;holidayPreviewKey=null;applyNarwhalSeason()};
   const adminHolidayAutoToggle=document.getElementById("adminHolidayAutoEnabled");
-  if(adminHolidayAutoToggle) adminHolidayAutoToggle.addEventListener("change",()=>{holidayAutoEnabled=adminHolidayAutoToggle.checked;updateHolidayAutoControls();});
+  if(adminHolidayAutoToggle) adminHolidayAutoToggle.addEventListener("change",()=>{
+    holidayAutoEnabled=adminHolidayAutoToggle.checked;
+    localStorage.setItem(HOLIDAY_AUTO_STORAGE_KEY,holidayAutoEnabled?"1":"0");
+    seasonPreviewKey=null;
+    holidayPreviewKey=null;
+    applyNarwhalSeason();
+  });
   const adminHolidayAutoSave=document.getElementById("adminSaveHolidayAutoBtn");
-  if(adminHolidayAutoSave) adminHolidayAutoSave.onclick=()=>{localStorage.setItem(HOLIDAY_AUTO_STORAGE_KEY,holidayAutoEnabled?"1":"0");seasonPreviewKey=null;holidayPreviewKey=null;applyNarwhalSeason();const status=document.getElementById("adminHolidayAutoStatus");if(status)status.textContent=holidayAutoEnabled?"✓ Holiday automatic switching is ON.":"✓ Holiday automatic switching is OFF.";};
+  if(adminHolidayAutoSave) adminHolidayAutoSave.onclick=()=>{
+    localStorage.setItem(HOLIDAY_AUTO_STORAGE_KEY,holidayAutoEnabled?"1":"0");
+    seasonPreviewKey=null;
+    holidayPreviewKey=null;
+    applyNarwhalSeason();
+    const status=document.getElementById("adminHolidayAutoStatus");
+    if(status)status.textContent=holidayAutoEnabled?"✓ Holiday automatic switching is ON and saved.":"✓ Holiday automatic switching is OFF and saved.";
+  };
 
   applyNarwhalSeason();
   setInterval(()=>{ if(!seasonPreviewKey&&!holidayPreviewKey) applyNarwhalSeason(); },60*60*1000);
