@@ -1025,6 +1025,13 @@
           <div class="admin-section-subtitle" style="margin-top:28px">🎉 Holiday Editions</div>
           <div class="admin-editions-note" style="margin-top:0">Holiday editions can appear automatically on special dates. Preview one here to see the decorations without changing the real calendar.</div>
           <div id="adminHolidayEditionsGrid" class="admin-editions-grid"></div>
+          <div class="admin-form-block" style="margin-top:14px">
+            <div style="font-size:14px;font-weight:950;color:#16274D">🗓️ Holiday Automatic Switching</div>
+            <label class="admin-toggle-row"><input id="adminHolidayAutoEnabled" type="checkbox" checked> Turn automatic holiday editions ON</label>
+            <div class="admin-status-note">When ON, a holiday edition replaces the normal season on its holiday date. When OFF, the normal season stays active.</div>
+            <div class="admin-inline-actions"><button id="adminSaveHolidayAutoBtn" class="admin-primary-btn" type="button">💾 Save Holiday Setting</button></div>
+            <div id="adminHolidayAutoStatus" class="admin-status-note">Automatic holiday editions are ON.</div>
+          </div>
           <div class="admin-form-block">
             <div style="font-size:14px;font-weight:950;color:#16274D">🎉 Special Seasonal Event</div>
             <label>Event icon
@@ -4077,6 +4084,8 @@
 
   let seasonPreviewKey = null;
   let holidayPreviewKey = null;
+  const HOLIDAY_AUTO_STORAGE_KEY = "narwhalHolidayAutoEnabled";
+  let holidayAutoEnabled = localStorage.getItem(HOLIDAY_AUTO_STORAGE_KEY) !== "0";
 
   function getNarwhalSeason(date = new Date()) {
     const month = date.getMonth() + 1;
@@ -4105,69 +4114,77 @@
   }
 
   function getAutomaticHoliday(date = new Date()) {
-    const year=date.getFullYear(), month=date.getMonth()+1, day=date.getDate();
-    if (month===1 && day===1) return NARWHAL_HOLIDAYS.newyear;
-    if (month===1 && day===20 && year%4===0) return NARWHAL_HOLIDAYS.inauguration;
-    if (sameDay(date,nthWeekdayOfMonth(year,0,1,3))) return NARWHAL_HOLIDAYS.mlk;
-    if (month===2 && day<=14) return NARWHAL_HOLIDAYS.valentines;
-    if (sameDay(date,nthWeekdayOfMonth(year,1,1,3))) return NARWHAL_HOLIDAYS.washington;
-    if (month===3 && day>=10 && day<=17) return NARWHAL_HOLIDAYS.stpatricks;
-    const easter=easterSunday(year);
-    const easterStart=addDays(easter,-3), easterEnd=addDays(easter,2);
-    if (date>=easterStart && date<=easterEnd) return NARWHAL_HOLIDAYS.easter;
-    if (sameDay(date,nthWeekdayOfMonth(year,4,0,2))) return NARWHAL_HOLIDAYS.mothers;
-    if (sameDay(date,lastWeekdayOfMonth(year,4,1))) return NARWHAL_HOLIDAYS.memorial;
-    if (month===6 && day===14) return NARWHAL_HOLIDAYS.flag;
-    if (month===6 && day===19) return NARWHAL_HOLIDAYS.juneteenth;
-    if (sameDay(date,nthWeekdayOfMonth(year,5,0,3))) return NARWHAL_HOLIDAYS.fathers;
-    if (month===7 && day===4) return NARWHAL_HOLIDAYS.independence;
-    if (sameDay(date,nthWeekdayOfMonth(year,8,1,1))) return NARWHAL_HOLIDAYS.labor;
-    if (month===10 && day>=1 && day<=31) return NARWHAL_HOLIDAYS.halloween;
-    if (month===10 && sameDay(date,nthWeekdayOfMonth(year,9,1,2))) return NARWHAL_HOLIDAYS.columbus;
-    if (month===10 && sameDay(date,nthWeekdayOfMonth(year,9,1,2))) return NARWHAL_HOLIDAYS.indigenous;
-    if (month===11 && day===11) return NARWHAL_HOLIDAYS.veterans;
+    const year=date.getFullYear(), month=date.getMonth(), day=date.getDate();
+    if(month===0 && day===1) return NARWHAL_HOLIDAYS.newyear;
+    if(month===0 && day===20 && year%4===0) return NARWHAL_HOLIDAYS.inauguration;
+    if(sameDay(date,nthWeekdayOfMonth(year,0,1,3))) return NARWHAL_HOLIDAYS.mlk;
+    if(sameDay(date,nthWeekdayOfMonth(year,1,1,3))) return NARWHAL_HOLIDAYS.washington;
+    if(month===1 && day<=14) return NARWHAL_HOLIDAYS.valentines;
+    if(month===2 && day>=10 && day<=17) return NARWHAL_HOLIDAYS.stpatricks;
+    const easterDay=easterDate(year), easterStart=new Date(easterDay), easterEnd=new Date(easterDay); easterStart.setDate(easterStart.getDate()-2); easterEnd.setDate(easterEnd.getDate()+1);
+    if(date>=easterStart && date<=easterEnd) return NARWHAL_HOLIDAYS.easter;
+    if(sameDay(date,nthWeekdayOfMonth(year,4,0,2))) return NARWHAL_HOLIDAYS.mothers;
+    if(sameDay(date,lastWeekdayOfMonth(year,4,1))) return NARWHAL_HOLIDAYS.memorial;
+    if(month===5 && day===14) return NARWHAL_HOLIDAYS.flag;
+    if(month===5 && day===19) return NARWHAL_HOLIDAYS.juneteenth;
+    if(sameDay(date,nthWeekdayOfMonth(year,5,0,3))) return NARWHAL_HOLIDAYS.fathers;
+    if(month===6 && day===4) return NARWHAL_HOLIDAYS.independence;
+    if(sameDay(date,nthWeekdayOfMonth(year,8,1,1))) return NARWHAL_HOLIDAYS.labor;
+    if(month===9 && sameDay(date,nthWeekdayOfMonth(year,9,1,2))) return NARWHAL_HOLIDAYS.columbus;
+    if(month===9 && sameDay(date,nthWeekdayOfMonth(year,9,1,2))) return NARWHAL_HOLIDAYS.indigenous;
+    if(month===9 && day>=1 && day<=31) return NARWHAL_HOLIDAYS.halloween;
+    if(month===10 && day===11) return NARWHAL_HOLIDAYS.veterans;
     const thanksgiving=nthWeekdayOfMonth(year,10,4,4);
-    if (sameDay(date,thanksgiving)) return NARWHAL_HOLIDAYS.thanksgiving;
-    if (month===12 && day===25) return NARWHAL_HOLIDAYS.christmas;
-    if (month===12 && day<=26) return NARWHAL_HOLIDAYS.winter;
+    if(sameDay(date,thanksgiving)) return NARWHAL_HOLIDAYS.thanksgiving;
+    if(month===11 && day===25) return NARWHAL_HOLIDAYS.christmas;
+    if(month===11 && day<=26) return NARWHAL_HOLIDAYS.winter;
     return null;
   }
-
   function getActiveNarwhalSeason() {
     return seasonPreviewKey ? NARWHAL_EDITIONS[seasonPreviewKey] : getNarwhalSeason();
   }
   function getActiveHoliday() {
-    return holidayPreviewKey ? NARWHAL_HOLIDAYS[holidayPreviewKey] : getAutomaticHoliday();
+    if (holidayPreviewKey) return NARWHAL_HOLIDAYS[holidayPreviewKey];
+    return holidayAutoEnabled ? getAutomaticHoliday() : null;
   }
 
   function applyNarwhalSeason() {
     const season=getActiveNarwhalSeason(), holiday=getActiveHoliday();
     document.body.classList.remove("season-fall","season-winter","season-spring","season-summer");
-    document.body.classList.add(`season-${season.key}`);
     Object.values(NARWHAL_HOLIDAYS).forEach(h=>document.body.classList.remove(h.className));
     if (holiday) document.body.classList.add(holiday.className);
-    const badge=document.getElementById("seasonBadge"); if(badge) badge.textContent=season.label;
+    else document.body.classList.add(`season-${season.key}`);
+
+    const badge=document.getElementById("seasonBadge");
+    if(badge){ badge.textContent=holiday ? "" : season.label; badge.classList.toggle("hidden",!!holiday); }
     const holidayBadge=document.getElementById("holidayBadge");
     if(holidayBadge){ holidayBadge.textContent=holiday?holiday.label:""; holidayBadge.classList.toggle("hidden",!holiday); }
     const accessory=document.getElementById("seasonMascotAccessory");
     if(accessory){ const holidayIcons={newyear:"🎆",mlk:"✊🏾",inauguration:"🇺🇸",valentines:"💗",washington:"🇺🇸",stpatricks:"🍀",easter:"🐰",mothers:"💐",memorial:"🎖️",juneteenth:"❤️",fathers:"👔",flag:"🇺🇸",independence:"🎆",labor:"🧰",halloween:"🎃",columbus:"🗺️",indigenous:"🪶",veterans:"🎖️",thanksgiving:"🦃",christmas:"🎄",winter:"🎄"}; accessory.textContent=holiday ? (holidayIcons[holiday.key]||"🎉") : (season.key === "fall" ? "🍂" : season.key === "winter" ? "❄️" : season.key === "spring" ? "🌷" : "😎"); }
-    const adminEdition=document.getElementById("adminCurrentEdition"); if(adminEdition) adminEdition.textContent=holiday?holiday.label.replace(/^\S+\s*/,""):season.label.replace(/^\S+\s*/,"");
+    const adminEdition=document.getElementById("adminCurrentEdition");
+    if(adminEdition) adminEdition.textContent=holiday?holiday.label.replace(/^\S+\s*/,""):season.label.replace(/^\S+\s*/,"");
     document.title=`Narwhal Station — ${holiday?holiday.label.replace(/^[^ ]+ /,""):season.label.replace(/^[^ ]+ /,"")}`;
 
     const layer=document.getElementById("seasonDecorationLayer");
-    if(layer){ layer.innerHTML=""; const count=season.key==="winter"?24:16; for(let i=0;i<count;i++){ const particle=document.createElement("span"); particle.className=`season-particle ${season.particle}`; particle.textContent=season.items[i%season.items.length]; particle.style.left=`${Math.random()*100}%`; particle.style.setProperty("--drift",`${Math.round(Math.random()*180-90)}px`); particle.style.setProperty("--spin",`${Math.round(Math.random()*720-360)}deg`); particle.style.animationDuration=`${8+Math.random()*9}s`; particle.style.animationDelay=`${Math.random()*8}s`; layer.appendChild(particle); } }
+    if(layer){ layer.innerHTML=""; if(!holiday){ const count=season.key==="winter"?24:16; for(let i=0;i<count;i++){ const particle=document.createElement("span"); particle.className=`season-particle ${season.particle}`; particle.textContent=season.items[i%season.items.length]; particle.style.left=`${Math.random()*100}%`; particle.style.setProperty("--drift",`${Math.round(Math.random()*180-90)}px`); particle.style.setProperty("--spin",`${Math.round(Math.random()*720-360)}deg`); particle.style.animationDuration=`${8+Math.random()*9}s`; particle.style.animationDelay=`${Math.random()*8}s`; layer.appendChild(particle); } } }
     const holidayLayer=document.getElementById("holidayDecorationLayer");
     if(holidayLayer){ holidayLayer.innerHTML=""; if(holiday){ for(let i=0;i<18;i++){ const particle=document.createElement("span"); particle.className=`holiday-particle ${holiday.particleClass}`; particle.textContent=holiday.items[i%holiday.items.length]; particle.style.left=`${Math.random()*100}%`; particle.style.setProperty("--drift",`${Math.round(Math.random()*180-90)}px`); particle.style.setProperty("--spin",`${Math.round(Math.random()*720-360)}deg`); particle.style.animationDuration=`${7+Math.random()*9}s`; particle.style.animationDelay=`${Math.random()*8}s`; holidayLayer.appendChild(particle); } } }
     renderAdminEditions();
+    updateHolidayAutoControls();
   }
 
+  function updateHolidayAutoControls(){ const toggle=document.getElementById("adminHolidayAutoEnabled"), status=document.getElementById("adminHolidayAutoStatus"); if(toggle) toggle.checked=holidayAutoEnabled; if(status) status.textContent=holidayAutoEnabled ? "Automatic holiday editions are ON." : "Automatic holiday editions are OFF. The normal season will stay active on holidays."; }
   function renderAdminEditions() {
     const grid=document.getElementById("adminEditionsGrid"); if(grid){ const automatic=getNarwhalSeason(), active=getActiveNarwhalSeason(); grid.innerHTML=""; Object.values(NARWHAL_EDITIONS).forEach(edition=>{ const card=document.createElement("div"); card.className=`admin-edition-card${active.key===edition.key&&!holidayPreviewKey?" current":""}`; const top=document.createElement("div"); top.className="admin-edition-top"; const name=document.createElement("div"); name.className="admin-edition-name"; name.textContent=edition.label; top.appendChild(name); if(automatic.key===edition.key&&!seasonPreviewKey&&!holidayPreviewKey){const badge=document.createElement("span");badge.className="admin-edition-current";badge.textContent="CURRENT";top.appendChild(badge)} else if(seasonPreviewKey===edition.key&&!holidayPreviewKey){const badge=document.createElement("span");badge.className="admin-edition-current";badge.textContent="PREVIEWING";top.appendChild(badge)} const dates=document.createElement("div");dates.className="admin-edition-dates";dates.textContent=edition.dates; const preview=document.createElement("div");preview.className="admin-edition-preview";preview.textContent=edition.items.join(" "); const desc=document.createElement("div");desc.className="admin-edition-desc";desc.textContent=edition.desc; const btn=document.createElement("button");btn.type="button";btn.className="admin-edition-btn";btn.textContent=active.key===edition.key&&!holidayPreviewKey?"✓ Showing This Edition":"👀 Preview Edition";btn.disabled=active.key===edition.key&&!holidayPreviewKey; if(btn.disabled)btn.style.opacity=".65"; btn.onclick=()=>{seasonPreviewKey=edition.key;holidayPreviewKey=null;trackLocalUsage("season");applyNarwhalSeason();evaluateAchievements("season")}; card.append(top,dates,preview,desc,btn);grid.appendChild(card); }); }
-    const hgrid=document.getElementById("adminHolidayEditionsGrid"); if(hgrid){ const automatic=getAutomaticHoliday(), active=getActiveHoliday(); hgrid.innerHTML=""; Object.values(NARWHAL_HOLIDAYS).forEach(holiday=>{ const card=document.createElement("div"); card.className=`admin-edition-card${active?.key===holiday.key?" current":""}`; const top=document.createElement("div");top.className="admin-edition-top";const name=document.createElement("div");name.className="admin-edition-name";name.textContent=holiday.label;top.appendChild(name); if(automatic?.key===holiday.key&&!holidayPreviewKey){const badge=document.createElement("span");badge.className="admin-edition-current";badge.textContent="CURRENT";top.appendChild(badge)} else if(holidayPreviewKey===holiday.key){const badge=document.createElement("span");badge.className="admin-edition-current";badge.textContent="PREVIEWING";top.appendChild(badge)} const dates=document.createElement("div");dates.className="admin-edition-dates";dates.textContent=holiday.dates;const preview=document.createElement("div");preview.className="admin-edition-preview";preview.textContent=holiday.items.join(" ");const desc=document.createElement("div");desc.className="admin-edition-desc";desc.textContent=holiday.desc;const btn=document.createElement("button");btn.type="button";btn.className="admin-edition-btn";btn.textContent=active?.key===holiday.key?"✓ Showing This Holiday":"👀 Preview Holiday";btn.disabled=active?.key===holiday.key;if(btn.disabled)btn.style.opacity=".65";btn.onclick=()=>{holidayPreviewKey=holiday.key;seasonPreviewKey=null;trackLocalUsage("season");applyNarwhalSeason();evaluateAchievements("season")};card.append(top,dates,preview,desc,btn);hgrid.appendChild(card); }); }
+    const hgrid=document.getElementById("adminHolidayEditionsGrid"); if(hgrid){ const automatic=getAutomaticHoliday(), active=getActiveHoliday(); hgrid.innerHTML=""; Object.values(NARWHAL_HOLIDAYS).forEach(holiday=>{ const card=document.createElement("div"); card.className=`admin-edition-card${active?.key===holiday.key?" current":""}`; const top=document.createElement("div");top.className="admin-edition-top";const name=document.createElement("div");name.className="admin-edition-name";name.textContent=holiday.label;top.appendChild(name); if(automatic?.key===holiday.key&&!holidayPreviewKey){const badge=document.createElement("span");badge.className="admin-edition-current";badge.textContent="CURRENT";top.appendChild(badge)} else if(holidayPreviewKey===holiday.key){const badge=document.createElement("span");badge.className="admin-edition-current";badge.textContent="PREVIEWING";top.appendChild(badge)} const dates=document.createElement("div");dates.className="admin-edition-dates";dates.textContent=holiday.dates;const preview=document.createElement("div");preview.className="admin-edition-preview";preview.textContent=holiday.items.join(" ");const desc=document.createElement("div");desc.className="admin-edition-desc";desc.textContent=holiday.desc;const btn=document.createElement("button");btn.type="button";btn.className="admin-edition-btn";btn.textContent=holidayPreviewKey===holiday.key?"✓ Previewing This Holiday":"👀 Preview Holiday";btn.disabled=holidayPreviewKey===holiday.key;if(btn.disabled)btn.style.opacity=".65";btn.onclick=()=>{holidayPreviewKey=holiday.key;seasonPreviewKey=null;trackLocalUsage("season");applyNarwhalSeason();evaluateAchievements("season")};card.append(top,dates,preview,desc,btn);hgrid.appendChild(card); }); }
   }
 
   const adminEditionAutoBtn=document.getElementById("adminEditionAutoBtn");
   if(adminEditionAutoBtn) adminEditionAutoBtn.onclick=()=>{seasonPreviewKey=null;holidayPreviewKey=null;applyNarwhalSeason()};
+  const adminHolidayAutoToggle=document.getElementById("adminHolidayAutoEnabled");
+  if(adminHolidayAutoToggle) adminHolidayAutoToggle.addEventListener("change",()=>{holidayAutoEnabled=adminHolidayAutoToggle.checked;updateHolidayAutoControls();});
+  const adminHolidayAutoSave=document.getElementById("adminSaveHolidayAutoBtn");
+  if(adminHolidayAutoSave) adminHolidayAutoSave.onclick=()=>{localStorage.setItem(HOLIDAY_AUTO_STORAGE_KEY,holidayAutoEnabled?"1":"0");seasonPreviewKey=null;holidayPreviewKey=null;applyNarwhalSeason();const status=document.getElementById("adminHolidayAutoStatus");if(status)status.textContent=holidayAutoEnabled?"✓ Holiday automatic switching is ON.":"✓ Holiday automatic switching is OFF.";};
 
   applyNarwhalSeason();
   setInterval(()=>{ if(!seasonPreviewKey&&!holidayPreviewKey) applyNarwhalSeason(); },60*60*1000);
