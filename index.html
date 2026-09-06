@@ -577,6 +577,26 @@
   .season-particle.sun { font-size:20px; }
   @media (prefers-reduced-motion:reduce) { .season-particle { animation:none; display:none; } }
 
+  /* ---------- Holiday Editions ---------- */
+  body.holiday-halloween { --bg:#FFF7F0; --season-accent:#E86A17; --season-accent-soft:#FFE3C7; }
+  body.holiday-halloween header { background:linear-gradient(160deg,#25113B 0%,#6B2C82 52%,#E86A17 100%); }
+  body.holiday-thanksgiving { --bg:#FFF7EA; --season-accent:#9A4B16; --season-accent-soft:#FBE2C4; }
+  body.holiday-thanksgiving header { background:linear-gradient(160deg,#4A2414 0%,#8B4513 55%,#C97822 100%); }
+  body.holiday-winter { --bg:#EFF7FF; --season-accent:#2563EB; --season-accent-soft:#DBEEFF; }
+  body.holiday-winter header { background:linear-gradient(160deg,#102C54 0%,#245B9A 55%,#7BB7E8 100%); }
+  body.holiday-valentines { --bg:#FFF3F7; --season-accent:#DB2777; --season-accent-soft:#FCE0EC; }
+  body.holiday-valentines header { background:linear-gradient(160deg,#5B1838 0%,#AD1D62 55%,#E85D95 100%); }
+  body.holiday-stpatricks { --bg:#F0FBF4; --season-accent:#149447; --season-accent-soft:#DFF5E7; }
+  body.holiday-stpatricks header { background:linear-gradient(160deg,#0C3820 0%,#167B3E 55%,#39A85E 100%); }
+  body.holiday-easter { --bg:#FFF9F0; --season-accent:#8B5CF6; --season-accent-soft:#EDE5FF; }
+  body.holiday-easter header { background:linear-gradient(160deg,#3E235C 0%,#7956B5 55%,#C084FC 100%); }
+  .holiday-badge { display:inline-flex;align-items:center;gap:6px;margin-top:4px;padding:4px 10px;border-radius:999px;font-size:11px;font-weight:900;color:var(--season-accent,#2255A4);background:var(--season-accent-soft,#EAF1FC);box-shadow:0 1px 4px rgba(0,0,0,.08);width:max-content; }
+  .holiday-decoration { position:fixed;inset:0;pointer-events:none;z-index:3;overflow:hidden; }
+  .holiday-particle { position:absolute;top:-48px;user-select:none;animation:holidayFall linear infinite;opacity:.92; }
+  @keyframes holidayFall { 0%{transform:translate3d(0,-48px,0) rotate(0deg);opacity:0} 12%{opacity:.96} 100%{transform:translate3d(var(--drift),110vh,0) rotate(var(--spin));opacity:.2} }
+  .holiday-halloween-particle{font-size:23px}.holiday-thanksgiving-particle{font-size:22px}.holiday-winter-particle{font-size:18px}.holiday-valentines-particle{font-size:22px}.holiday-stpatricks-particle{font-size:22px}.holiday-easter-particle{font-size:22px}
+  .holiday-us-particle{font-size:22px}.holiday-us-small-particle{font-size:20px}
+
   /* ---------- Narwhal Station Extras ---------- */
   .season-mascot-accessory{display:inline-flex;align-items:center;justify-content:center;margin-left:6px;font-size:22px;vertical-align:middle;filter:drop-shadow(0 2px 3px rgba(0,0,0,.18));animation:accessoryBob 2.8s ease-in-out infinite}
   @keyframes accessoryBob{50%{transform:translateY(-3px) rotate(3deg)}}
@@ -613,6 +633,7 @@
 </head>
 <body>
 <div id="seasonDecorationLayer" class="season-decoration-layer" aria-hidden="true"></div>
+<div id="holidayDecorationLayer" class="holiday-decoration" aria-hidden="true"></div>
 <!-- ============ PRE-LAUNCH LOCK ============ -->
 <div id="preLaunchLockActual" class="prelaunch-lock hidden-by-default" aria-hidden="false">
   <div class="prelaunch-card">
@@ -672,6 +693,7 @@
         <h1>Narwhal Station <span class="music-emoji">🎵🎶</span><span id="seasonMascotAccessory" class="season-mascot-accessory" aria-label="Seasonal decoration">🍂</span></h1>
         <p>Play • Learn • Explore • Be You</p>
         <div id="seasonBadge" class="season-badge">🍂 Fall Edition</div>
+        <div id="holidayBadge" class="holiday-badge hidden">🎃 Halloween Edition</div>
       </div>
     </div>
     <div class="top-nav">
@@ -1000,6 +1022,9 @@
           <div class="admin-section-title">🍂 Narwhal Station Editions</div>
           <div class="admin-section-subtitle">See all four seasonal editions and preview what the app looks like.</div>
           <div id="adminEditionsGrid" class="admin-editions-grid"></div>
+          <div class="admin-section-subtitle" style="margin-top:28px">🎉 Holiday Editions</div>
+          <div class="admin-editions-note" style="margin-top:0">Holiday editions can appear automatically on special dates. Preview one here to see the decorations without changing the real calendar.</div>
+          <div id="adminHolidayEditionsGrid" class="admin-editions-grid"></div>
           <div class="admin-form-block">
             <div style="font-size:14px;font-weight:950;color:#16274D">🎉 Special Seasonal Event</div>
             <label>Event icon
@@ -4018,7 +4043,7 @@
   renderProgress();
   updateAdminUsageStats();
 
-  // ---------- Automatic Seasonal Edition ----------
+  // ---------- Automatic Seasonal + Holiday Editions ----------
   const NARWHAL_EDITIONS = {
     fall: { key: "fall", label: "🍂 Fall Edition", dates: "September – November", particle: "leaf", items: ["🍂","🍁","🍂","🌰"], desc: "Warm autumn colors with leaves and acorns falling across the app." },
     winter: { key: "winter", label: "❄️ Winter Edition", dates: "December – February", particle: "snow", items: ["❄️","❄️","❄️","✨"], desc: "Cool winter colors with snowflakes and sparkles drifting down the screen." },
@@ -4026,7 +4051,32 @@
     summer: { key: "summer", label: "☀️ Summer Edition", dates: "June – August", particle: "sun", items: ["☀️","🌊","🐚","✨"], desc: "Bright summer colors with sunshine, waves, shells, and sparkles." }
   };
 
+  const NARWHAL_HOLIDAYS = {
+    newyear: { key:"newyear", label:"🎆 New Year's Day Edition", dates:"January 1", className:"holiday-us-newyear", particleClass:"holiday-us-particle", items:["🎆","🎉","🥳","✨"], desc:"Celebrate the start of a brand-new year with fireworks, confetti, and bright colors." },
+    mlk: { key:"mlk", label:"✊🏽 MLK Day Edition", dates:"Third Monday in January", className:"holiday-us-mlk", particleClass:"holiday-us-particle", items:["✊🏾","⭐","📚","🕊️"], desc:"A school-friendly edition honoring Dr. Martin Luther King Jr. and his message of kindness, equality, and community." },
+    inauguration: { key:"inauguration", label:"🇺🇸 Inauguration Day Edition", dates:"January 20 every 4 years", className:"holiday-us-inauguration", particleClass:"holiday-us-particle", items:["🇺🇸","⭐","🏛️","✨"], desc:"A special U.S. civic edition used on presidential Inauguration Day." },
+    valentines: { key:"valentines", label:"💗 Valentine's Edition", dates:"February 1 – February 14", className:"holiday-valentines", particleClass:"holiday-valentines-particle", items:["💗","💖","💝","🌟","🌷"], desc:"Sweet, school-friendly hearts and bright pink decorations for Valentine's Day." },
+    washington: { key:"washington", label:"🇺🇸 Washington's Birthday Edition", dates:"Third Monday in February", className:"holiday-us-washington", particleClass:"holiday-us-particle", items:["🇺🇸","⭐","🏛️","🎖️"], desc:"A U.S. civic edition for Washington's Birthday, often called Presidents Day." },
+    stpatricks: { key:"stpatricks", label:"🍀 St. Patrick's Edition", dates:"March 10 – March 17", className:"holiday-stpatricks", particleClass:"holiday-stpatricks-particle", items:["🍀","🌈","✨","☘️"], desc:"Green and cheerful decorations with lucky clovers, rainbows, and sparkles." },
+    easter: { key:"easter", label:"🐰 Easter Edition", dates:"Spring holiday week", className:"holiday-easter", particleClass:"holiday-easter-particle", items:["🐰","🥚","🌸","🦋","🌷"], desc:"Bright spring decorations with bunnies, colorful eggs, flowers, and butterflies." },
+    mothers: { key:"mothers", label:"💐 Mother's Day Edition", dates:"Second Sunday in May", className:"holiday-us-mothers", particleClass:"holiday-us-particle", items:["💐","🌷","💗","🌸"], desc:"A warm, school-friendly edition celebrating moms and the people who care for us." },
+    memorial: { key:"memorial", label:"🎖️ Memorial Day Edition", dates:"Last Monday in May", className:"holiday-us-memorial", particleClass:"holiday-us-particle", items:["🇺🇸","⭐","🎖️","🕊️"], desc:"A respectful U.S. civic edition honoring service members who died while serving." },
+    juneteenth: { key:"juneteenth", label:"❤️💛💚 Juneteenth Edition", dates:"June 19", className:"holiday-us-juneteenth", particleClass:"holiday-us-particle", items:["❤️","💛","💚","⭐"], desc:"A bright educational edition recognizing Juneteenth National Independence Day." },
+    fathers: { key:"fathers", label:"👔 Father's Day Edition", dates:"Third Sunday in June", className:"holiday-us-fathers", particleClass:"holiday-us-particle", items:["👔","⭐","💙","🎉"], desc:"A fun, school-friendly edition celebrating dads and caring grown-ups." },
+    flag: { key:"flag", label:"🇺🇸 Flag Day Edition", dates:"June 14", className:"holiday-us-flag", particleClass:"holiday-us-small-particle", items:["🇺🇸","⭐","🎈","✨"], desc:"A colorful U.S. edition celebrating the American flag." },
+    independence: { key:"independence", label:"🎆 Independence Day Edition", dates:"July 4", className:"holiday-us-independence", particleClass:"holiday-us-particle", items:["🇺🇸","🎆","🗽","⭐"], desc:"A red, white, and blue celebration for Independence Day." },
+    labor: { key:"labor", label:"🧰 Labor Day Edition", dates:"First Monday in September", className:"holiday-us-labor", particleClass:"holiday-us-particle", items:["🧰","⭐","🎉","🇺🇸"], desc:"A cheerful U.S. edition recognizing workers and the contributions they make." },
+    halloween: { key:"halloween", label:"🎃 Halloween Edition", dates:"October 1 – October 31", className:"holiday-halloween", particleClass:"holiday-halloween-particle", items:["🎃","👻","🕷️","🍬","🦇"], desc:"Spooky-but-friendly decorations with pumpkins, ghosts, bats, candy, and cobweb vibes." },
+    columbus: { key:"columbus", label:"🗺️ Columbus Day Edition", dates:"Second Monday in October", className:"holiday-us-columbus", particleClass:"holiday-us-particle", items:["🗺️","⛵","🌎","⭐"], desc:"A U.S. calendar edition for Columbus Day." },
+    indigenous: { key:"indigenous", label:"🪶 Indigenous Peoples' Day Edition", dates:"Second Monday in October", className:"holiday-us-indigenous", particleClass:"holiday-us-particle", items:["🪶","🌎","⭐","🌿"], desc:"A school-friendly edition recognizing Indigenous peoples and cultures." },
+    veterans: { key:"veterans", label:"🎖️ Veterans Day Edition", dates:"November 11", className:"holiday-us-veterans", particleClass:"holiday-us-particle", items:["🇺🇸","🎖️","⭐","🕊️"], desc:"A respectful U.S. edition honoring everyone who has served in the armed forces." },
+    thanksgiving: { key:"thanksgiving", label:"🦃 Thanksgiving Edition", dates:"Fourth Thursday in November", className:"holiday-thanksgiving", particleClass:"holiday-thanksgiving-particle", items:["🦃","🍂","🥧","🍁","🌽"], desc:"Cozy autumn decorations celebrating gratitude, family, and a thankful season." },
+    christmas: { key:"christmas", label:"🎄 Christmas Edition", dates:"December 25", className:"holiday-us-christmas", particleClass:"holiday-us-particle", items:["🎄","🎁","❄️","✨","🔔"], desc:"A festive winter edition with cheerful lights, snow, presents, and decorations." },
+    winter: { key:"winter", label:"🎄 Winter Holidays Edition", dates:"December 1 – December 26", className:"holiday-winter", particleClass:"holiday-winter-particle", items:["🎄","🎁","❄️","✨","🔔"], desc:"Festive winter decorations with snow, presents, lights, and cheerful holiday sparkle." }
+  };
+
   let seasonPreviewKey = null;
+  let holidayPreviewKey = null;
 
   function getNarwhalSeason(date = new Date()) {
     const month = date.getMonth() + 1;
@@ -4036,79 +4086,91 @@
     return NARWHAL_EDITIONS.summer;
   }
 
+  function sameDay(a,b){ return a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate(); }
+  function addDays(date,days){ const d=new Date(date); d.setDate(d.getDate()+days); return d; }
+  function easterSunday(year){
+    const a=year%19,b=Math.floor(year/100),c=year%100,d=Math.floor(b/4),e=b%4,f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3),h=(19*a+b-d-g+15)%30,i=Math.floor(c/4),k=c%4,l=(32+2*e+2*i-h-k)%7,m=Math.floor((a+11*h+22*l)/451),month=Math.floor((h+l-7*m+114)/31),day=((h+l-7*m+114)%31)+1;
+    return new Date(year,month-1,day);
+  }
+
+  function nthWeekdayOfMonth(year, monthIndex, weekday, n){
+    const first=new Date(year, monthIndex, 1);
+    const offset=(weekday-first.getDay()+7)%7;
+    return new Date(year, monthIndex, 1+offset+(n-1)*7);
+  }
+  function lastWeekdayOfMonth(year, monthIndex, weekday){
+    const last=new Date(year, monthIndex+1, 0);
+    const offset=(last.getDay()-weekday+7)%7;
+    return new Date(year, monthIndex, last.getDate()-offset);
+  }
+
+  function getAutomaticHoliday(date = new Date()) {
+    const year=date.getFullYear(), month=date.getMonth()+1, day=date.getDate();
+    if (month===1 && day===1) return NARWHAL_HOLIDAYS.newyear;
+    if (month===1 && day===20 && year%4===0) return NARWHAL_HOLIDAYS.inauguration;
+    if (sameDay(date,nthWeekdayOfMonth(year,0,1,3))) return NARWHAL_HOLIDAYS.mlk;
+    if (month===2 && day<=14) return NARWHAL_HOLIDAYS.valentines;
+    if (sameDay(date,nthWeekdayOfMonth(year,1,1,3))) return NARWHAL_HOLIDAYS.washington;
+    if (month===3 && day>=10 && day<=17) return NARWHAL_HOLIDAYS.stpatricks;
+    const easter=easterSunday(year);
+    const easterStart=addDays(easter,-3), easterEnd=addDays(easter,2);
+    if (date>=easterStart && date<=easterEnd) return NARWHAL_HOLIDAYS.easter;
+    if (sameDay(date,nthWeekdayOfMonth(year,4,0,2))) return NARWHAL_HOLIDAYS.mothers;
+    if (sameDay(date,lastWeekdayOfMonth(year,4,1))) return NARWHAL_HOLIDAYS.memorial;
+    if (month===6 && day===14) return NARWHAL_HOLIDAYS.flag;
+    if (month===6 && day===19) return NARWHAL_HOLIDAYS.juneteenth;
+    if (sameDay(date,nthWeekdayOfMonth(year,5,0,3))) return NARWHAL_HOLIDAYS.fathers;
+    if (month===7 && day===4) return NARWHAL_HOLIDAYS.independence;
+    if (sameDay(date,nthWeekdayOfMonth(year,8,1,1))) return NARWHAL_HOLIDAYS.labor;
+    if (month===10 && day>=1 && day<=31) return NARWHAL_HOLIDAYS.halloween;
+    if (month===10 && sameDay(date,nthWeekdayOfMonth(year,9,1,2))) return NARWHAL_HOLIDAYS.columbus;
+    if (month===10 && sameDay(date,nthWeekdayOfMonth(year,9,1,2))) return NARWHAL_HOLIDAYS.indigenous;
+    if (month===11 && day===11) return NARWHAL_HOLIDAYS.veterans;
+    const thanksgiving=nthWeekdayOfMonth(year,10,4,4);
+    if (sameDay(date,thanksgiving)) return NARWHAL_HOLIDAYS.thanksgiving;
+    if (month===12 && day===25) return NARWHAL_HOLIDAYS.christmas;
+    if (month===12 && day<=26) return NARWHAL_HOLIDAYS.winter;
+    return null;
+  }
+
   function getActiveNarwhalSeason() {
     return seasonPreviewKey ? NARWHAL_EDITIONS[seasonPreviewKey] : getNarwhalSeason();
   }
+  function getActiveHoliday() {
+    return holidayPreviewKey ? NARWHAL_HOLIDAYS[holidayPreviewKey] : getAutomaticHoliday();
+  }
 
   function applyNarwhalSeason() {
-    const season = getActiveNarwhalSeason();
+    const season=getActiveNarwhalSeason(), holiday=getActiveHoliday();
     document.body.classList.remove("season-fall","season-winter","season-spring","season-summer");
     document.body.classList.add(`season-${season.key}`);
-    const badge = document.getElementById("seasonBadge");
-    if (badge) badge.textContent = season.label;
-    const accessory = document.getElementById("seasonMascotAccessory");
-    if (accessory) accessory.textContent = season.key === "fall" ? "🍂" : season.key === "winter" ? "❄️" : season.key === "spring" ? "🌷" : "😎";
-    const adminEdition = document.getElementById("adminCurrentEdition");
-    if (adminEdition) adminEdition.textContent = season.label.replace(/^\S+\s*/,"");
-    document.title = `Narwhal Station — ${season.label.replace(/^[^ ]+ /, "")}`;
+    Object.values(NARWHAL_HOLIDAYS).forEach(h=>document.body.classList.remove(h.className));
+    if (holiday) document.body.classList.add(holiday.className);
+    const badge=document.getElementById("seasonBadge"); if(badge) badge.textContent=season.label;
+    const holidayBadge=document.getElementById("holidayBadge");
+    if(holidayBadge){ holidayBadge.textContent=holiday?holiday.label:""; holidayBadge.classList.toggle("hidden",!holiday); }
+    const accessory=document.getElementById("seasonMascotAccessory");
+    if(accessory){ const holidayIcons={newyear:"🎆",mlk:"✊🏾",inauguration:"🇺🇸",valentines:"💗",washington:"🇺🇸",stpatricks:"🍀",easter:"🐰",mothers:"💐",memorial:"🎖️",juneteenth:"❤️",fathers:"👔",flag:"🇺🇸",independence:"🎆",labor:"🧰",halloween:"🎃",columbus:"🗺️",indigenous:"🪶",veterans:"🎖️",thanksgiving:"🦃",christmas:"🎄",winter:"🎄"}; accessory.textContent=holiday ? (holidayIcons[holiday.key]||"🎉") : (season.key === "fall" ? "🍂" : season.key === "winter" ? "❄️" : season.key === "spring" ? "🌷" : "😎"); }
+    const adminEdition=document.getElementById("adminCurrentEdition"); if(adminEdition) adminEdition.textContent=holiday?holiday.label.replace(/^\S+\s*/,""):season.label.replace(/^\S+\s*/,"");
+    document.title=`Narwhal Station — ${holiday?holiday.label.replace(/^[^ ]+ /,""):season.label.replace(/^[^ ]+ /,"")}`;
 
-    const layer = document.getElementById("seasonDecorationLayer");
-    if (!layer) return;
-    layer.innerHTML = "";
-    const count = season.key === "winter" ? 24 : 16;
-    for (let i = 0; i < count; i++) {
-      const particle = document.createElement("span");
-      particle.className = `season-particle ${season.particle}`;
-      particle.textContent = season.items[i % season.items.length];
-      particle.style.left = `${Math.random() * 100}%`;
-      particle.style.setProperty("--drift", `${Math.round((Math.random() * 180) - 90)}px`);
-      particle.style.setProperty("--spin", `${Math.round((Math.random() * 720) - 360)}deg`);
-      particle.style.animationDuration = `${8 + Math.random() * 9}s`;
-      particle.style.animationDelay = `${Math.random() * 8}s`;
-      layer.appendChild(particle);
-    }
+    const layer=document.getElementById("seasonDecorationLayer");
+    if(layer){ layer.innerHTML=""; const count=season.key==="winter"?24:16; for(let i=0;i<count;i++){ const particle=document.createElement("span"); particle.className=`season-particle ${season.particle}`; particle.textContent=season.items[i%season.items.length]; particle.style.left=`${Math.random()*100}%`; particle.style.setProperty("--drift",`${Math.round(Math.random()*180-90)}px`); particle.style.setProperty("--spin",`${Math.round(Math.random()*720-360)}deg`); particle.style.animationDuration=`${8+Math.random()*9}s`; particle.style.animationDelay=`${Math.random()*8}s`; layer.appendChild(particle); } }
+    const holidayLayer=document.getElementById("holidayDecorationLayer");
+    if(holidayLayer){ holidayLayer.innerHTML=""; if(holiday){ for(let i=0;i<18;i++){ const particle=document.createElement("span"); particle.className=`holiday-particle ${holiday.particleClass}`; particle.textContent=holiday.items[i%holiday.items.length]; particle.style.left=`${Math.random()*100}%`; particle.style.setProperty("--drift",`${Math.round(Math.random()*180-90)}px`); particle.style.setProperty("--spin",`${Math.round(Math.random()*720-360)}deg`); particle.style.animationDuration=`${7+Math.random()*9}s`; particle.style.animationDelay=`${Math.random()*8}s`; holidayLayer.appendChild(particle); } } }
     renderAdminEditions();
   }
 
   function renderAdminEditions() {
-    const grid = document.getElementById("adminEditionsGrid");
-    if (!grid) return;
-    const automatic = getNarwhalSeason();
-    const active = getActiveNarwhalSeason();
-    grid.innerHTML = "";
-    Object.values(NARWHAL_EDITIONS).forEach(edition => {
-      const card = document.createElement("div");
-      card.className = `admin-edition-card${active.key === edition.key ? " current" : ""}`;
-      const top = document.createElement("div"); top.className = "admin-edition-top";
-      const name = document.createElement("div"); name.className = "admin-edition-name"; name.textContent = edition.label;
-      top.appendChild(name);
-      if (automatic.key === edition.key && !seasonPreviewKey) {
-        const badge = document.createElement("span"); badge.className = "admin-edition-current"; badge.textContent = "CURRENT"; top.appendChild(badge);
-      } else if (seasonPreviewKey === edition.key) {
-        const badge = document.createElement("span"); badge.className = "admin-edition-current"; badge.textContent = "PREVIEWING"; top.appendChild(badge);
-      }
-      const dates = document.createElement("div"); dates.className = "admin-edition-dates"; dates.textContent = edition.dates;
-      const preview = document.createElement("div"); preview.className = "admin-edition-preview"; preview.textContent = edition.items.join(" ");
-      const desc = document.createElement("div"); desc.className = "admin-edition-desc"; desc.textContent = edition.desc;
-      const btn = document.createElement("button"); btn.type = "button"; btn.className = "admin-edition-btn"; btn.textContent = active.key === edition.key ? "✓ Showing This Edition" : "👀 Preview Edition";
-      btn.disabled = active.key === edition.key;
-      if (btn.disabled) btn.style.opacity = ".65";
-      btn.onclick = () => { if (seasonPreviewKey !== edition.key) trackLocalUsage("season"); seasonPreviewKey = edition.key; applyNarwhalSeason(); evaluateAchievements("season"); };
-      card.append(top, dates, preview, desc, btn);
-      grid.appendChild(card);
-    });
+    const grid=document.getElementById("adminEditionsGrid"); if(grid){ const automatic=getNarwhalSeason(), active=getActiveNarwhalSeason(); grid.innerHTML=""; Object.values(NARWHAL_EDITIONS).forEach(edition=>{ const card=document.createElement("div"); card.className=`admin-edition-card${active.key===edition.key&&!holidayPreviewKey?" current":""}`; const top=document.createElement("div"); top.className="admin-edition-top"; const name=document.createElement("div"); name.className="admin-edition-name"; name.textContent=edition.label; top.appendChild(name); if(automatic.key===edition.key&&!seasonPreviewKey&&!holidayPreviewKey){const badge=document.createElement("span");badge.className="admin-edition-current";badge.textContent="CURRENT";top.appendChild(badge)} else if(seasonPreviewKey===edition.key&&!holidayPreviewKey){const badge=document.createElement("span");badge.className="admin-edition-current";badge.textContent="PREVIEWING";top.appendChild(badge)} const dates=document.createElement("div");dates.className="admin-edition-dates";dates.textContent=edition.dates; const preview=document.createElement("div");preview.className="admin-edition-preview";preview.textContent=edition.items.join(" "); const desc=document.createElement("div");desc.className="admin-edition-desc";desc.textContent=edition.desc; const btn=document.createElement("button");btn.type="button";btn.className="admin-edition-btn";btn.textContent=active.key===edition.key&&!holidayPreviewKey?"✓ Showing This Edition":"👀 Preview Edition";btn.disabled=active.key===edition.key&&!holidayPreviewKey; if(btn.disabled)btn.style.opacity=".65"; btn.onclick=()=>{seasonPreviewKey=edition.key;holidayPreviewKey=null;trackLocalUsage("season");applyNarwhalSeason();evaluateAchievements("season")}; card.append(top,dates,preview,desc,btn);grid.appendChild(card); }); }
+    const hgrid=document.getElementById("adminHolidayEditionsGrid"); if(hgrid){ const automatic=getAutomaticHoliday(), active=getActiveHoliday(); hgrid.innerHTML=""; Object.values(NARWHAL_HOLIDAYS).forEach(holiday=>{ const card=document.createElement("div"); card.className=`admin-edition-card${active?.key===holiday.key?" current":""}`; const top=document.createElement("div");top.className="admin-edition-top";const name=document.createElement("div");name.className="admin-edition-name";name.textContent=holiday.label;top.appendChild(name); if(automatic?.key===holiday.key&&!holidayPreviewKey){const badge=document.createElement("span");badge.className="admin-edition-current";badge.textContent="CURRENT";top.appendChild(badge)} else if(holidayPreviewKey===holiday.key){const badge=document.createElement("span");badge.className="admin-edition-current";badge.textContent="PREVIEWING";top.appendChild(badge)} const dates=document.createElement("div");dates.className="admin-edition-dates";dates.textContent=holiday.dates;const preview=document.createElement("div");preview.className="admin-edition-preview";preview.textContent=holiday.items.join(" ");const desc=document.createElement("div");desc.className="admin-edition-desc";desc.textContent=holiday.desc;const btn=document.createElement("button");btn.type="button";btn.className="admin-edition-btn";btn.textContent=active?.key===holiday.key?"✓ Showing This Holiday":"👀 Preview Holiday";btn.disabled=active?.key===holiday.key;if(btn.disabled)btn.style.opacity=".65";btn.onclick=()=>{holidayPreviewKey=holiday.key;seasonPreviewKey=null;trackLocalUsage("season");applyNarwhalSeason();evaluateAchievements("season")};card.append(top,dates,preview,desc,btn);hgrid.appendChild(card); }); }
   }
 
-  const adminEditionAutoBtn = document.getElementById("adminEditionAutoBtn");
-  if (adminEditionAutoBtn) adminEditionAutoBtn.onclick = () => {
-    seasonPreviewKey = null;
-    applyNarwhalSeason();
-  };
+  const adminEditionAutoBtn=document.getElementById("adminEditionAutoBtn");
+  if(adminEditionAutoBtn) adminEditionAutoBtn.onclick=()=>{seasonPreviewKey=null;holidayPreviewKey=null;applyNarwhalSeason()};
 
   applyNarwhalSeason();
-  setInterval(() => {
-    if (!seasonPreviewKey) applyNarwhalSeason();
-  }, 60 * 60 * 1000);
+  setInterval(()=>{ if(!seasonPreviewKey&&!holidayPreviewKey) applyNarwhalSeason(); },60*60*1000);
 
   updateRealPreLaunchLock();
   setInterval(updateRealPreLaunchLock, 1000);
