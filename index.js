@@ -1,5 +1,7 @@
 const STORE_KEY = "latest";
 const REQUESTS_KEY = "requests";
+const ANNOUNCEMENT_KEY = "announcement";
+const SEASON_EVENT_KEY = "seasonal-event";
 const MAX_NAME = 40;
 const MAX_MESSAGE = 500;
 const MAX_REQUESTS = 200;
@@ -178,6 +180,65 @@ async function handleRequests(request, env) {
   }
 }
 
+
+async function handleAnnouncement(request, env) {
+  if (["OPTIONS"].includes(request.method)) return json({}, 204);
+  if (!["GET","POST","DELETE"].includes(request.method)) return json({ error: "Method not allowed." }, 405);
+  try {
+    const kv = env.GLOBAL_CHAT;
+    if (!kv) return json({ error: "Announcements are not configured: GLOBAL_CHAT KV binding is missing." }, 500);
+    if (request.method === "GET") {
+      const announcement = await kv.get(ANNOUNCEMENT_KEY, "json");
+      return json({ announcement: announcement || null });
+    }
+    const body = await request.json().catch(() => null);
+    if (!body || typeof body !== "object" || !adminAuthorized(body, env)) return json({ error: "Unauthorized." }, 401);
+    if (request.method === "DELETE") {
+      await kv.delete(ANNOUNCEMENT_KEY);
+      return json({ ok: true });
+    }
+    const title = String(body.title || "School Announcement").trim().slice(0,80) || "School Announcement";
+    const text = String(body.text || "").trim().slice(0,500);
+    if (!text) return json({ error: "Announcement cannot be empty." }, 400);
+    const announcement = { title, text, time: Date.now() };
+    await kv.put(ANNOUNCEMENT_KEY, JSON.stringify(announcement));
+    return json({ ok: true, announcement });
+  } catch (error) {
+    console.error("Narwhal announcement error:", error);
+    return json({ error: `Announcement backend error: ${error?.message || "unknown error"}` }, 500);
+  }
+}
+
+async function handleSeasonalEvent(request, env) {
+  if (["OPTIONS"].includes(request.method)) return json({}, 204);
+  if (!["GET","POST","DELETE"].includes(request.method)) return json({ error: "Method not allowed." }, 405);
+  try {
+    const kv = env.GLOBAL_CHAT;
+    if (!kv) return json({ error: "Seasonal events are not configured: GLOBAL_CHAT KV binding is missing." }, 500);
+    if (request.method === "GET") {
+      const event = await kv.get(SEASON_EVENT_KEY, "json");
+      return json({ event: event || null });
+    }
+    const body = await request.json().catch(() => null);
+    if (!body || typeof body !== "object" || !adminAuthorized(body, env)) return json({ error: "Unauthorized." }, 401);
+    if (request.method === "DELETE") {
+      await kv.delete(SEASON_EVENT_KEY);
+      return json({ ok: true });
+    }
+    const icon = String(body.icon || "🎉").trim().slice(0,4) || "🎉";
+    const title = String(body.title || "Special Event").trim().slice(0,80) || "Special Event";
+    const text = String(body.text || "").trim().slice(0,300);
+    const enabled = !!body.enabled;
+    if (enabled && !text) return json({ error: "Event message cannot be empty when the event is on." }, 400);
+    const event = { icon, title, text, enabled, time: Date.now() };
+    await kv.put(SEASON_EVENT_KEY, JSON.stringify(event));
+    return json({ ok: true, event });
+  } catch (error) {
+    console.error("Narwhal seasonal event error:", error);
+    return json({ error: `Seasonal event backend error: ${error?.message || "unknown error"}` }, 500);
+  }
+}
+
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
@@ -190,6 +251,12 @@ export default {
     }
     if (url.pathname === "/api/requests" || url.pathname === "/api/requests/") {
       return handleRequests(request, env);
+    }
+    if (url.pathname === "/api/announcement" || url.pathname === "/api/announcement/") {
+      return handleAnnouncement(request, env);
+    }
+    if (url.pathname === "/api/seasonal-event" || url.pathname === "/api/seasonal-event/") {
+      return handleSeasonalEvent(request, env);
     }
 
     return env.ASSETS.fetch(request);
