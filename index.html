@@ -4602,6 +4602,12 @@
     summer: "☀️ Summer Music"
   };
 
+  // These are needed by the seasonal music button, which is initialized before
+  // the full seasonal/holiday section later in the script. Keep them declared
+  // here so the button cannot hit the JavaScript temporal-dead-zone error.
+  let seasonPreviewKey = null;
+  let holidayPreviewKey = null;
+
   const MUSIC_CATEGORY_ARTISTS = {
     "80s": ["a-ha","Bonnie Tyler","The Bangles","Billy Joel","Culture Club","Europe","Huey Lewis and the News","Journey","Kenny Loggins","Lionel Richie","Phil Collins","Rick Astley","Tears for Fears","The Go-Go's","Whitney Houston","Cyndi Lauper","ABBA","Queen","Wham!","Deniece Williams","Joe Jackson","Glenn Frey","Peter Cetera","Alphaville","Starship","The Human League"],
     "90s": ["Ace of Base","Backstreet Boys","Celine Dion","Cher","Hanson","Mariah Carey","Men at Work","Natalie Imbruglia","NSYNC","Selena","Shania Twain","Smash Mouth","Spice Girls","R.E.M.","Sixpence None the Richer","Ricky Martin","Luis Miguel","Mecano","Chumbawamba","The Cranberries","Seal","Dido","Vanessa Williams"],
@@ -4952,9 +4958,6 @@
     christmas: { key:"christmas", label:"🎄 Christmas Edition", dates:"December 25", className:"holiday-us-christmas", particleClass:"holiday-us-particle", items:["🎄","🎁","❄️","✨","🔔"], desc:"A festive winter edition with cheerful lights, snow, presents, and decorations." },
     winter: { key:"winter", label:"🎄 Winter Holidays Edition", dates:"December 1 – December 26", className:"holiday-winter", particleClass:"holiday-winter-particle", items:["🎄","🎁","❄️","✨","🔔"], desc:"Festive winter decorations with snow, presents, lights, and cheerful holiday sparkle." }
   };
-
-  let seasonPreviewKey = null;
-  let holidayPreviewKey = null;
 
   function getNarwhalSeason(date = new Date()) {
     const month = date.getMonth() + 1;
