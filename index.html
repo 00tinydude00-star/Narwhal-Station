@@ -327,6 +327,7 @@
   .admin-access-card input{width:100%;padding:11px 12px;border:1px solid #CDD8E7;border-radius:10px;margin-bottom:8px}
   .admin-access-error{display:none;color:#9A1F30;font-size:12px;font-weight:800;margin-bottom:8px}
   .admin-access-submit{width:100%;padding:11px;border:0;border-radius:10px;background:#2255A4;color:#fff;font-weight:800;cursor:pointer}
+  .admin-role-chooser-select{width:100%;padding:12px;border:1px solid #CDD8E7;border-radius:10px;background:#fff;color:#16274D;font-weight:700;margin:2px 0 10px;font-family:inherit}
 
   .approved-song-note{background:#F3F8FF;border:1px solid #C9D9F2;border-radius:12px;padding:10px 12px;margin:4px 0 14px;font-size:12.5px;line-height:1.5;color:var(--navy)}
   .yt-autoplay-row{display:flex;align-items:center;gap:10px;margin:-4px 0 12px;padding:8px 11px;border-radius:10px;background:#F8FAFD;border:1px solid #D9E3F1}.yt-autoplay-label{font-size:12px;font-weight:900;color:var(--navy);cursor:pointer;display:flex;align-items:center;gap:7px}.yt-autoplay-label input{width:15px;height:15px}.yt-autoplay-help{font-size:11px;color:#6E7E9B}
@@ -729,6 +730,22 @@
   </div>
 </div>
 
+<div id="adminRoleChooserActual" class="admin-access-overlay hidden" aria-hidden="true">
+  <div class="admin-access-card">
+    <div class="admin-access-icon">👋</div>
+    <h2>Who are you?</h2>
+    <p>Choose your role before entering the Admin Panel. This role will be used in Global Chat.</p>
+    <select id="adminRoleChooserSelectActual" class="admin-role-chooser-select">
+      <option value="">Choose a role...</option>
+      <option value="OWNER">Owner</option>
+      <option value="ADMIN">Admin</option>
+      <option value="PRINCIPAL">Principal</option>
+      <option value="VICE_PRINCIPAL">Vice Principal</option>
+    </select>
+    <div id="adminRoleChooserErrorActual" class="admin-access-error"></div>
+    <button id="adminRoleChooserContinueActual" class="admin-access-submit" type="button">Continue to Admin Panel</button>
+  </div>
+</div>
 
 <header>
   <div class="bubble b1"></div>
@@ -1268,7 +1285,7 @@
           <div class="admin-section-subtitle">Send a message to the school-wide chat.</div>
           <div class="chat-identity-row">
             <label>Sending as
-              <input id="globalChatSenderName" type="text" maxlength="40" value="Administrator" placeholder="Your name">
+              <input id="globalChatSenderName" type="text" maxlength="40" value="" placeholder="Your name">
             </label>
             <label>Role
               <select id="globalChatSenderRole">
@@ -3178,7 +3195,7 @@
 
 
   // ============ ADMIN PANEL MODAL + PRE-LAUNCH LOCK ============
-  const PRELAUNCH_LAUNCH_TIME = new Date("2026-09-11T08:00:00-05:00").getTime();
+  const PRELAUNCH_LAUNCH_TIME = new Date("2026-09-11T00:00:00-05:00").getTime();
   const ADMIN_PASSWORD_ACTUAL = "SSTSchools123!";
 
   const preLaunchLockActual = document.getElementById("preLaunchLockActual");
@@ -3194,6 +3211,11 @@
   const adminAccessCloseActual = document.getElementById("adminPanelAccessCloseActual");
   const adminAccessErrorActual = document.getElementById("adminPanelAccessErrorActual");
   const adminPanelCloseBtn = document.getElementById("adminPanelCloseBtn");
+  const adminRoleChooserActual = document.getElementById("adminRoleChooserActual");
+  const adminRoleChooserSelectActual = document.getElementById("adminRoleChooserSelectActual");
+  const adminRoleChooserContinueActual = document.getElementById("adminRoleChooserContinueActual");
+  const adminRoleChooserErrorActual = document.getElementById("adminRoleChooserErrorActual");
+  let selectedAdminRoleForSession = "";
 
   // Always start a fresh page load in PRE-LAUNCH LOCK mode.
   // Admin access is granted only after the shortcut + password on this page.
@@ -3524,6 +3546,10 @@
 
   function openAdminPanel() {
     closeAdminAccessActual();
+    closeAdminRoleChooserActual();
+    const rememberedRole = selectedAdminRoleForSession || (() => { try { return sessionStorage.getItem("narwhalAdminRole") || ""; } catch (_) { return ""; } })();
+    if (rememberedRole && globalChatSenderRole) globalChatSenderRole.value = rememberedRole;
+    if (globalChatSenderName) globalChatSenderName.value = "";
     if (!adminPanelSection) return;
     restoreAdminWindowGeometry();
     adminPanelSection.classList.remove("hidden");
@@ -3610,6 +3636,15 @@
     if (!adminPasswordActual) return;
     if (adminPasswordActual.value === ADMIN_PASSWORD_ACTUAL) {
       adminUnlockedForSession = true;
+      closeAdminAccessActual();
+      selectedAdminRoleForSession = "";
+      try { sessionStorage.removeItem("narwhalAdminRole"); } catch (_) {}
+      if (adminRoleChooserSelectActual) adminRoleChooserSelectActual.value = "";
+      if (adminRoleChooserErrorActual) adminRoleChooserErrorActual.style.display = "none";
+      if (adminRoleChooserActual) {
+        adminRoleChooserActual.classList.remove("hidden");
+        adminRoleChooserActual.setAttribute("aria-hidden", "false");
+      }
       // ---------- School Announcement + Seasonal Event ----------
   const ANNOUNCEMENT_ENDPOINT = "/api/announcement";
   const SEASON_EVENT_ENDPOINT = "/api/seasonal-event";
@@ -3710,7 +3745,7 @@
   setInterval(loadSeasonEvent,30000);
 
   updateRealPreLaunchLock();
-      openAdminPanel();
+      // Role chooser appears before the Admin Panel.
     } else {
       if (adminAccessErrorActual) {
         adminAccessErrorActual.textContent = "Incorrect password.";
@@ -3719,6 +3754,33 @@
     }
   }
 
+  function closeAdminRoleChooserActual() {
+    if (!adminRoleChooserActual) return;
+    adminRoleChooserActual.classList.add("hidden");
+    adminRoleChooserActual.setAttribute("aria-hidden", "true");
+  }
+
+  function continueFromAdminRoleChooserActual() {
+    const role = String(adminRoleChooserSelectActual?.value || "").toUpperCase();
+    const allowed = ["OWNER","ADMIN","PRINCIPAL","VICE_PRINCIPAL"];
+    if (!allowed.includes(role)) {
+      if (adminRoleChooserErrorActual) {
+        adminRoleChooserErrorActual.textContent = "Please choose your role first.";
+        adminRoleChooserErrorActual.style.display = "block";
+      }
+      return;
+    }
+    selectedAdminRoleForSession = role;
+    try { sessionStorage.setItem("narwhalAdminRole", role); } catch (_) {}
+    if (globalChatSenderRole) globalChatSenderRole.value = role;
+    if (globalChatSenderName) globalChatSenderName.value = "";
+    updateGlobalChatRoleUI();
+    closeAdminRoleChooserActual();
+    openAdminPanel();
+  }
+
+  if (adminRoleChooserContinueActual) adminRoleChooserContinueActual.onclick = continueFromAdminRoleChooserActual;
+  if (adminRoleChooserSelectActual) adminRoleChooserSelectActual.addEventListener("keydown", e => { if (e.key === "Enter") continueFromAdminRoleChooserActual(); });
   if (adminAccessSubmitActual) adminAccessSubmitActual.onclick = authorizeAdminActual;
   if (adminAccessCloseActual) adminAccessCloseActual.onclick = closeAdminAccessActual;
   if (adminPanelCloseBtn) adminPanelCloseBtn.onclick = closeAdminPanel;
@@ -3726,6 +3788,9 @@
   const adminLockAppBtn = document.getElementById("adminLockAppBtn");
   if (adminLockAppBtn) adminLockAppBtn.onclick = () => {
     adminUnlockedForSession = false;
+    selectedAdminRoleForSession = "";
+    try { sessionStorage.removeItem("narwhalAdminRole"); } catch (_) {}
+    if (adminRoleChooserActual) adminRoleChooserActual.classList.add("hidden");
     if (adminRestoreBtn) adminRestoreBtn.classList.add("hidden");
     if (adminPanelSection) {
       adminPanelSection.classList.add("hidden");
@@ -4100,11 +4165,10 @@
 
     const messageId = String(message.id || message.time || "") + "|" +
       String(message.name || "") + "|" + String(message.text || "");
-    const age = Date.now() - Number(message.time || 0);
-    if (!forceShow && age >= 7000) {
-      banner.classList.add("chat-fading");
-      return;
-    }
+    const age = Math.max(0, Date.now() - Number(message.time || 0));
+    // Always allow the newest school-wide message to appear when a device
+    // first opens the app, even if it was sent more than 7 seconds ago.
+    // Once shown, it fades after 7 seconds like normal.
 
     clearTimeout(globalChatFadeTimer);
     banner.classList.remove("hidden", "chat-fading");
@@ -4121,7 +4185,7 @@
     textEl.textContent = message.text || "";
     globalChatLatestId = messageId;
 
-    const remaining = Math.max(0, 7000 - Math.max(0, age));
+    const remaining = forceShow ? 7000 : Math.max(7000, 7000 - Math.max(0, age));
     globalChatFadeTimer = setTimeout(() => {
       banner.classList.add("chat-fading");
     }, remaining);
@@ -4248,7 +4312,7 @@
   // 30-second polling keeps the school-wide chat reasonably fresh while
   // staying within the Cloudflare Workers Free request allowance for typical
   // school-sized usage.
-  setInterval(() => renderStudentGlobalChatBanner(false), 30000);
+  setInterval(() => renderStudentGlobalChatBanner(false), 5000);
 
   window.addEventListener("narwhalGlobalChatUpdated", () => {
     renderStudentGlobalChatBanner(true);
