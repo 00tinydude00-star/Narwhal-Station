@@ -494,7 +494,7 @@
   .requests-card{background:#fff;border-radius:18px;padding:22px;box-shadow:0 3px 12px rgba(22,39,77,.08);margin-top:10px}.requests-card h2{font-size:22px;margin-bottom:5px}.requests-card p{font-size:13px;color:#5B6B8C;line-height:1.5;margin-bottom:16px}.request-form{display:grid;gap:12px}.request-form label{font-size:11px;font-weight:900;color:#344567}.request-form input,.request-form select,.request-form textarea{display:block;width:100%;margin-top:5px;padding:12px 13px;border:1px solid #CDD8E7;border-radius:10px;outline:none;background:#fff;color:#16274D;font:inherit}.request-form textarea{min-height:110px;resize:vertical}.request-submit{border:0;border-radius:11px;padding:13px 16px;background:#2255A4;color:#fff;font-weight:900;cursor:pointer}.request-submit:hover{filter:brightness(.96)}.request-status{font-size:12px;font-weight:800;color:#2E8B57;min-height:16px}.request-note{font-size:11px!important;color:#6E7E9B!important;margin:0!important}
   .admin-request-list{display:grid;gap:8px;max-height:520px;overflow:auto}.admin-request-item{background:#fff;border:1px solid #D9E3F1;border-radius:12px;padding:12px}.admin-request-top{display:flex;align-items:center;justify-content:space-between;gap:10px}.admin-request-type{font-size:10px;font-weight:900;text-transform:uppercase;color:#2255A4;background:#EAF1FC;border-radius:999px;padding:4px 8px}.admin-request-time{font-size:10px;color:#7B8AA5}.admin-request-text{font-size:14px;font-weight:800;color:#16274D;margin-top:7px;white-space:pre-wrap;word-break:break-word}.admin-request-name{font-size:11px;color:#5B6B8C;margin-top:5px}.admin-request-actions{margin-top:8px}.admin-request-delete{border:0;border-radius:8px;background:#FBEAEC;color:#B62231;font-size:10px;font-weight:900;padding:6px 9px;cursor:pointer}
 
-  /* ---------- Floating mini music player ---------- */
+  /* ---------- Music player + right-side mini player ---------- */
   .yt-mini-player-overlay{
     position:fixed;
     inset:0;
@@ -506,34 +506,77 @@
     background:rgba(8,20,45,.58);
     backdrop-filter:blur(3px);
   }
+  .yt-mini-player-overlay.hidden{display:none !important;}
   .yt-mini-player{
-    width:min(620px,94vw);
+    width:min(680px,94vw);
     background:#fff;
     border-radius:20px;
     overflow:hidden;
     box-shadow:0 30px 90px rgba(0,0,0,.45);
     border:1px solid #D9E3F1;
   }
+  .yt-mini-player-overlay.mini-mode{
+    inset:auto 20px 20px auto;
+    width:auto;
+    height:auto;
+    padding:0;
+    background:transparent;
+    backdrop-filter:none;
+    display:block;
+    pointer-events:none;
+  }
+  .yt-mini-player-overlay.mini-mode .yt-mini-player{
+    width:min(380px,calc(100vw - 28px));
+    max-width:calc(100vw - 28px);
+    border-radius:18px;
+    box-shadow:0 18px 50px rgba(0,0,0,.34);
+    pointer-events:auto;
+  }
   .yt-mini-header{
     display:flex;
     align-items:center;
     gap:12px;
-    padding:14px 16px;
+    padding:12px 14px;
     background:linear-gradient(135deg,#16274D,#2255A4);
     color:#fff;
   }
+  .yt-mini-disk{
+    width:44px;
+    height:44px;
+    border-radius:50%;
+    flex:0 0 auto;
+    position:relative;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:repeating-radial-gradient(circle,#1a1a1a 0,#1a1a1a 2px,#353535 3px,#141414 6px);
+    border:2px solid rgba(255,255,255,.7);
+    box-shadow:0 4px 12px rgba(0,0,0,.3);
+  }
+  .yt-mini-disk::before{content:"";width:12px;height:12px;border-radius:50%;background:#BDD5F4;box-shadow:inset 0 0 0 4px #2255A4;}
+  .yt-mini-disk::after{content:"♪";position:absolute;color:#fff;font-size:12px;font-weight:900;line-height:1;}
+  .yt-mini-disk.spinning{animation:ytDiskSpin 1.8s linear infinite;}
+  @keyframes ytDiskSpin{to{transform:rotate(360deg)}}
   .yt-mini-header-text{flex:1;min-width:0;}
   .yt-mini-kicker{font-size:10px;font-weight:900;letter-spacing:.7px;color:#BDD5F4;text-transform:uppercase;}
-  .yt-mini-title{font-size:16px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px;}
+  .yt-mini-title{font-size:15px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px;}
+  .yt-mini-artist{font-size:10.5px;color:#DCEAFF;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .yt-mini-actions{display:flex;gap:6px;align-items:center;flex:0 0 auto;}
+  .yt-mini-action{border:0;border-radius:9px;padding:8px 10px;background:rgba(255,255,255,.15);color:#fff;font-size:11px;font-weight:900;cursor:pointer;white-space:nowrap;}
+  .yt-mini-action:hover{background:rgba(255,255,255,.25);}
   .yt-mini-close{width:34px;height:34px;border:0;border-radius:50%;background:rgba(255,255,255,.15);color:#fff;font-size:17px;font-weight:900;cursor:pointer;flex:0 0 auto;}
   .yt-mini-close:hover{background:rgba(255,255,255,.25);}
   .yt-player-wrap{position:relative;background:#000;aspect-ratio:16/9;}
   .yt-player-wrap #youtubePlayer{width:100%;height:100%;}
-  .yt-mini-status{text-align:center;font-size:11.5px;color:#5B6B8C;padding:0 14px 12px;background:#F4F7FC;}
+  .yt-mini-status{text-align:center;font-size:11.5px;color:#5B6B8C;padding:8px 14px 11px;background:#F4F7FC;}
   .yt-mini-status:empty{display:none;}
-  .yt-mini-player-overlay.hidden{display:none !important;}
+  .yt-mini-open-btn{position:fixed;right:18px;bottom:18px;z-index:9499;border:0;border-radius:999px;padding:11px 15px;background:#16274D;color:#fff;font-size:12px;font-weight:900;box-shadow:0 12px 28px rgba(0,0,0,.25);cursor:pointer;}
+  .yt-mini-open-btn:hover{background:#2255A4;}
+  .yt-mini-open-btn.hidden{display:none !important;}
   @media(max-width:600px){
-    .yt-mini-player{width:96vw;border-radius:16px;}
+    .yt-mini-player-overlay.mini-mode{right:12px;bottom:12px;}
+    .yt-mini-player-overlay.mini-mode .yt-mini-player{width:calc(100vw - 24px);max-width:calc(100vw - 24px);}
+    .yt-mini-action{padding:7px 8px;font-size:10px;}
   }
 
 
@@ -879,6 +922,7 @@
       <button class="music-category-btn" data-music-category="funk">🕺 Funk</button>
       <button class="music-category-btn" data-music-category="movies">🎬 Movie Music</button>
       <button class="music-category-btn" data-music-category="kidzbop">🎤 KIDZ BOP</button>
+      <button class="music-category-btn" id="seasonalMusicBtn" data-music-category="seasonal" title="Seasonal music">🍂 Fall Music</button>
     </div>
   </div>
 
@@ -910,24 +954,29 @@
 
   <div id="ytResultsList" class="yt-results-list"></div>
 
-  <div class="yt-note">Search results and playback both use YouTube's official player and search — nothing is downloaded, extracted, or stored.</div>
 </main>
 
-<!-- Floating mini player: opens when a song is clicked. -->
+<!-- Music player: opens when a song is clicked. It can be turned into a right-side mini player. -->
 <div id="ytMiniPlayerOverlay" class="yt-mini-player-overlay hidden" aria-hidden="true">
   <div class="yt-mini-player" role="dialog" aria-modal="true" aria-label="Music player">
     <div class="yt-mini-header">
+      <div id="ytMiniDisk" class="yt-mini-disk" aria-label="Music disk"></div>
       <div class="yt-mini-header-text">
         <div class="yt-mini-kicker">🎵 Now Playing</div>
         <div id="ytMiniTitle" class="yt-mini-title">No song loaded</div>
+        <div id="ytMiniArtist" class="yt-mini-artist"></div>
       </div>
-      <button id="ytMiniCloseBtn" class="yt-mini-close" type="button" aria-label="Close music player">✕</button>
+      <div class="yt-mini-actions">
+        <button id="ytMiniModeBtn" class="yt-mini-action" type="button" aria-label="Turn into mini player">🪄 Turn into Mini Player</button>
+        <button id="ytMiniCloseBtn" class="yt-mini-close" type="button" aria-label="Close music player">✕</button>
+      </div>
     </div>
     <div class="yt-player-wrap">
       <div id="youtubePlayer"></div>
     </div>
   </div>
 </div>
+<button id="ytMiniOpenBtn" class="yt-mini-open-btn hidden" type="button">🎵 Open Mini Player</button>
 
 <!-- ============ REQUESTS ============ -->
 <main id="requestsSection" class="hidden">
@@ -1662,14 +1711,19 @@
         onStateChange: function(event) {
           if (!window.YT) return;
           if (event.data === YT.PlayerState.PLAYING) {
+            setMiniDiskPlaying(true);
             if (ytStatus) ytStatus.textContent = "▶️ Playing";
             if (currentYouTubeTrack?.id && !countedListenVideoIds.has(currentYouTubeTrack.id)) {
               countedListenVideoIds.add(currentYouTubeTrack.id);
               recordWeeklyListen(currentYouTubeTrack);
             }
           }
-          else if (event.data === YT.PlayerState.PAUSED) { if (ytStatus) ytStatus.textContent = "⏸ Paused"; }
+          else if (event.data === YT.PlayerState.PAUSED) {
+            setMiniDiskPlaying(false);
+            if (ytStatus) ytStatus.textContent = "⏸ Paused";
+          }
           else if (event.data === YT.PlayerState.ENDED) {
+            setMiniDiskPlaying(false);
             if (ytStatus) ytStatus.textContent = "Song finished.";
             const nextIndex = youtubeAutoplayIndex + 1;
             if (youtubeAutoplayEnabled && nextIndex >= 0 && nextIndex < youtubeAutoplayQueue.length) {
@@ -1682,7 +1736,8 @@
                 trackLocalUsage("song");
                 evaluateAchievements("songPlayed");
                 flashNarwhalReaction("Next song! 🎵");
-                openMiniPlayer(next.title);
+                if (ytMiniArtist) ytMiniArtist.textContent = next.artist || "";
+                openMiniPlayer(next.title, true);
                 try {
                   youtubePlayer.loadVideoById(next.id);
                   if (ytStatus) ytStatus.textContent = `Playing: ${next.title}`;
@@ -1692,6 +1747,7 @@
           }
         },
         onError: function(event) {
+          setMiniDiskPlaying(false);
           if (!ytStatus) return;
           const code = event && event.data;
           if (code === 2) ytStatus.textContent = "Invalid video — try another result.";
@@ -1714,24 +1770,47 @@
 
   const ytMiniPlayerOverlay = document.getElementById("ytMiniPlayerOverlay");
   const ytMiniTitle = document.getElementById("ytMiniTitle");
+  const ytMiniArtist = document.getElementById("ytMiniArtist");
+  const ytMiniDisk = document.getElementById("ytMiniDisk");
+  const ytMiniModeBtn = document.getElementById("ytMiniModeBtn");
   const ytMiniCloseBtn = document.getElementById("ytMiniCloseBtn");
+  const ytMiniOpenBtn = document.getElementById("ytMiniOpenBtn");
+  let miniPlayerMode = false;
 
-  function openMiniPlayer(label) {
+  function setMiniDiskPlaying(isPlaying) {
+    if (ytMiniDisk) ytMiniDisk.classList.toggle("spinning", !!isPlaying);
+  }
+
+  function updateMiniModeUI() {
+    if (!ytMiniPlayerOverlay) return;
+    ytMiniPlayerOverlay.classList.toggle("mini-mode", miniPlayerMode);
+    if (ytMiniModeBtn) {
+      ytMiniModeBtn.textContent = miniPlayerMode ? "↗️ Expand Player" : "🪄 Turn into Mini Player";
+      ytMiniModeBtn.setAttribute("aria-label", miniPlayerMode ? "Expand player" : "Turn into mini player");
+    }
+  }
+
+  function openMiniPlayer(label, keepCurrentMode = true) {
     if (ytMiniTitle) ytMiniTitle.textContent = label || "YouTube video";
+    if (!keepCurrentMode) miniPlayerMode = false;
+    updateMiniModeUI();
     if (ytMiniPlayerOverlay) {
       ytMiniPlayerOverlay.classList.remove("hidden");
       ytMiniPlayerOverlay.setAttribute("aria-hidden", "false");
     }
+    if (ytMiniOpenBtn) ytMiniOpenBtn.classList.add("hidden");
   }
 
   function closeMiniPlayer() {
     if (youtubePlayer && youtubePlayerReady) {
       try { youtubePlayer.pauseVideo(); } catch (_) {}
     }
+    setMiniDiskPlaying(false);
     if (ytMiniPlayerOverlay) {
       ytMiniPlayerOverlay.classList.add("hidden");
       ytMiniPlayerOverlay.setAttribute("aria-hidden", "true");
     }
+    if (ytMiniOpenBtn && currentYouTubeTrack?.id) ytMiniOpenBtn.classList.remove("hidden");
   }
 
   function playSelectedYouTubeVideo(id, label, artist = "") {
@@ -1743,7 +1822,8 @@
     trackLocalUsage("song");
     evaluateAchievements("songPlayed");
     flashNarwhalReaction("Let's listen! 🎵");
-    openMiniPlayer(label);
+    if (ytMiniArtist) ytMiniArtist.textContent = artist || "";
+    openMiniPlayer(label, false);
     if (!youtubePlayer && window.YT && YT.Player) createYouTubePlayer();
     if (!youtubePlayer || !youtubePlayerReady) {
       pendingYouTubeVideo = { id, label };
@@ -1759,17 +1839,20 @@
   }
 
   if (ytMiniCloseBtn) ytMiniCloseBtn.onclick = closeMiniPlayer;
+  if (ytMiniModeBtn) ytMiniModeBtn.onclick = () => {
+    miniPlayerMode = !miniPlayerMode;
+    updateMiniModeUI();
+  };
+  if (ytMiniOpenBtn) ytMiniOpenBtn.onclick = () => {
+    if (!currentYouTubeTrack?.id) return;
+    openMiniPlayer(currentYouTubeTrack.title, true);
+  };
   const ytAutoplayToggle = document.getElementById("ytAutoplayToggle");
   if (ytAutoplayToggle) {
     ytAutoplayToggle.checked = youtubeAutoplayEnabled;
     ytAutoplayToggle.addEventListener("change", () => {
       youtubeAutoplayEnabled = ytAutoplayToggle.checked;
       writeJsonStorage("narwhal-autoplay-enabled", youtubeAutoplayEnabled);
-    });
-  }
-  if (ytMiniPlayerOverlay) {
-    ytMiniPlayerOverlay.addEventListener("click", e => {
-      if (e.target === ytMiniPlayerOverlay) closeMiniPlayer();
     });
   }
   document.addEventListener("keydown", e => {
@@ -2098,6 +2181,9 @@
       button.addEventListener("click", () => {
         const artist = button.dataset.artist || "";
         selectApprovedArtist(artist);
+        // Clicking an approved artist now searches automatically.
+        // The search function is declared later, but the click happens after page load.
+        if (typeof searchYouTube === "function") searchYouTube();
       });
     });
   }
@@ -4464,6 +4550,58 @@
   });
 
   // ---------- Home shortcuts, Music Categories, Learning Mode, Reactions ----------
+  // Each season gets its own school-friendly music picks. The seasonal button
+  // changes automatically when the app moves from Fall → Winter → Spring → Summer.
+  const SEASONAL_MUSIC = {
+    fall: [
+      { artist: "Earth, Wind & Fire", song: "September" },
+      { artist: "Michael Jackson", song: "Thriller" },
+      { artist: "Tears for Fears", song: "Everybody Wants to Rule the World" },
+      { artist: "The Cranberries", song: "Dreams" },
+      { artist: "Coldplay", song: "Yellow" },
+      { artist: "Dido", song: "Thank You" },
+      { artist: "Shania Twain", song: "You've Got a Way" },
+      { artist: "OneRepublic", song: "Counting Stars" }
+    ],
+    winter: [
+      { artist: "Mariah Carey", song: "All I Want for Christmas Is You" },
+      { artist: "Wham!", song: "Last Christmas" },
+      { artist: "Ariana Grande", song: "Santa Tell Me" },
+      { artist: "KIDZ BOP Kids", song: "Jingle Bell Rock" },
+      { artist: "Jackson 5", song: "Santa Claus Is Coming to Town" },
+      { artist: "Michael Jackson", song: "I'll Be There" },
+      { artist: "Celine Dion", song: "Because You Loved Me" },
+      { artist: "Sabrina Carpenter", song: "A Nonsense Christmas" }
+    ],
+    spring: [
+      { artist: "Katrina and the Waves", song: "Walking on Sunshine" },
+      { artist: "Dua Lipa", song: "Levitating" },
+      { artist: "Taylor Swift", song: "Love Story" },
+      { artist: "Coldplay", song: "Adventure of a Lifetime" },
+      { artist: "Bruno Mars", song: "Count on Me" },
+      { artist: "OneRepublic", song: "Good Life" },
+      { artist: "Ariana Grande", song: "Problem" },
+      { artist: "ABBA", song: "Dancing Queen" }
+    ],
+    summer: [
+      { artist: "Bananarama", song: "Cruel Summer" },
+      { artist: "Katrina and the Waves", song: "Walking on Sunshine" },
+      { artist: "Bruno Mars", song: "Uptown Funk" },
+      { artist: "Justin Timberlake", song: "Can't Stop the Feeling!" },
+      { artist: "Dua Lipa", song: "Don't Start Now" },
+      { artist: "Ricky Martin", song: "The Cup of Life" },
+      { artist: "Shania Twain", song: "That Don't Impress Me Much" },
+      { artist: "Smash Mouth", song: "Walkin' on the Sun" }
+    ]
+  };
+
+  const SEASONAL_MUSIC_LABELS = {
+    fall: "🍂 Fall Music",
+    winter: "❄️ Winter Music",
+    spring: "🌷 Spring Music",
+    summer: "☀️ Summer Music"
+  };
+
   const MUSIC_CATEGORY_ARTISTS = {
     "80s": ["a-ha","Bonnie Tyler","The Bangles","Billy Joel","Culture Club","Europe","Huey Lewis and the News","Journey","Kenny Loggins","Lionel Richie","Phil Collins","Rick Astley","Tears for Fears","The Go-Go's","Whitney Houston","Cyndi Lauper","ABBA","Queen","Wham!","Deniece Williams","Joe Jackson","Glenn Frey","Peter Cetera","Alphaville","Starship","The Human League"],
     "90s": ["Ace of Base","Backstreet Boys","Celine Dion","Cher","Hanson","Mariah Carey","Men at Work","Natalie Imbruglia","NSYNC","Selena","Shania Twain","Smash Mouth","Spice Girls","R.E.M.","Sixpence None the Richer","Ricky Martin","Luis Miguel","Mecano","Chumbawamba","The Cranberries","Seal","Dido","Vanessa Williams"],
@@ -4475,8 +4613,29 @@
     "kidzbop": ["KIDZ BOP Kids","KIDZ BOP"]
   };
   function categoryArtists(key){ return (MUSIC_CATEGORY_ARTISTS[key]||[]).filter(a=>APPROVED_ARTISTS.includes(a)); }
-  function searchMusicCategory(key){ const list=categoryArtists(key); const artist=list[Math.floor(Math.random()*Math.max(1,list.length))]||"KIDZ BOP Kids"; doSafeMusicSearch(`${artist} Lyrics Clean`,"category"); flashFeatureMessage(`🎶 ${key.toUpperCase()} category: ${artist}`); logAdminActivity?.(`Used music category: ${key}`); }
+  function getAutomaticSeasonalMusicKey(date = new Date()){ return date.getMonth()+1 >= 9 && date.getMonth()+1 <= 11 ? "fall" : date.getMonth()+1 === 12 || date.getMonth()+1 <= 2 ? "winter" : date.getMonth()+1 >= 3 && date.getMonth()+1 <= 5 ? "spring" : "summer"; }
+  function getSeasonalMusicList(key = getAutomaticSeasonalMusicKey()){ return (SEASONAL_MUSIC[key]||[]).filter(item => APPROVED_ARTISTS.includes(item.artist)); }
+  function updateSeasonalMusicButton(){
+    const btn=document.getElementById("seasonalMusicBtn");
+    if(!btn) return;
+    const key = (typeof getActiveNarwhalSeason === "function" && seasonPreviewKey) ? seasonPreviewKey : getAutomaticSeasonalMusicKey();
+    btn.textContent = SEASONAL_MUSIC_LABELS[key] || "🎶 Seasonal Music";
+    btn.title = `${SEASONAL_MUSIC_LABELS[key] || "Seasonal Music"} — picks change automatically with the season`;
+  }
+  function searchSeasonalMusic(){
+    const key = (typeof getActiveNarwhalSeason === "function" && seasonPreviewKey) ? seasonPreviewKey : getAutomaticSeasonalMusicKey();
+    const list = getSeasonalMusicList(key);
+    const song = list[Math.floor(Math.random()*Math.max(1,list.length))] || {artist:"KIDZ BOP Kids",song:"Jingle Bell Rock"};
+    doSafeMusicSearch(`${song.artist} ${song.song} Lyrics Clean`,"seasonal");
+    flashFeatureMessage(`${SEASONAL_MUSIC_LABELS[key] || "🎶 Seasonal Music"}: ${song.artist} — ${song.song}`);
+    logAdminActivity?.(`Used seasonal music: ${key}`);
+  }
+  function searchMusicCategory(key){
+    if(key === "seasonal") return searchSeasonalMusic();
+    const list=categoryArtists(key); const artist=list[Math.floor(Math.random()*Math.max(1,list.length))]||"KIDZ BOP Kids"; doSafeMusicSearch(`${artist} Lyrics Clean`,"category"); flashFeatureMessage(`🎶 ${key.toUpperCase()} category: ${artist}`); logAdminActivity?.(`Used music category: ${key}`);
+  }
   document.querySelectorAll("[data-music-category]").forEach(btn=>btn.addEventListener("click",()=>searchMusicCategory(btn.dataset.musicCategory)));
+  updateSeasonalMusicButton();
 
   const learningSets = {
     reading:[
@@ -4866,6 +5025,7 @@
     Object.values(NARWHAL_HOLIDAYS).forEach(h=>document.body.classList.remove(h.className));
     if (holiday) document.body.classList.add(holiday.className);
     const badge=document.getElementById("seasonBadge"); if(badge) badge.textContent=season.label;
+    if (typeof updateSeasonalMusicButton === "function") updateSeasonalMusicButton();
     const holidayBadge=document.getElementById("holidayBadge");
     if(holidayBadge){ holidayBadge.textContent=holiday?holiday.label:""; holidayBadge.classList.toggle("hidden",!holiday); }
     const accessory=document.getElementById("seasonMascotAccessory");
