@@ -1684,171 +1684,148 @@
   let youtubePlayerReady = false;
   let pendingYouTubeVideo = null;
   let currentYouTubeTrack = null;
-  let backgroundYouTubePlayer = null;
-  let backgroundYouTubePlayerReady = false;
-  let backgroundTrackQueue = [];
-  let backgroundTrackIndex = -1;
+  // ---------- Seasonal calming background music ----------
+  // This is generated with the browser's Web Audio API, so it does not depend
+  // on YouTube, search results, or the YouTube API quota. It loops forever while
+  // the user has not started a real song. A browser may still require the first
+  // user interaction before audible audio is allowed.
   let backgroundStarted = false;
-  let backgroundHasLoaded = false;
   let hasPlayedRealMusic = false;
-  let backgroundSearchPromise = null;
-  let backgroundSearchStarted = false;
+  let backgroundAudioContext = null;
+  let backgroundMasterGain = null;
+  let backgroundTimer = null;
+  let backgroundStep = 0;
+  let backgroundNodes = [];
+  let backgroundStartAttempted = false;
   let backgroundUserGestureSeen = false;
   const backgroundMusicStartBtn = document.getElementById("backgroundMusicStartBtn");
-  let youtubeAutoplayEnabled = readJsonStorage("narwhal-autoplay-enabled", true) !== false;
-  let autoPlayFirstSearchResult = false;
-  let youtubeAutoplayQueue = [];
-  let youtubeAutoplayIndex = -1;
-  const countedListenVideoIds = new Set();
-  const ytStatus = null;
 
-  function createBackgroundYouTubePlayer() {
-    if (backgroundYouTubePlayer || !window.YT || !YT.Player) return;
-    backgroundYouTubePlayer = new YT.Player("youtubeBackgroundPlayer", {
-      width: "2",
-      height: "2",
-      videoId: "",
-      playerVars: {
-        playsinline: 1,
-        controls: 0,
-        rel: 0,
-        modestbranding: 1,
-        enablejsapi: 1,
-        origin: window.location.origin
-      },
-      events: {
-        onReady: function() {
-          backgroundYouTubePlayerReady = true;
-          try { backgroundYouTubePlayer.setVolume(18); } catch (_) {}
-          updateBackgroundMusicButton();
-          // If the user has already clicked once while the API was loading,
-          // continue the background music now that the player exists.
-          if (backgroundStarted && backgroundTrackQueue.length) {
-            playBackgroundTrackAtIndex(backgroundTrackIndex >= 0 ? backgroundTrackIndex : 0);
-          }
-        },
-        onStateChange: function(event) {
-          if (!window.YT) return;
-          if (event.data === YT.PlayerState.ENDED) {
-            if (!hasPlayedRealMusic && backgroundStarted && backgroundTrackQueue.length) {
-              const next = (backgroundTrackIndex + 1) % backgroundTrackQueue.length;
-              backgroundTrackIndex = next;
-              playBackgroundTrackAtIndex(next);
-            }
-          }
-        },
-        onError: function() {
-          if (!hasPlayedRealMusic && backgroundStarted && backgroundTrackQueue.length) {
-            const next = (backgroundTrackIndex + 1) % backgroundTrackQueue.length;
-            backgroundTrackIndex = next;
-            playBackgroundTrackAtIndex(next);
-          }
-        }
-      }
-    });
-  }
+  const SEASONAL_AMBIENCE = {
+    fall:   { bpm: 58, waves: ["sine","sine","triangle"], root: 196.00, steps: [0, 3, 7, 5, 3, 2, 5, 7], label: "🍂 Fall" },
+    winter: { bpm: 52, waves: ["sine","sine","triangle"], root: 174.61, steps: [0, 5, 7, 12, 7, 5, 3, 0], label: "❄️ Winter" },
+    spring: { bpm: 62, waves: ["sine","triangle","sine"], root: 220.00, steps: [0, 4, 7, 9, 7, 4, 2, 0], label: "🌷 Spring" },
+    summer: { bpm: 60, waves: ["sine","sine","triangle"], root: 196.00, steps: [0, 2, 5, 7, 9, 7, 5, 2], label: "☀️ Summer" }
+  };
 
-  function pauseBackgroundMusic() {
-    if (!backgroundYouTubePlayer || !backgroundYouTubePlayerReady) return;
-    try { backgroundYouTubePlayer.pauseVideo(); } catch (_) {}
-    backgroundStarted = false;
-    updateBackgroundMusicButton();
-  }
-
-  function stopBackgroundMusic() {
-    if (!backgroundYouTubePlayer || !backgroundYouTubePlayerReady) {
-      backgroundStarted = false;
-      return;
-    }
-    try { backgroundYouTubePlayer.stopVideo(); } catch (_) {}
-    backgroundStarted = false;
-    updateBackgroundMusicButton();
-  }
-
-  function playBackgroundTrackAtIndex(index) {
-    if (hasPlayedRealMusic) return;
-    if (!backgroundYouTubePlayer || !backgroundYouTubePlayerReady) return;
-    const track = backgroundTrackQueue[index];
-    if (!track?.id) return;
-    backgroundTrackIndex = index;
-    backgroundStarted = true;
+  function currentAmbienceKey(){
     try {
-      backgroundYouTubePlayer.loadVideoById(track.id);
-      backgroundYouTubePlayer.setVolume(18);
-      backgroundYouTubePlayer.playVideo();
-      updateBackgroundMusicButton();
-    } catch (_) {}
+      return (typeof getActiveNarwhalSeason === "function" && seasonPreviewKey)
+        ? seasonPreviewKey
+        : (typeof getAutomaticSeasonalMusicKey === "function" ? getAutomaticSeasonalMusicKey() : "fall");
+    } catch (_) { return "fall"; }
   }
 
-  function startSeasonalBackgroundMusic() {
-    if (hasPlayedRealMusic || backgroundStarted) return false;
-    backgroundUserGestureSeen = true;
-    if (!backgroundYouTubePlayer && window.YT && YT.Player) createBackgroundYouTubePlayer();
-    if (backgroundTrackQueue.length && backgroundYouTubePlayerReady) {
-      playBackgroundTrackAtIndex(backgroundTrackIndex >= 0 ? backgroundTrackIndex : 0);
-      return true;
+  function ensureBackgroundAudioContext(){
+    if (!backgroundAudioContext){
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return null;
+      backgroundAudioContext = new AC();
+      backgroundMasterGain = backgroundAudioContext.createGain();
+      backgroundMasterGain.gain.value = 0.055;
+      backgroundMasterGain.connect(backgroundAudioContext.destination);
     }
-    // The browser only allows audible autoplay during a fresh user gesture.
-    // If YouTube/search is still loading, keep the visible button available so
-    // the next click can start playback once both are ready.
-    backgroundStarted = false;
-    if (!backgroundSearchPromise) backgroundSearchPromise = prepareSeasonalBackgroundMusic();
-    updateBackgroundMusicButton();
-    backgroundSearchPromise.then(() => { updateBackgroundMusicButton(); }).catch(() => { updateBackgroundMusicButton(); });
-    return false;
+    return backgroundAudioContext;
   }
 
-  function updateBackgroundMusicButton() {
+  function playAmbienceStep(){
+    if (!backgroundStarted || hasPlayedRealMusic) return;
+    const ctx = ensureBackgroundAudioContext();
+    if (!ctx) return;
+    const config = SEASONAL_AMBIENCE[currentAmbienceKey()] || SEASONAL_AMBIENCE.fall;
+    const beat = 60 / config.bpm;
+    const now = ctx.currentTime + 0.03;
+    const semitone = config.steps[backgroundStep % config.steps.length];
+    const root = config.root;
+
+    // Three very soft notes make a simple, calming loop rather than a normal song.
+    const intervals = [0, 7, 12];
+    intervals.forEach((interval, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      const filter = ctx.createBiquadFilter();
+      osc.type = config.waves[i % config.waves.length];
+      const freq = root * Math.pow(2, (semitone + interval) / 12);
+      osc.frequency.setValueAtTime(freq, now);
+      filter.type = "lowpass";
+      filter.frequency.value = 1200;
+      filter.Q.value = 0.25;
+      const level = i === 0 ? 0.070 : (i === 1 ? 0.034 : 0.022);
+      gain.gain.setValueAtTime(0.0001, now);
+      gain.gain.exponentialRampToValueAtTime(level, now + beat * 0.16);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + beat * 1.65);
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(backgroundMasterGain);
+      osc.start(now);
+      osc.stop(now + beat * 1.8);
+      backgroundNodes.push(osc);
+    });
+
+    backgroundStep++;
+    if (backgroundNodes.length > 24) backgroundNodes = backgroundNodes.slice(-12);
+  }
+
+  async function startSeasonalBackgroundMusic(){
+    if (hasPlayedRealMusic || backgroundStarted) return true;
+    backgroundStartAttempted = true;
+    const ctx = ensureBackgroundAudioContext();
+    if (!ctx) return false;
+    try {
+      if (ctx.state === "suspended") await ctx.resume();
+    } catch (_) {
+      updateBackgroundMusicButton();
+      return false;
+    }
+    if (ctx.state !== "running") {
+      updateBackgroundMusicButton();
+      return false;
+    }
+    backgroundUserGestureSeen = true;
+    backgroundStarted = true;
+    backgroundStep = 0;
+    playAmbienceStep();
+    const config = SEASONAL_AMBIENCE[currentAmbienceKey()] || SEASONAL_AMBIENCE.fall;
+    clearInterval(backgroundTimer);
+    backgroundTimer = setInterval(playAmbienceStep, (60 / config.bpm) * 1000);
+    updateBackgroundMusicButton();
+    return true;
+  }
+
+  function pauseBackgroundMusic(){
+    if (!backgroundAudioContext || !backgroundMasterGain) return;
+    try { backgroundMasterGain.gain.cancelScheduledValues(backgroundAudioContext.currentTime); backgroundMasterGain.gain.setTargetAtTime(0.0001, backgroundAudioContext.currentTime, 0.05); } catch (_) {}
+    backgroundStarted = false;
+    clearInterval(backgroundTimer);
+    backgroundTimer = null;
+    updateBackgroundMusicButton();
+  }
+
+  function stopBackgroundMusic(){
+    pauseBackgroundMusic();
+  }
+
+  function updateBackgroundMusicButton(){
     const btn = backgroundMusicStartBtn;
     if (!btn) return;
-    if (hasPlayedRealMusic || backgroundStarted) {
-      btn.classList.remove("ready");
-      btn.classList.toggle("playing", backgroundStarted && !hasPlayedRealMusic);
+    if (hasPlayedRealMusic) {
+      btn.style.display = "none";
       return;
     }
-    if (backgroundYouTubePlayerReady && backgroundTrackQueue.length) {
-      btn.classList.add("ready");
-      btn.disabled = false;
-      btn.textContent = `🔊 Play ${SEASONAL_MUSIC_LABELS[getAutomaticSeasonalMusicKey()] || "Seasonal"} Background Music`;
-    } else {
-      btn.classList.remove("ready");
-      btn.disabled = true;
-      btn.textContent = "🔄 Preparing Seasonal Background Music...";
+    if (backgroundStarted) {
+      btn.style.display = "none";
+      return;
     }
+    // Only show a fallback button when the browser has blocked/resisted autoplay.
+    btn.classList.add("ready");
+    btn.disabled = false;
+    btn.textContent = `🔊 Start ${SEASONAL_AMBIENCE[currentAmbienceKey()]?.label || "Seasonal"} Background Music`;
+    btn.title = "Start the calming seasonal background music";
   }
 
-  async function prepareSeasonalBackgroundMusic() {
-    if (backgroundSearchStarted) return backgroundTrackQueue;
-    backgroundSearchStarted = true;
-    try {
-      const key = (typeof getActiveNarwhalSeason === "function" && seasonPreviewKey) ? seasonPreviewKey :
-        (typeof getAutomaticSeasonalMusicKey === "function" ? getAutomaticSeasonalMusicKey() : "fall");
-      const list = (typeof getSeasonalMusicList === "function" ? getSeasonalMusicList(key) : []).slice();
-      if (!list.length) return backgroundTrackQueue;
-      const chosen = list[Math.floor(Math.random() * list.length)];
-      if (!YOUTUBE_API_KEY || YOUTUBE_API_KEY === "PASTE_YOUR_YOUTUBE_API_KEY_HERE") return backgroundTrackQueue;
-      const query = `${chosen.artist} ${chosen.song} Lyrics Clean`;
-      const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=8&q=${encodeURIComponent(query)}&key=${YOUTUBE_API_KEY}`;
-      const response = await fetch(url);
-      const data = await response.json();
-      if (!response.ok) return backgroundTrackQueue;
-      const items = Array.isArray(data.items) ? data.items : [];
-      backgroundTrackQueue = items.map(item => ({
-        id: item.id?.videoId,
-        title: item.snippet?.title || chosen.song,
-        artist: chosen.artist
-      })).filter(item => item.id).slice(0, 8);
-      backgroundTrackIndex = backgroundTrackQueue.length ? 0 : -1;
-      backgroundHasLoaded = backgroundTrackQueue.length > 0;
-    } catch (_) {}
-    return backgroundTrackQueue;
-  }
-
-  function startBackgroundMusicFromUserInteraction(event) {
+  function startBackgroundMusicFromUserInteraction(event){
     if (hasPlayedRealMusic || backgroundStarted) return;
     const target = event?.target;
-    // A real-song click should win immediately and must not cause background audio.
-    if (target && target.closest && target.closest(".yt-result-item, #ytMiniPlayerOverlay, #ytMiniOpenBtn, #ytSearchBtn")) return;
+    if (target && target.closest && target.closest(".yt-result-item, #ytMiniPlayerOverlay, #ytMiniOpenBtn, #ytSearchBtn, #backgroundMusicStartBtn")) return;
     startSeasonalBackgroundMusic();
   }
 
@@ -1936,11 +1913,10 @@
 
   window.onYouTubeIframeAPIReady = function() {
     createYouTubePlayer();
-    createBackgroundYouTubePlayer();
   };
 
   // Handles the case where the YouTube API finished loading before the callback above was installed.
-  if (window.YT && YT.Player) { createYouTubePlayer(); createBackgroundYouTubePlayer(); }
+  if (window.YT && YT.Player) { createYouTubePlayer(); }
 
   // Background music must wait for a real user interaction because browsers commonly
   // block autoplay with sound. The user does not need to open the music section first.
@@ -4848,12 +4824,10 @@
   }
   document.querySelectorAll("[data-music-category]").forEach(btn=>btn.addEventListener("click",()=>searchMusicCategory(btn.dataset.musicCategory)));
   updateSeasonalMusicButton();
-  // Pre-search one seasonal track so the first user click can start it without
-  // waiting for a network request to finish. This is silent until the user interacts.
-  setTimeout(() => {
-    if (!backgroundSearchPromise) backgroundSearchPromise = prepareSeasonalBackgroundMusic();
-    backgroundSearchPromise.then(() => updateBackgroundMusicButton()).catch(() => updateBackgroundMusicButton());
-  }, 0);
+  // Start the calming ambience after load when the browser allows autoplay.
+  // On browsers that block audible autoplay, the first normal click resumes it.
+  setTimeout(() => { startSeasonalBackgroundMusic(); updateBackgroundMusicButton(); }, 250);
+  updateBackgroundMusicButton();
 
   const learningSets = {
     reading:[
