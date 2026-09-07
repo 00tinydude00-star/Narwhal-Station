@@ -536,6 +536,32 @@
     .yt-mini-player{width:96vw;border-radius:16px;}
   }
 
+
+/* ============ POST-RELEASE LOADING SCREEN ============ */
+#releaseLoadingScreen{position:fixed;inset:0;z-index:99998;display:none;align-items:center;justify-content:center;padding:24px;background:radial-gradient(circle at 50% 20%,#1a5ea8 0,#07152f 62%,#020812 100%);color:#fff;font-family:inherit;overflow:hidden}
+#releaseLoadingScreen.show{display:flex}
+.release-loader-stars{position:absolute;inset:0;opacity:.25;background-image:radial-gradient(circle,rgba(255,255,255,.9) 1px,transparent 1.6px);background-size:72px 72px;animation:releaseStarShift 16s linear infinite}
+@keyframes releaseStarShift{from{background-position:0 0}to{background-position:72px 72px}}
+.release-loader-card{position:relative;z-index:2;width:min(650px,94vw);background:rgba(255,255,255,.11);border:1px solid rgba(255,255,255,.2);border-radius:28px;padding:30px 24px 26px;text-align:center;box-shadow:0 30px 90px rgba(0,0,0,.35);backdrop-filter:blur(12px)}
+.release-loader-logo{width:150px;height:150px;margin:0 auto 18px;border-radius:32px;background:#fff;display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:0 18px 50px rgba(0,0,0,.3)}
+.release-loader-logo img{width:90%;height:90%;object-fit:contain}
+.release-loader-card h1{font-size:34px;line-height:1.05;margin:0 0 7px;font-weight:1000}
+.release-loader-subtitle{font-size:13px;color:#DCEAFF;margin-bottom:18px;font-weight:800;letter-spacing:.3px}
+.release-loader-bar-wrap{width:100%;height:18px;border-radius:999px;background:rgba(255,255,255,.15);overflow:hidden;border:1px solid rgba(255,255,255,.15)}
+.release-loader-bar{height:100%;width:0%;border-radius:999px;background:linear-gradient(90deg,#7DE3FF,#9CFFB4,#FFE46B);transition:width .2s ease}
+.release-loader-percent{font-size:12px;font-weight:900;margin-top:8px;color:#F1F7FF}
+.release-fact-box{margin-top:18px;padding:16px 16px 13px;border-radius:16px;background:rgba(255,255,255,.11);border:1px solid rgba(255,255,255,.16);cursor:pointer;user-select:none}
+.release-fact-label{font-size:10px;font-weight:900;letter-spacing:1px;color:#BFD6F7;text-transform:uppercase;margin-bottom:7px}
+.release-fact-text{font-size:15px;font-weight:800;line-height:1.45;color:#fff}
+.release-fact-hint{font-size:10px;color:#BFD6F7;margin-top:7px}
+.release-loader-status{font-size:11px;color:#BFD6F7;margin-top:12px}
+#releaseTestCountdown{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(2,8,18,.92);z-index:4}
+#releaseTestCountdown.show{display:flex}
+.release-test-count-card{text-align:center}
+.release-test-count-kicker{font-size:12px;font-weight:900;letter-spacing:1.4px;color:#BFD6F7;text-transform:uppercase;margin-bottom:10px}
+.release-test-count{font-size:110px;line-height:1;font-weight:1000;text-shadow:0 12px 30px rgba(0,0,0,.3)}
+.release-test-count-hint{font-size:13px;color:#DCEAFF;margin-top:10px}
+
 /* ============ LAUNCH INTRO / LOADING SCREEN ============ */
 #launchIntroScreen{position:fixed;inset:0;z-index:99999;background:#07152f;color:#fff;display:none;overflow:hidden;font-family:inherit}
 #launchIntroScreen.show{display:block}
@@ -695,9 +721,35 @@
       <div class="prelaunch-time"><strong id="countMinutesActual">00</strong><span>Minutes</span></div>
       <div class="prelaunch-time"><strong id="countSecondsActual">00</strong><span>Seconds</span></div>
     </div>
-    <div class="prelaunch-date">Launch Date: <strong>September 11, 2026</strong></div>
+    <div class="prelaunch-date">Launch Date: <strong>September 11, 2026 at 8:00 AM San Antonio time</strong></div>
   </div>
 </div>
+
+<!-- ============ POST-RELEASE LOADING SCREEN ============ -->
+<div id="releaseLoadingScreen" aria-hidden="true">
+  <div class="release-loader-stars"></div>
+  <div class="release-loader-card">
+    <div class="release-loader-logo"><img id="releaseLoaderLogo" alt="Narwhal Station logo"></div>
+    <h1>Narwhal Station</h1>
+    <div class="release-loader-subtitle">Getting everything ready for you...</div>
+    <div class="release-loader-bar-wrap" aria-label="Loading progress"><div id="releaseLoaderBar" class="release-loader-bar"></div></div>
+    <div id="releaseLoaderPercent" class="release-loader-percent">0%</div>
+    <div id="releaseFactBox" class="release-fact-box" role="button" tabindex="0" aria-label="Show another fun fact">
+      <div class="release-fact-label">🐋 Fun Fact</div>
+      <div id="releaseFactText" class="release-fact-text">Narwhal tusks are actually very long teeth!</div>
+      <div class="release-fact-hint">Click for another fun fact</div>
+    </div>
+    <div id="releaseLoaderStatus" class="release-loader-status">Loading Narwhal Station...</div>
+  </div>
+  <div id="releaseTestCountdown" aria-hidden="true">
+    <div class="release-test-count-card">
+      <div class="release-test-count-kicker">🧪 Release Loading Screen Test</div>
+      <div id="releaseTestCount" class="release-test-count">5</div>
+      <div class="release-test-count-hint">Testing the 5 → 0 countdown, then the release loader and old launch animation.</div>
+    </div>
+  </div>
+</div>
+
 <!-- ============ LAUNCH INTRO ============ -->
 <div id="launchIntroScreen" aria-hidden="true">
   <div class="launch-scene launch-rocket-scene launch-ocean" id="launchRocketScene">
@@ -1258,7 +1310,10 @@
           <div style="margin-top:18px;padding:16px;border:1px solid #DDE6F2;border-radius:14px;background:#F7FAFF">
             <div style="font-weight:900;color:#16274D;margin-bottom:5px">🚀 Test Loading Screen</div>
             <div style="font-size:12px;color:#71809A;margin-bottom:12px;line-height:1.5">Preview the launch animation now. This does not change the real countdown.</div>
-            <button id="adminTestLoadingScreenBtn" class="admin-primary-btn" type="button">▶️ Test Launch Animation</button>
+            <div style="display:flex;flex-wrap:wrap;gap:8px">
+              <button id="adminTestReleaseLoadingScreenBtn" class="admin-primary-btn" type="button">🧪 Test Release Loading Screen (5 → 0)</button>
+              <button id="adminTestLoadingScreenBtn" class="admin-primary-btn" type="button">▶️ Test Launch Animation</button>
+            </div>
           </div>
           <div id="adminSettingsSaved" class="admin-saved-note">✓ Settings saved.</div>
         </section>
@@ -3195,7 +3250,7 @@
 
 
   // ============ ADMIN PANEL MODAL + PRE-LAUNCH LOCK ============
-  const PRELAUNCH_LAUNCH_TIME = new Date("2026-09-11T00:00:00-05:00").getTime();
+  const PRELAUNCH_LAUNCH_TIME = new Date("2026-09-11T08:00:00-05:00").getTime();
   const ADMIN_PASSWORD_ACTUAL = "SSTSchools123!";
 
   const preLaunchLockActual = document.getElementById("preLaunchLockActual");
@@ -3233,8 +3288,98 @@
   const launchAppLogo = document.getElementById("launchAppLogo");
   const launchConfettiLayer = document.getElementById("launchConfettiLayer");
   const adminTestLoadingScreenBtn = document.getElementById("adminTestLoadingScreenBtn");
+  const adminTestReleaseLoadingScreenBtn = document.getElementById("adminTestReleaseLoadingScreenBtn");
+  const releaseLoadingScreen = document.getElementById("releaseLoadingScreen");
+  const releaseLoaderLogo = document.getElementById("releaseLoaderLogo");
+  const releaseLoaderBar = document.getElementById("releaseLoaderBar");
+  const releaseLoaderPercent = document.getElementById("releaseLoaderPercent");
+  const releaseFactBox = document.getElementById("releaseFactBox");
+  const releaseFactText = document.getElementById("releaseFactText");
+  const releaseLoaderStatus = document.getElementById("releaseLoaderStatus");
+  const releaseTestCountdown = document.getElementById("releaseTestCountdown");
+  const releaseTestCount = document.getElementById("releaseTestCount");
+  let releaseLoadingRunning = false;
+  let releaseLoaderFinished = false;
   let launchIntroRunning = false;
   let launchIntroFinished = false;
+
+
+  const RELEASE_FUN_FACTS = [
+    "Narwhal tusks are actually very long teeth!",
+    "Narwhals can dive more than a mile below the ocean surface.",
+    "A group of narwhals can be called a blessing.",
+    "Narwhals live in Arctic waters and love icy ocean habitats.",
+    "The blue whale is the largest animal known to have ever lived.",
+    "Octopuses have three hearts.",
+    "Sea otters hold hands while resting so they do not drift apart.",
+    "Some dolphins have signature whistles that work like names.",
+    "A rainbow is actually a circle, but the ground hides part of it from you.",
+    "The fastest land animal is the cheetah."
+  ];
+  let releaseFactIndex = -1;
+  function showRandomReleaseFact(){
+    if (!releaseFactText) return;
+    let next = Math.floor(Math.random()*RELEASE_FUN_FACTS.length);
+    if (RELEASE_FUN_FACTS.length > 1 && next === releaseFactIndex) next = (next + 1) % RELEASE_FUN_FACTS.length;
+    releaseFactIndex = next;
+    releaseFactText.textContent = RELEASE_FUN_FACTS[next];
+  }
+  function setReleaseLoaderProgress(value){
+    const pct = Math.max(0,Math.min(100,Math.round(value)));
+    if (releaseLoaderBar) releaseLoaderBar.style.width = pct + "%";
+    if (releaseLoaderPercent) releaseLoaderPercent.textContent = pct + "%";
+  }
+  function prepareReleaseLoader(){
+    if (!releaseLoadingScreen) return;
+    releaseLoadingScreen.classList.add("show");
+    releaseLoadingScreen.setAttribute("aria-hidden","false");
+    if (releaseLoaderLogo) releaseLoaderLogo.src = getNarwhalLogoSrc();
+    setReleaseLoaderProgress(0);
+    if (releaseLoaderStatus) releaseLoaderStatus.textContent = "Loading Narwhal Station...";
+    showRandomReleaseFact();
+  }
+  async function playReleaseLoadingScreen(options = {}){
+    if (releaseLoadingRunning || !releaseLoadingScreen) return;
+    releaseLoadingRunning = true;
+    releaseLoaderFinished = false;
+    const test = !!options.test;
+    prepareReleaseLoader();
+    if (test && releaseTestCountdown && releaseTestCount){
+      releaseTestCountdown.classList.add("show");
+      releaseTestCountdown.setAttribute("aria-hidden","false");
+      for(let n=5;n>=0;n--){
+        releaseTestCount.textContent = String(n);
+        await new Promise(r=>setTimeout(r,800));
+      }
+      releaseTestCountdown.classList.remove("show");
+      releaseTestCountdown.setAttribute("aria-hidden","true");
+      setReleaseLoaderProgress(0);
+    }
+    const started = performance.now();
+    const duration = 3600;
+    while (true){
+      const elapsed = performance.now() - started;
+      const pct = Math.min(100,(elapsed/duration)*100);
+      setReleaseLoaderProgress(pct);
+      if (pct >= 100) break;
+      await new Promise(r=>setTimeout(r,80));
+    }
+    if (releaseLoaderStatus) releaseLoaderStatus.textContent = "Ready! Launching Narwhal Station...";
+    await new Promise(r=>setTimeout(r,500));
+    releaseLoadingScreen.classList.remove("show");
+    releaseLoadingScreen.setAttribute("aria-hidden","true");
+    releaseLoadingRunning = false;
+    releaseLoaderFinished = true;
+    await playLaunchIntro();
+  }
+  function triggerReleaseLoadingAfterRelease(){
+    if (!releaseLoaderFinished && !releaseLoadingRunning) playReleaseLoadingScreen({test:false});
+  }
+  if (releaseFactBox){
+    releaseFactBox.addEventListener("click",showRandomReleaseFact);
+    releaseFactBox.addEventListener("keydown",e=>{ if(e.key==="Enter" || e.key===" "){e.preventDefault();showRandomReleaseFact();} });
+  }
+  if (adminTestReleaseLoadingScreenBtn) adminTestReleaseLoadingScreenBtn.onclick = () => playReleaseLoadingScreen({test:true});
 
   function showLaunchScene(scene) {
     [launchRocketScene, launchSstScene, launchBlackScene, launchAppScene].forEach(el => el?.classList.remove("active"));
@@ -3307,7 +3452,7 @@
     if (Date.now() >= PRELAUNCH_LAUNCH_TIME) {
       preLaunchLockActual.style.display = "none";
       preLaunchLockActual.setAttribute("aria-hidden", "true");
-      if (!launchIntroFinished && !launchIntroRunning) playLaunchIntro();
+      triggerReleaseLoadingAfterRelease();
       return;
     }
     preLaunchLockActual.style.display = "flex";
