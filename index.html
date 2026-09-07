@@ -573,6 +573,8 @@
   .yt-mini-open-btn{position:fixed;right:18px;bottom:18px;z-index:9499;border:0;border-radius:999px;padding:11px 15px;background:#16274D;color:#fff;font-size:12px;font-weight:900;box-shadow:0 12px 28px rgba(0,0,0,.25);cursor:pointer;}
   .yt-mini-open-btn:hover{background:#2255A4;}
   .yt-mini-open-btn.hidden{display:none !important;}
+  #youtubeBackgroundPlayer{position:fixed;left:-20px;top:-20px;width:2px;height:2px;opacity:0;pointer-events:none;overflow:hidden;z-index:-1;}
+  #youtubeBackgroundPlayer iframe{width:2px!important;height:2px!important;}
   @media(max-width:600px){
     .yt-mini-player-overlay.mini-mode{right:12px;bottom:12px;}
     .yt-mini-player-overlay.mini-mode .yt-mini-player{width:calc(100vw - 24px);max-width:calc(100vw - 24px);}
@@ -976,6 +978,8 @@
     </div>
   </div>
 </div>
+<!-- Hidden official YouTube player used only for the app's seasonal background music. -->
+<div id="youtubeBackgroundPlayer" aria-hidden="true"></div>
 <button id="ytMiniOpenBtn" class="yt-mini-open-btn hidden" type="button">🎵 Open Mini Player</button>
 
 <!-- ============ REQUESTS ============ -->
@@ -1675,11 +1679,147 @@
   let youtubePlayerReady = false;
   let pendingYouTubeVideo = null;
   let currentYouTubeTrack = null;
+  let backgroundYouTubePlayer = null;
+  let backgroundYouTubePlayerReady = false;
+  let backgroundTrackQueue = [];
+  let backgroundTrackIndex = -1;
+  let backgroundStarted = false;
+  let backgroundHasLoaded = false;
+  let hasPlayedRealMusic = false;
+  let backgroundSearchPromise = null;
+  let backgroundSearchStarted = false;
   let youtubeAutoplayEnabled = readJsonStorage("narwhal-autoplay-enabled", true) !== false;
+  let autoPlayFirstSearchResult = false;
   let youtubeAutoplayQueue = [];
   let youtubeAutoplayIndex = -1;
   const countedListenVideoIds = new Set();
   const ytStatus = null;
+
+  function createBackgroundYouTubePlayer() {
+    if (backgroundYouTubePlayer || !window.YT || !YT.Player) return;
+    backgroundYouTubePlayer = new YT.Player("youtubeBackgroundPlayer", {
+      width: "2",
+      height: "2",
+      videoId: "",
+      playerVars: {
+        playsinline: 1,
+        controls: 0,
+        rel: 0,
+        modestbranding: 1,
+        enablejsapi: 1,
+        origin: window.location.origin
+      },
+      events: {
+        onReady: function() {
+          backgroundYouTubePlayerReady = true;
+          try { backgroundYouTubePlayer.setVolume(18); } catch (_) {}
+          // If the user has already clicked once while the API was loading,
+          // continue the background music now that the player exists.
+          if (backgroundStarted && backgroundTrackQueue.length) {
+            playBackgroundTrackAtIndex(backgroundTrackIndex >= 0 ? backgroundTrackIndex : 0);
+          }
+        },
+        onStateChange: function(event) {
+          if (!window.YT) return;
+          if (event.data === YT.PlayerState.ENDED) {
+            if (!hasPlayedRealMusic && backgroundStarted && backgroundTrackQueue.length) {
+              const next = (backgroundTrackIndex + 1) % backgroundTrackQueue.length;
+              backgroundTrackIndex = next;
+              playBackgroundTrackAtIndex(next);
+            }
+          }
+        },
+        onError: function() {
+          if (!hasPlayedRealMusic && backgroundStarted && backgroundTrackQueue.length) {
+            const next = (backgroundTrackIndex + 1) % backgroundTrackQueue.length;
+            backgroundTrackIndex = next;
+            playBackgroundTrackAtIndex(next);
+          }
+        }
+      }
+    });
+  }
+
+  function pauseBackgroundMusic() {
+    if (!backgroundYouTubePlayer || !backgroundYouTubePlayerReady) return;
+    try { backgroundYouTubePlayer.pauseVideo(); } catch (_) {}
+    backgroundStarted = false;
+  }
+
+  function stopBackgroundMusic() {
+    if (!backgroundYouTubePlayer || !backgroundYouTubePlayerReady) {
+      backgroundStarted = false;
+      return;
+    }
+    try { backgroundYouTubePlayer.stopVideo(); } catch (_) {}
+    backgroundStarted = false;
+  }
+
+  function playBackgroundTrackAtIndex(index) {
+    if (hasPlayedRealMusic) return;
+    if (!backgroundYouTubePlayer || !backgroundYouTubePlayerReady) return;
+    const track = backgroundTrackQueue[index];
+    if (!track?.id) return;
+    backgroundTrackIndex = index;
+    backgroundStarted = true;
+    try {
+      backgroundYouTubePlayer.loadVideoById(track.id);
+      backgroundYouTubePlayer.setVolume(18);
+      backgroundYouTubePlayer.playVideo();
+    } catch (_) {}
+  }
+
+  function startSeasonalBackgroundMusic() {
+    if (hasPlayedRealMusic || backgroundStarted) return;
+    backgroundStarted = true;
+    if (!backgroundYouTubePlayer && window.YT && YT.Player) createBackgroundYouTubePlayer();
+    if (backgroundTrackQueue.length && backgroundYouTubePlayerReady) {
+      playBackgroundTrackAtIndex(backgroundTrackIndex >= 0 ? backgroundTrackIndex : 0);
+      return;
+    }
+    // Search is normally prefetched. This fallback handles very slow connections.
+    if (!backgroundSearchPromise) backgroundSearchPromise = prepareSeasonalBackgroundMusic();
+    backgroundSearchPromise.then(() => {
+      if (!hasPlayedRealMusic && backgroundStarted && backgroundTrackQueue.length && backgroundYouTubePlayerReady) {
+        playBackgroundTrackAtIndex(backgroundTrackIndex >= 0 ? backgroundTrackIndex : 0);
+      }
+    }).catch(() => {});
+  }
+
+  async function prepareSeasonalBackgroundMusic() {
+    if (backgroundSearchStarted) return backgroundTrackQueue;
+    backgroundSearchStarted = true;
+    try {
+      const key = (typeof getActiveNarwhalSeason === "function" && seasonPreviewKey) ? seasonPreviewKey :
+        (typeof getAutomaticSeasonalMusicKey === "function" ? getAutomaticSeasonalMusicKey() : "fall");
+      const list = (typeof getSeasonalMusicList === "function" ? getSeasonalMusicList(key) : []).slice();
+      if (!list.length) return backgroundTrackQueue;
+      const chosen = list[Math.floor(Math.random() * list.length)];
+      if (!YOUTUBE_API_KEY || YOUTUBE_API_KEY === "PASTE_YOUR_YOUTUBE_API_KEY_HERE") return backgroundTrackQueue;
+      const query = `${chosen.artist} ${chosen.song} Lyrics Clean`;
+      const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=8&q=${encodeURIComponent(query)}&key=${YOUTUBE_API_KEY}`;
+      const response = await fetch(url);
+      const data = await response.json();
+      if (!response.ok) return backgroundTrackQueue;
+      const items = Array.isArray(data.items) ? data.items : [];
+      backgroundTrackQueue = items.map(item => ({
+        id: item.id?.videoId,
+        title: item.snippet?.title || chosen.song,
+        artist: chosen.artist
+      })).filter(item => item.id).slice(0, 8);
+      backgroundTrackIndex = backgroundTrackQueue.length ? 0 : -1;
+      backgroundHasLoaded = backgroundTrackQueue.length > 0;
+    } catch (_) {}
+    return backgroundTrackQueue;
+  }
+
+  function startBackgroundMusicFromUserInteraction(event) {
+    if (hasPlayedRealMusic || backgroundStarted) return;
+    const target = event?.target;
+    // A real-song click should win immediately and must not cause background audio.
+    if (target && target.closest && target.closest(".yt-result-item, #ytMiniPlayerOverlay, #ytMiniOpenBtn, #ytSearchBtn")) return;
+    startSeasonalBackgroundMusic();
+  }
 
   function createYouTubePlayer() {
     if (youtubePlayer || !window.YT || !YT.Player) return;
@@ -1711,6 +1851,8 @@
         onStateChange: function(event) {
           if (!window.YT) return;
           if (event.data === YT.PlayerState.PLAYING) {
+            hasPlayedRealMusic = true;
+            stopBackgroundMusic();
             setMiniDiskPlaying(true);
             if (ytStatus) ytStatus.textContent = "▶️ Playing";
             if (currentYouTubeTrack?.id && !countedListenVideoIds.has(currentYouTubeTrack.id)) {
@@ -1763,10 +1905,19 @@
 
   window.onYouTubeIframeAPIReady = function() {
     createYouTubePlayer();
+    createBackgroundYouTubePlayer();
   };
 
   // Handles the case where the YouTube API finished loading before the callback above was installed.
-  if (window.YT && YT.Player) createYouTubePlayer();
+  if (window.YT && YT.Player) { createYouTubePlayer(); createBackgroundYouTubePlayer(); }
+
+  // Background music must wait for a real user interaction because browsers commonly
+  // block autoplay with sound. The user does not need to open the music section first.
+  document.addEventListener("click", startBackgroundMusicFromUserInteraction);
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Enter" || event.key === " ") startBackgroundMusicFromUserInteraction(event);
+  });
+
 
   const ytMiniPlayerOverlay = document.getElementById("ytMiniPlayerOverlay");
   const ytMiniTitle = document.getElementById("ytMiniTitle");
@@ -1813,8 +1964,25 @@
     if (ytMiniOpenBtn && currentYouTubeTrack?.id) ytMiniOpenBtn.classList.remove("hidden");
   }
 
+  function autoPlayFirstVisibleResult() {
+    if (!autoPlayFirstSearchResult) return;
+    autoPlayFirstSearchResult = false;
+    const first = ytResultsList?.querySelector?.(".yt-result-item");
+    if (first) {
+      first.click();
+      return;
+    }
+    // Search rendering can finish a tick after the network request.
+    setTimeout(() => {
+      const retry = ytResultsList?.querySelector?.(".yt-result-item");
+      if (retry) retry.click();
+    }, 300);
+  }
+
   function playSelectedYouTubeVideo(id, label, artist = "") {
     if (!id) return;
+    // A user-selected song always takes priority over seasonal background music.
+    pauseBackgroundMusic();
     currentYouTubeTrack = { id, title: label || "YouTube video", artist: artist || "" };
     const queuedIndex = youtubeAutoplayQueue.findIndex(item => item.id === id);
     youtubeAutoplayIndex = queuedIndex;
@@ -2441,6 +2609,7 @@
       if (ytInlineStatus) {
         ytInlineStatus.textContent = `${renderedCount} results found for ${finalQuery}. Click a song to open the player.`;
       }
+      autoPlayFirstVisibleResult();
     } catch (_) {
       ytResultsList.innerHTML = `<div class="yt-note">Network error — check your internet connection and try again.</div>`;
       if (ytInlineStatus) ytInlineStatus.textContent = "Network error.";
@@ -4632,7 +4801,7 @@
     const key = (typeof getActiveNarwhalSeason === "function" && seasonPreviewKey) ? seasonPreviewKey : getAutomaticSeasonalMusicKey();
     const list = getSeasonalMusicList(key);
     const song = list[Math.floor(Math.random()*Math.max(1,list.length))] || {artist:"KIDZ BOP Kids",song:"Jingle Bell Rock"};
-    doSafeMusicSearch(`${song.artist} ${song.song} Lyrics Clean`,"seasonal");
+    doSafeMusicSearch(`${song.artist} ${song.song} Lyrics Clean`,"seasonal", true);
     flashFeatureMessage(`${SEASONAL_MUSIC_LABELS[key] || "🎶 Seasonal Music"}: ${song.artist} — ${song.song}`);
     logAdminActivity?.(`Used seasonal music: ${key}`);
   }
@@ -4642,6 +4811,11 @@
   }
   document.querySelectorAll("[data-music-category]").forEach(btn=>btn.addEventListener("click",()=>searchMusicCategory(btn.dataset.musicCategory)));
   updateSeasonalMusicButton();
+  // Pre-search one seasonal track so the first user click can start it without
+  // waiting for a network request to finish. This is silent until the user interacts.
+  setTimeout(() => {
+    if (!backgroundSearchPromise) backgroundSearchPromise = prepareSeasonalBackgroundMusic();
+  }, 0);
 
   const learningSets = {
     reading:[
@@ -4677,7 +4851,10 @@
   function flashNarwhalReaction(text){ const box=document.getElementById("narwhalReaction"),img=document.getElementById("narwhalReactionImage"),label=document.getElementById("narwhalReactionText"); if(!box)return; if(img) img.src=getNarwhalLogoSrc?.()||document.querySelector(".narwhal-mark")?.src||""; if(label)label.textContent=text; box.classList.add("show"); clearTimeout(window.__narwhalReactionTimer); window.__narwhalReactionTimer=setTimeout(()=>box.classList.remove("show"),2400); }
   function updateOfflineIndicator(){ const el=document.getElementById("offlineIndicator"); if(!el)return; el.classList.toggle("hidden",navigator.onLine); }
   window.addEventListener("online",updateOfflineIndicator); window.addEventListener("offline",updateOfflineIndicator); updateOfflineIndicator();
-  document.getElementById("homeMusicBtn")?.addEventListener("click",()=>navYouTubeBtn?.click());
+  document.getElementById("homeMusicBtn")?.addEventListener("click",()=>{
+    navYouTubeBtn?.click();
+    setTimeout(()=>searchSeasonalMusic(),120);
+  });
   document.getElementById("homeShuffleBtn")?.addEventListener("click",()=>{navYouTubeBtn?.click();setTimeout(()=>shuffleMusic(),100);});
   document.getElementById("homeSurpriseBtn")?.addEventListener("click",()=>{navYouTubeBtn?.click();setTimeout(()=>surpriseMe(),100);});
   document.getElementById("homeLearningBtn")?.addEventListener("click",openLearningMode);
@@ -4858,9 +5035,10 @@
     if (btn) btn.onclick = () => { trackLocalUsage("daily"); evaluateAchievements("daily"); window.openGame(game.id); };
   }
 
-  function doSafeMusicSearch(query, mode="search") {
+  function doSafeMusicSearch(query, mode="search", autoPlay=false) {
     const input = document.getElementById("ytKeywordInput");
     if (input) { input.value = query; artistSelectedByClick = false; }
+    if (autoPlay) autoPlayFirstSearchResult = true;
     if (mode === "shuffle") { trackLocalUsage("shuffle"); evaluateAchievements("shuffle"); }
     if (mode === "surprise") { trackLocalUsage("surprise"); evaluateAchievements("surprise"); }
     searchYouTube();
