@@ -747,19 +747,6 @@
   .launch-confetti.c1{background:#FFD447}.launch-confetti.c2{background:#FF5FA2}.launch-confetti.c3{background:#48C6FF}.launch-confetti.c4{background:#7FE08A}.launch-confetti.c5{background:#A77BFF}.launch-confetti.c6{background:#FF8C42}
   @keyframes launchConfettiFall{0%{opacity:0;transform:translate3d(0,0,0) rotate(0deg) scale(.8)}12%{opacity:1}100%{opacity:0;transform:translate3d(var(--x),var(--y),0) rotate(var(--rot)) scale(1)}}
 
-
-  .owner-secret-music{display:none;margin-top:14px;padding:16px;border:2px dashed #8B4CC8;border-radius:16px;background:linear-gradient(135deg,#fbf5ff,#fff)}
-  .owner-secret-music.visible{display:block}
-  .owner-secret-title{font-size:16px;font-weight:1000;color:#5f2b8f;margin-bottom:4px}
-  .owner-secret-sub{font-size:12px;color:#6E7E9B;margin-bottom:12px}
-  .owner-secret-group{margin-top:12px}
-  .owner-secret-group-title{font-size:12px;font-weight:1000;color:#16274D;margin-bottom:7px}
-  .owner-secret-list{display:flex;flex-wrap:wrap;gap:7px}
-  .owner-secret-chip{border:1px solid #d8c6ef;background:#fff;border-radius:999px;padding:8px 11px;font-size:11px;font-weight:900;color:#4f2678;cursor:pointer}
-  .owner-secret-chip:hover{transform:translateY(-1px);filter:brightness(1.03)}
-  .owner-mode-note{display:none;margin-top:10px;font-size:11px;font-weight:900;color:#5f2b8f}
-  .owner-mode-note.visible{display:block}
-
 </style>
 </head>
 <body>
@@ -941,7 +928,7 @@
     </div>
   </div>
 
-  <div id="musicSafetyNote" class="search-safety-note">🛡️ <strong>Music Safety:</strong> Narwhal Station only searches approved artists. Song searches are checked against the approved artist list before results are shown.</div>
+  <div class="search-safety-note">🛡️ <strong>Music Safety:</strong> Narwhal Station only searches approved artists. Song searches are checked against the approved artist list before results are shown.</div>
 
   <div class="music-action-row">
     <button id="shuffleMusicBtn" class="music-action-btn primary" type="button">🔀 Shuffle</button>
@@ -957,20 +944,6 @@
   <div class="approved-artists-title">🎤 Artists Available to Search</div>
   <div class="approved-artists-help">Artists are organized alphabetically. Click an artist to see songs from that artist.</div>
   <div id="approvedArtists" class="approved-artists"></div>
-  <div id="ownerMusicModeNote" class="owner-mode-note">👑 Owner Music Mode is active for this admin session.</div>
-  <div id="ownerSecretMusic" class="owner-secret-music">
-    <div class="owner-secret-title">👑 Owner Music Vault</div>
-    <div class="owner-secret-sub">Hidden music lists for the Owner role. Click any item to search it automatically.</div>
-    <div class="owner-secret-group">
-      <div class="owner-secret-group-title">🔥 TikTok Popular Music</div>
-      <div id="ownerTikTokMusicList" class="owner-secret-list"></div>
-    </div>
-    <div class="owner-secret-group">
-      <div class="owner-secret-group-title">🕺 Funk Music</div>
-      <div id="ownerFunkMusicList" class="owner-secret-list"></div>
-    </div>
-  </div>
-
   <div class="approved-song-note" id="approvedFunkCatalog">
     <strong>🔥 K–7 Approved Funk Collection:</strong> 77 reviewed songs
   </div>
@@ -1706,23 +1679,148 @@
   let youtubePlayerReady = false;
   let pendingYouTubeVideo = null;
   let currentYouTubeTrack = null;
-  const countedListenVideoIds = new Set();
-  const ytStatus = {
-    set textContent(value) {
-      const el = document.getElementById("ytInlineStatus") || document.getElementById("ytStatus");
-      if (el) el.textContent = value || "";
-    },
-    get textContent() {
-      const el = document.getElementById("ytInlineStatus") || document.getElementById("ytStatus");
-      return el ? el.textContent : "";
-    }
-  };
-  // ---------- Seasonal calming background music ----------
-  // This is generated with the browser's Web Audio API, so it does not depend
-  // on YouTube, search results, or the YouTube API quota. It loops forever while
-  // the user has not started a real song. A browser may still require the first
-  // user interaction before audible audio is allowed.
+  let backgroundYouTubePlayer = null;
+  let backgroundYouTubePlayerReady = false;
+  let backgroundTrackQueue = [];
+  let backgroundTrackIndex = -1;
+  let backgroundStarted = false;
+  let backgroundHasLoaded = false;
   let hasPlayedRealMusic = false;
+  let backgroundSearchPromise = null;
+  let backgroundSearchStarted = false;
+  let youtubeAutoplayEnabled = readJsonStorage("narwhal-autoplay-enabled", true) !== false;
+  let autoPlayFirstSearchResult = false;
+  let youtubeAutoplayQueue = [];
+  let youtubeAutoplayIndex = -1;
+  const countedListenVideoIds = new Set();
+  const ytStatus = null;
+
+  function createBackgroundYouTubePlayer() {
+    if (backgroundYouTubePlayer || !window.YT || !YT.Player) return;
+    backgroundYouTubePlayer = new YT.Player("youtubeBackgroundPlayer", {
+      width: "2",
+      height: "2",
+      videoId: "",
+      playerVars: {
+        playsinline: 1,
+        controls: 0,
+        rel: 0,
+        modestbranding: 1,
+        enablejsapi: 1,
+        origin: window.location.origin
+      },
+      events: {
+        onReady: function() {
+          backgroundYouTubePlayerReady = true;
+          try { backgroundYouTubePlayer.setVolume(18); } catch (_) {}
+          // If the user has already clicked once while the API was loading,
+          // continue the background music now that the player exists.
+          if (backgroundStarted && backgroundTrackQueue.length) {
+            playBackgroundTrackAtIndex(backgroundTrackIndex >= 0 ? backgroundTrackIndex : 0);
+          }
+        },
+        onStateChange: function(event) {
+          if (!window.YT) return;
+          if (event.data === YT.PlayerState.ENDED) {
+            if (!hasPlayedRealMusic && backgroundStarted && backgroundTrackQueue.length) {
+              const next = (backgroundTrackIndex + 1) % backgroundTrackQueue.length;
+              backgroundTrackIndex = next;
+              playBackgroundTrackAtIndex(next);
+            }
+          }
+        },
+        onError: function() {
+          if (!hasPlayedRealMusic && backgroundStarted && backgroundTrackQueue.length) {
+            const next = (backgroundTrackIndex + 1) % backgroundTrackQueue.length;
+            backgroundTrackIndex = next;
+            playBackgroundTrackAtIndex(next);
+          }
+        }
+      }
+    });
+  }
+
+  function pauseBackgroundMusic() {
+    if (!backgroundYouTubePlayer || !backgroundYouTubePlayerReady) return;
+    try { backgroundYouTubePlayer.pauseVideo(); } catch (_) {}
+    backgroundStarted = false;
+  }
+
+  function stopBackgroundMusic() {
+    if (!backgroundYouTubePlayer || !backgroundYouTubePlayerReady) {
+      backgroundStarted = false;
+      return;
+    }
+    try { backgroundYouTubePlayer.stopVideo(); } catch (_) {}
+    backgroundStarted = false;
+  }
+
+  function playBackgroundTrackAtIndex(index) {
+    if (hasPlayedRealMusic) return;
+    if (!backgroundYouTubePlayer || !backgroundYouTubePlayerReady) return;
+    const track = backgroundTrackQueue[index];
+    if (!track?.id) return;
+    backgroundTrackIndex = index;
+    backgroundStarted = true;
+    try {
+      backgroundYouTubePlayer.loadVideoById(track.id);
+      backgroundYouTubePlayer.setVolume(18);
+      backgroundYouTubePlayer.playVideo();
+    } catch (_) {}
+  }
+
+  function startSeasonalBackgroundMusic() {
+    if (hasPlayedRealMusic || backgroundStarted) return;
+    backgroundStarted = true;
+    if (!backgroundYouTubePlayer && window.YT && YT.Player) createBackgroundYouTubePlayer();
+    if (backgroundTrackQueue.length && backgroundYouTubePlayerReady) {
+      playBackgroundTrackAtIndex(backgroundTrackIndex >= 0 ? backgroundTrackIndex : 0);
+      return;
+    }
+    // Search is normally prefetched. This fallback handles very slow connections.
+    if (!backgroundSearchPromise) backgroundSearchPromise = prepareSeasonalBackgroundMusic();
+    backgroundSearchPromise.then(() => {
+      if (!hasPlayedRealMusic && backgroundStarted && backgroundTrackQueue.length && backgroundYouTubePlayerReady) {
+        playBackgroundTrackAtIndex(backgroundTrackIndex >= 0 ? backgroundTrackIndex : 0);
+      }
+    }).catch(() => {});
+  }
+
+  async function prepareSeasonalBackgroundMusic() {
+    if (backgroundSearchStarted) return backgroundTrackQueue;
+    backgroundSearchStarted = true;
+    try {
+      const key = (typeof getActiveNarwhalSeason === "function" && seasonPreviewKey) ? seasonPreviewKey :
+        (typeof getAutomaticSeasonalMusicKey === "function" ? getAutomaticSeasonalMusicKey() : "fall");
+      const list = (typeof getSeasonalMusicList === "function" ? getSeasonalMusicList(key) : []).slice();
+      if (!list.length) return backgroundTrackQueue;
+      const chosen = list[Math.floor(Math.random() * list.length)];
+      if (!YOUTUBE_API_KEY || YOUTUBE_API_KEY === "PASTE_YOUR_YOUTUBE_API_KEY_HERE") return backgroundTrackQueue;
+      const query = `${chosen.artist} ${chosen.song} Lyrics Clean`;
+      const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=8&q=${encodeURIComponent(query)}&key=${YOUTUBE_API_KEY}`;
+      const response = await fetch(url);
+      const data = await response.json();
+      if (!response.ok) return backgroundTrackQueue;
+      const items = Array.isArray(data.items) ? data.items : [];
+      backgroundTrackQueue = items.map(item => ({
+        id: item.id?.videoId,
+        title: item.snippet?.title || chosen.song,
+        artist: chosen.artist
+      })).filter(item => item.id).slice(0, 8);
+      backgroundTrackIndex = backgroundTrackQueue.length ? 0 : -1;
+      backgroundHasLoaded = backgroundTrackQueue.length > 0;
+    } catch (_) {}
+    return backgroundTrackQueue;
+  }
+
+  function startBackgroundMusicFromUserInteraction(event) {
+    if (hasPlayedRealMusic || backgroundStarted) return;
+    const target = event?.target;
+    // A real-song click should win immediately and must not cause background audio.
+    if (target && target.closest && target.closest(".yt-result-item, #ytMiniPlayerOverlay, #ytMiniOpenBtn, #ytSearchBtn")) return;
+    startSeasonalBackgroundMusic();
+  }
+
   function createYouTubePlayer() {
     if (youtubePlayer || !window.YT || !YT.Player) return;
     youtubePlayer = new YT.Player("youtubePlayer", {
@@ -1807,10 +1905,18 @@
 
   window.onYouTubeIframeAPIReady = function() {
     createYouTubePlayer();
+    createBackgroundYouTubePlayer();
   };
 
   // Handles the case where the YouTube API finished loading before the callback above was installed.
-  if (window.YT && YT.Player) { createYouTubePlayer(); }
+  if (window.YT && YT.Player) { createYouTubePlayer(); createBackgroundYouTubePlayer(); }
+
+  // Background music must wait for a real user interaction because browsers commonly
+  // block autoplay with sound. The user does not need to open the music section first.
+  document.addEventListener("click", startBackgroundMusicFromUserInteraction);
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Enter" || event.key === " ") startBackgroundMusicFromUserInteraction(event);
+  });
 
 
   const ytMiniPlayerOverlay = document.getElementById("ytMiniPlayerOverlay");
@@ -2223,83 +2329,6 @@
     { artist: "Mecano", song: "El 7 de Septiembre" },
   ];
 
-  // Owner-only music vault. The Owner role bypasses the normal approved-artist gate.
-  const OWNER_TIKTOK_MUSIC = [
-    { artist: "Katy Perry", song: "The One That Got Away" },
-    { artist: "Fat Papi & prodshushy", song: "FREAKED OUT" },
-    { artist: "Michael Jackson", song: "Beat It" },
-    { artist: "Ariana Grande", song: "hate that i made you love me" },
-    { artist: "Olivia Rodrigo", song: "stupid song" },
-    { artist: "Tame Impala", song: "The Less I Know the Better" },
-    { artist: "PinkPantheress & Zara Larsson", song: "Stateside" },
-    { artist: "Tyla", song: "CHANEL" },
-    { artist: "Lana Del Rey", song: "Young and Beautiful" },
-    { artist: "Adele", song: "Set Fire to the Rain" },
-    { artist: "Grimes", song: "Genesis" },
-    { artist: "Shakira", song: "Bzrp Music Sessions, Vol. 53" },
-    { artist: "Bad Bunny", song: "DtMF" },
-    { artist: "Taylor Swift", song: "The Fate of Ophelia" }
-  ];
-  const OWNER_FUNK_MUSIC = [
-    { artist: "Earth, Wind & Fire", song: "September" },
-    { artist: "Earth, Wind & Fire", song: "Let's Groove" },
-    { artist: "James Brown", song: "I Got You (I Feel Good)" },
-    { artist: "Kool & the Gang", song: "Celebration" },
-    { artist: "Chic", song: "Le Freak" },
-    { artist: "Stevie Wonder", song: "Superstition" },
-    { artist: "The Isley Brothers", song: "Shout" },
-    { artist: "Sister Sledge", song: "We Are Family" },
-    { artist: "The Commodores", song: "Brick House" },
-    { artist: "Marvin Gaye", song: "Got to Give It Up" },
-    { artist: "Parliament", song: "Give Up the Funk" },
-    { artist: "Prince", song: "1999" },
-    { artist: "Jamiroquai", song: "Virtual Insanity" },
-    { artist: "Mark Ronson", song: "Uptown Funk" },
-    { artist: "Silk Sonic", song: "Leave the Door Open" },
-    { artist: "Lizzo", song: "About Damn Time" }
-  ];
-
-  function getCurrentAdminRoleForMusic(){
-    try {
-      const stored = String(sessionStorage.getItem("narwhalAdminRole") || "").toUpperCase();
-      if (stored) return stored;
-    } catch (_) {}
-    try {
-      return String(typeof selectedAdminRoleForSession !== "undefined" ? selectedAdminRoleForSession : "").toUpperCase();
-    } catch (_) { return ""; }
-  }
-  function isOwnerMusicMode(){ return getCurrentAdminRoleForMusic() === "OWNER"; }
-
-  function renderOwnerMusicVault(){
-    const vault = document.getElementById("ownerSecretMusic");
-    const note = document.getElementById("ownerMusicModeNote");
-    if (!vault) return;
-    const owner = isOwnerMusicMode();
-    vault.classList.toggle("visible", owner);
-    note?.classList.toggle("visible", owner);
-    if (!owner) return;
-    const renderList = (id, items) => {
-      const el = document.getElementById(id);
-      if (!el) return;
-      el.innerHTML = items.map(item => `<button type="button" class="owner-secret-chip" data-owner-query="${String(item.artist + " " + item.song).replace(/&/g,"&amp;").replace(/"/g,"&quot;")}">${item.artist} — ${item.song}</button>`).join("");
-      el.querySelectorAll(".owner-secret-chip").forEach(btn => {
-        btn.addEventListener("click", () => {
-          const q = btn.dataset.ownerQuery || "";
-          doOwnerMusicSearch(q);
-        });
-      });
-    };
-    renderList("ownerTikTokMusicList", OWNER_TIKTOK_MUSIC);
-    renderList("ownerFunkMusicList", OWNER_FUNK_MUSIC);
-  }
-
-  function doOwnerMusicSearch(query){
-    const input = document.getElementById("ytKeywordInput");
-    if (input) input.value = query;
-    artistSelectedByClick = false;
-    searchYouTube();
-  }
-
   function renderApprovedArtists() {
     const container = document.getElementById("approvedArtists");
     if (!container) return;
@@ -2320,6 +2349,9 @@
       button.addEventListener("click", () => {
         const artist = button.dataset.artist || "";
         selectApprovedArtist(artist);
+        // Clicking an approved artist now searches automatically.
+        // The search function is declared later, but the click happens after page load.
+        if (typeof searchYouTube === "function") searchYouTube();
       });
     });
   }
@@ -2346,15 +2378,6 @@
   }
 
   renderApprovedArtists();
-  function updateMusicRoleUI(){
-    const owner = isOwnerMusicMode();
-    const note = document.getElementById("musicSafetyNote");
-    if (note) note.innerHTML = owner
-      ? "👑 <strong>Owner Music Mode:</strong> unrestricted music search is enabled for this Owner admin session."
-      : "🛡️ <strong>Music Safety:</strong> Narwhal Station only searches approved artists. Song searches are checked against the approved artist list before results are shown.";
-    renderOwnerMusicVault();
-  }
-  updateMusicRoleUI();
 
   const ytKeywordInput = document.getElementById("ytKeywordInput");
   if (ytKeywordInput) ytKeywordInput.addEventListener("input", () => { artistSelectedByClick = false; });
@@ -2440,10 +2463,11 @@
 
     const normalizedSearch = normalizeArtistText(rawQuery);
 
-    // OWNER MODE: the Owner role can search any music without the normal approved-artist gate.
-    // The regular school/student experience keeps the approved-artist restriction.
-    const ownerMode = isOwnerMusicMode();
-    let approvedArtist = ownerMode ? null : findApprovedArtist(rawQuery);
+    // RULE: The approved artist list is the gatekeeper.
+    // If the user names an approved artist, search that artist + the song/request + Lyrics.
+    // If the user enters only a song, identify its artist from YouTube first. Only continue
+    // when the identified artist is on the approved list.
+    let approvedArtist = findApprovedArtist(rawQuery);
     let songQuery = rawQuery;
 
     if (approvedArtist) {
@@ -2455,7 +2479,7 @@
         const after = rawQuery.slice(index + approvedArtist.length);
         songQuery = `${before} ${after}`.replace(/\s+/g, " ").trim();
       }
-    } else if (!ownerMode) {
+    } else {
       if (ytInlineStatus) ytInlineStatus.textContent = "Checking who made that song...";
       ytResultsList.innerHTML = `<div class="yt-note">Checking the song artist first...</div>`;
 
@@ -2499,16 +2523,11 @@
       }
     }
 
-    let finalQuery;
-    if (ownerMode) {
-      finalQuery = /\blyrics\b/i.test(rawQuery) ? rawQuery : `${rawQuery} Lyrics`;
-    } else {
-      // Clicking an approved artist is the ONLY case that adds the extra "Clean" safety word.
-      // Manually typed artist/song searches only end with "Lyrics".
-      finalQuery = (artistSelectedByClick && selectedApprovedArtist && normalizeArtistText(rawQuery) === normalizeArtistText(`${selectedApprovedArtist} Lyrics Clean`))
-        ? `${selectedApprovedArtist} Lyrics Clean`
-        : `${approvedArtist}${songQuery ? ` ${songQuery}` : ""} Lyrics`;
-    }
+    // Clicking an approved artist is the ONLY case that adds the extra "Clean" safety word.
+    // Manually typed artist/song searches only end with "Lyrics".
+    const finalQuery = (artistSelectedByClick && selectedApprovedArtist && normalizeArtistText(rawQuery) === normalizeArtistText(`${selectedApprovedArtist} Lyrics Clean`))
+      ? `${selectedApprovedArtist} Lyrics Clean`
+      : `${approvedArtist}${songQuery ? ` ${songQuery}` : ""} Lyrics`;
     artistSelectedByClick = false;
 
 
@@ -2528,7 +2547,7 @@
         if (reason === "keyInvalid" || reason === "badRequest") message = "The YouTube API key looks invalid.";
         else if (reason === "quotaExceeded" || reason === "dailyLimitExceeded") message = "YouTube search quota has been used up for today.";
         else if (reason === "accessNotConfigured") message = "YouTube Data API v3 is not enabled for this key.";
-        else if (firstResponse.status === 403) message = "YouTube blocked this request (403). Check the API key, quota, or API restrictions.";
+        else if (firstResponse.status === 403) message = "YouTube blocked this request (403).";
         ytResultsList.innerHTML = `<div class="yt-note">${message}</div>`;
         if (ytInlineStatus) ytInlineStatus.textContent = message;
         return;
@@ -2599,9 +2618,6 @@
 
   if (ytSearchBtn) ytSearchBtn.onclick = searchYouTube;
   if (ytKeywordInput) ytKeywordInput.addEventListener("keydown", e => { if (e.key === "Enter") searchYouTube(); });
-
-  // Keep the hidden Owner music vault synchronized with the admin role session.
-  setInterval(() => updateMusicRoleUI?.(), 1000);
 
   function renderGamesGridDummy() {} // placeholder marker (music player removed)
 
@@ -4795,6 +4811,11 @@
   }
   document.querySelectorAll("[data-music-category]").forEach(btn=>btn.addEventListener("click",()=>searchMusicCategory(btn.dataset.musicCategory)));
   updateSeasonalMusicButton();
+  // Pre-search one seasonal track so the first user click can start it without
+  // waiting for a network request to finish. This is silent until the user interacts.
+  setTimeout(() => {
+    if (!backgroundSearchPromise) backgroundSearchPromise = prepareSeasonalBackgroundMusic();
+  }, 0);
 
   const learningSets = {
     reading:[
