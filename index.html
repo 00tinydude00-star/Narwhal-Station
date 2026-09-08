@@ -1706,6 +1706,17 @@
   let youtubePlayerReady = false;
   let pendingYouTubeVideo = null;
   let currentYouTubeTrack = null;
+  const countedListenVideoIds = new Set();
+  const ytStatus = {
+    set textContent(value) {
+      const el = document.getElementById("ytInlineStatus") || document.getElementById("ytStatus");
+      if (el) el.textContent = value || "";
+    },
+    get textContent() {
+      const el = document.getElementById("ytInlineStatus") || document.getElementById("ytStatus");
+      return el ? el.textContent : "";
+    }
+  };
   // ---------- Seasonal calming background music ----------
   // This is generated with the browser's Web Audio API, so it does not depend
   // on YouTube, search results, or the YouTube API quota. It loops forever while
@@ -2309,9 +2320,6 @@
       button.addEventListener("click", () => {
         const artist = button.dataset.artist || "";
         selectApprovedArtist(artist);
-        // Clicking an approved artist now searches automatically.
-        // The search function is declared later, but the click happens after page load.
-        if (typeof searchYouTube === "function") searchYouTube();
       });
     });
   }
